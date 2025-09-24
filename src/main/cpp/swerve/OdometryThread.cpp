@@ -98,16 +98,16 @@ void OdometryThread::Run(units::millisecond_t period) {
   while (!m_exit_flag) {
     total += 1;
     // Waits for all 16 signals to come in syncronously
-    // Timeout is set to the odom period
+    // Timeout is set to twice the odom period arbitrarily
     bool timed_out = SwerveModule::SignalGroup::WaitForAllSignals(
-      period, m_moduleSignals);
+      2*period, m_moduleSignals);
 
     m_odom.Update(GetGyroHeading(), each_position());
 
     const auto now = ctre::phoenix6::utils::GetCurrentTime();
     time_samples[total % n_window] = now - timestamp;
 
-    if (now - timestamp - period > 0.5 * period || timed_out) {
+    if (now - timestamp - period > 0.2 * period || timed_out || total % 1000 == 0) {
       const auto millis_since_last =
         units::millisecond_t{now - timestamp};
       if (warning_count++ % 20 == 0) {
