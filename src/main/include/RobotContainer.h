@@ -18,10 +18,9 @@
 
 #include <numbers>
 
+#include "PathFollower.h"
 #include "subsystems/Drivetrain.h"
 #include "subsystems/ROSBridge.h"
-#include "PathFollower.h"
-
 
 /**
  * This class is where the bulk of the robot should be declared.  Since
@@ -31,32 +30,30 @@
  * commands, and trigger mappings) should be declared here.
  */
 class RobotContainer {
-public:
-  RobotContainer();
+  public:
+    RobotContainer();
 
-  frc2::CommandPtr GetDisabledCommand();
-  frc2::CommandPtr GetAutonomousCommand();
+    frc2::CommandPtr GetDisabledCommand();
+    frc2::CommandPtr GetAutonomousCommand();
 
+  public:
+    // Replace with CommandPS4Controller or CommandJoystick if needed
 
+    frc2::CommandJoystick m_swerveController;
 
-public:
-  // Replace with CommandPS4Controller or CommandJoystick if needed
+    // The robot's subsystems are defined here...
 
-  frc2::CommandJoystick m_swerveController;
+    Drivetrain m_swerve;
+    ROSBridge m_ros;
 
-  // The robot's subsystems are defined here...
+    bool m_isRed;
 
-  Drivetrain m_swerve;
-  ROSBridge m_ros;
+  public:
+    void ConfigureBindings();
+    void ConfigureDashboard();
+    void ConfigureAuto();
+    void ConfigureContinuous();
 
-  bool m_isRed;
-
-public:
-  void ConfigureBindings();
-  void ConfigureDashboard();
-  void ConfigureAuto();
-  void ConfigureContinuous();
-
-public:
-  bool IsRed();
+  public:
+    bool IsRed();
 };

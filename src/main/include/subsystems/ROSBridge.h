@@ -16,36 +16,35 @@
 #include <networktables/StringTopic.h>
 
 class ROSBridge {
-public:
-  ROSBridge();
+  public:
+    ROSBridge();
 
-public:
-  void PubOdom(const frc::Pose2d &pose,
-               const frc::ChassisSpeeds &vel,
-               units::second_t timestamp);
-  
-  // publishes the ground truth pose in sim for external use
-  void PubSim(const frc::Pose2d &pose);
+  public:
+    void PubOdom(const frc::Pose2d &pose, const frc::ChassisSpeeds &vel,
+                 units::second_t timestamp);
 
-  void CheckFMS();
-  frc::Transform2d GetMapToOdom();
+    // publishes the ground truth pose in sim for external use
+    void PubSim(const frc::Pose2d &pose);
 
-private:
-  nt::NetworkTableInstance m_ntInst;
+    void CheckFMS();
+    frc::Transform2d GetMapToOdom();
 
-  nt::IntegerPublisher m_pubOdomTimestamp;
-  nt::DoubleArrayPublisher m_pubOdomPosLinear;
-  nt::DoubleArrayPublisher m_pubOdomPosAngular;
-  nt::DoubleArrayPublisher m_pubOdomVelLinear;
-  nt::DoubleArrayPublisher m_pubOdomVelAngular;
-  nt::DoubleArrayPublisher m_pubOdomAccLinear;
+  private:
+    nt::NetworkTableInstance m_ntInst;
 
-  nt::DoubleArraySubscriber m_subMapToOdomLinear;
-  nt::DoubleArraySubscriber m_subMapToOdomAngular;
+    nt::IntegerPublisher m_pubOdomTimestamp;
+    nt::DoubleArrayPublisher m_pubOdomPosLinear;
+    nt::DoubleArrayPublisher m_pubOdomPosAngular;
+    nt::DoubleArrayPublisher m_pubOdomVelLinear;
+    nt::DoubleArrayPublisher m_pubOdomVelAngular;
+    nt::DoubleArrayPublisher m_pubOdomAccLinear;
 
-  nt::IntegerPublisher m_pubSimTimestamp;
-  nt::DoubleArrayPublisher m_pubSimPosLinear;
-  nt::DoubleArrayPublisher m_pubSimPosAngular;
+    nt::DoubleArraySubscriber m_subMapToOdomLinear;
+    nt::DoubleArraySubscriber m_subMapToOdomAngular;
 
-  std::shared_ptr<nt::NetworkTable> m_fmsTable;
+    nt::IntegerPublisher m_pubSimTimestamp;
+    nt::DoubleArrayPublisher m_pubSimPosLinear;
+    nt::DoubleArrayPublisher m_pubSimPosAngular;
+
+    std::shared_ptr<nt::NetworkTable> m_fmsTable;
 };
