@@ -13,8 +13,8 @@
 
 #include "subsystems/Drivetrain.h"
 
-class PathFollower : public frc2::CommandHelper<frc2::Command, PathFollower> {
-  public:
+class PathFollower: public frc2::CommandHelper<frc2::Command, PathFollower> {
+public:
     using pose_supplier_t = std::function<frc::Pose2d()>;
 
     using swerve_state_modifier_t =
@@ -29,7 +29,7 @@ class PathFollower : public frc2::CommandHelper<frc2::Command, PathFollower> {
      * @param desiredPoseSupplier A function that returns the desired pose
      * @param subsystem The subsystem used by this command.
      */
-    PathFollower(trajectory_t trajectory, Drivetrain &subsystem);
+    PathFollower(trajectory_t trajectory, Drivetrain& subsystem);
 
     void Initialize() override;
 
@@ -40,12 +40,12 @@ class PathFollower : public frc2::CommandHelper<frc2::Command, PathFollower> {
     virtual bool IsFinished();
 
     static inline void registerCommand(std::string name,
-                                       std::shared_ptr<frc2::Command> command) {
+        std::shared_ptr<frc2::Command> command) {
         GetNamedCommands().emplace(name, command);
     }
 
     static inline void registerCommand(std::string name,
-                                       frc2::CommandPtr &&command) {
+        frc2::CommandPtr&& command) {
         registerCommand(
             name, std::shared_ptr<frc2::Command>(std::move(command).Unwrap()));
     }
@@ -54,19 +54,19 @@ class PathFollower : public frc2::CommandHelper<frc2::Command, PathFollower> {
         return GetNamedCommands().contains(name);
     }
 
-    static frc2::Command *getCommand(std::string name);
+    static frc2::Command* getCommand(std::string name);
 
-    static std::unordered_map<std::string, std::shared_ptr<frc2::Command>> &
-    GetNamedCommands() {
+    static std::unordered_map<std::string, std::shared_ptr<frc2::Command>>&
+        GetNamedCommands() {
         return m_namedCommands;
     }
 
-  private:
+private:
     static std::unordered_map<std::string, std::shared_ptr<frc2::Command>>
         m_namedCommands;
     static std::unordered_map<std::string, frc::Pose2d> m_eventPoses;
     trajectory_t m_trajectory;
-    Drivetrain &m_driveSubsystem;
+    Drivetrain& m_driveSubsystem;
     frc::Timer m_timer;
-    frc::Field2d *m_field;
+    frc::Field2d* m_field;
 };

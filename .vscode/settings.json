@@ -95,9 +95,18 @@
     "valarray": "cpp",
     "variant": "cpp"
   },
-  "C_Cpp.formatting": "clangFormat",
+  "C_Cpp.formatting": "vcFormat",
   "C_Cpp.clang_format_sortIncludes": true,
-  "C_Cpp.clang_format_style": "{BasedOnStyle: LLVM, UseTab: Never, IndentWidth: 4}",
+  "C_Cpp.clang_format_style": "",
   "editor.formatOnSave": true,
-  "editor.defaultFormatter": "ms-vscode.cpptools"
+  "editor.defaultFormatter": "ms-vscode.cpptools",
+  "C_Cpp.vcFormat.newLine.beforeElse": false,
+  "C_Cpp.vcFormat.newLine.beforeOpenBrace.block": "sameLine",
+  "C_Cpp.vcFormat.newLine.beforeOpenBrace.function": "sameLine",
+  "C_Cpp.vcFormat.newLine.closeBraceSameLine.emptyFunction": true,
+  "C_Cpp.vcFormat.space.aroundBinaryOperator": "ignore",
+  "C_Cpp.vcFormat.space.aroundTernaryOperator": "ignore",
+  "C_Cpp.vcFormat.space.beforeInheritanceColon": false,
+  "C_Cpp.vcFormat.indent.namespaceContents": false,
+  "C_Cpp.vcFormat.space.withinInitializerListBraces": false
 }

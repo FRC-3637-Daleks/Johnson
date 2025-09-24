@@ -30,30 +30,30 @@
  * commands, and trigger mappings) should be declared here.
  */
 class RobotContainer {
-  public:
-    RobotContainer();
+public:
+  RobotContainer();
 
-    frc2::CommandPtr GetDisabledCommand();
-    frc2::CommandPtr GetAutonomousCommand();
+  frc2::CommandPtr GetDisabledCommand();
+  frc2::CommandPtr GetAutonomousCommand();
 
-  public:
-    // Replace with CommandPS4Controller or CommandJoystick if needed
+public:
+  // Replace with CommandPS4Controller or CommandJoystick if needed
 
-    frc2::CommandJoystick m_swerveController;
+  frc2::CommandJoystick m_swerveController;
 
-    // The robot's subsystems are defined here...
+  // The robot's subsystems are defined here...
 
-    Drivetrain m_swerve;
-    ROSBridge m_ros;
+  Drivetrain m_swerve;
+  ROSBridge m_ros;
 
-    bool m_isRed;
+  bool m_isRed;
 
-  public:
-    void ConfigureBindings();
-    void ConfigureDashboard();
-    void ConfigureAuto();
-    void ConfigureContinuous();
+public:
+  void ConfigureBindings();
+  void ConfigureDashboard();
+  void ConfigureAuto();
+  void ConfigureContinuous();
 
-  public:
-    bool IsRed();
+public:
+  bool IsRed();
 };

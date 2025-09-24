@@ -66,152 +66,152 @@ constexpr auto mid_line = field_length / 2;
 } // namespace FieldConstants
 
 RobotContainer::RobotContainer()
-    : m_swerveController(OperatorConstants::kSwerveControllerPort) {
+  : m_swerveController(OperatorConstants::kSwerveControllerPort) {
 
-    fmt::println("made it to robot container");
-    // Initialize all of your commands and subsystems here
-    frc::DataLogManager::Start();
-    frc::DriverStation::StartDataLog(frc::DataLogManager::GetLog());
-    frc::DataLogManager::LogNetworkTables(true);
+  fmt::println("made it to robot container");
+  // Initialize all of your commands and subsystems here
+  frc::DataLogManager::Start();
+  frc::DriverStation::StartDataLog(frc::DataLogManager::GetLog());
+  frc::DataLogManager::LogNetworkTables(true);
 
-    // Log Match Info
-    std::string matchType =
-        frc::DriverStation::GetMatchType() ==
-                frc::DriverStation::MatchType::kNone
-            ? ""
-            : (frc::DriverStation::GetMatchType() ==
-                       frc::DriverStation::MatchType::kElimination
-                   ? "Elimination"
-                   : (frc::DriverStation::GetMatchType() ==
-                              frc::DriverStation::MatchType::kQualification
-                          ? "Qualification"
-                          : "Practice"));
+  // Log Match Info
+  std::string matchType =
+    frc::DriverStation::GetMatchType() ==
+    frc::DriverStation::MatchType::kNone
+    ? ""
+    : (frc::DriverStation::GetMatchType() ==
+      frc::DriverStation::MatchType::kElimination
+      ? "Elimination"
+      : (frc::DriverStation::GetMatchType() ==
+        frc::DriverStation::MatchType::kQualification
+        ? "Qualification"
+        : "Practice"));
 
-    std::string alliance =
-        (frc::DriverStation::GetAlliance() == frc::DriverStation::Alliance::kRed
-             ? "Red"
-             : "Blue");
+  std::string alliance =
+    (frc::DriverStation::GetAlliance() == frc::DriverStation::Alliance::kRed
+      ? "Red"
+      : "Blue");
 
-    frc::DataLogManager::Log(
-        fmt::format("Playing {} Match {} at {} as {} alliance\n", matchType,
-                    frc::DriverStation::GetMatchNumber(),
-                    frc::DriverStation::GetEventName(), alliance));
+  frc::DataLogManager::Log(
+    fmt::format("Playing {} Match {} at {} as {} alliance\n", matchType,
+      frc::DriverStation::GetMatchNumber(),
+      frc::DriverStation::GetEventName(), alliance));
 
-    // Configure the button bindings
-    ConfigureBindings();
+  // Configure the button bindings
+  ConfigureBindings();
 
-    // Configure Dashboard
-    ConfigureDashboard();
+  // Configure Dashboard
+  ConfigureDashboard();
 
-    // Configure Auton.
-    ConfigureAuto();
+  // Configure Auton.
+  ConfigureAuto();
 
-    // Configure routines which one periodically and indefinitely
-    ConfigureContinuous();
+  // Configure routines which one periodically and indefinitely
+  ConfigureContinuous();
 
-    frc::DataLogManager::Log(fmt::format("Finished initializing robot."));
+  frc::DataLogManager::Log(fmt::format("Finished initializing robot."));
 }
 
 void RobotContainer::ConfigureBindings() {
-    auto throttle = [this]() -> double {
-        double input = m_swerveController.GetHID().GetThrottle();
-        double ret = ((-input + 1)) / 2;
-        return ret;
+  auto throttle = [this]() -> double {
+    double input = m_swerveController.GetHID().GetThrottle();
+    double ret = ((-input + 1)) / 2;
+    return ret;
     };
-    // Configure Swerve Bindings.
-    auto fwd = [this, throttle]() -> units::meters_per_second_t {
-        auto input = frc::ApplyDeadband(m_swerveController.GetHID().GetY(),
-                                        OperatorConstants::kStrafeDeadband);
-        auto squaredInput = input * std::abs(input);
-        auto alliance_flip = IsRed() ? -1 : 1;
-        return OperatorConstants::kMaxTeleopSpeed * squaredInput *
-               alliance_flip * throttle();
-    };
-
-    auto strafe = [this, throttle]() -> units::meters_per_second_t {
-        auto input = frc::ApplyDeadband(m_swerveController.GetHID().GetX(),
-                                        OperatorConstants::kStrafeDeadband);
-        auto squaredInput = input * std::abs(input);
-        auto alliance_flip = IsRed() ? -1 : 1;
-        return OperatorConstants::kMaxTeleopSpeed * squaredInput *
-               alliance_flip * throttle();
+  // Configure Swerve Bindings.
+  auto fwd = [this, throttle]() -> units::meters_per_second_t {
+    auto input = frc::ApplyDeadband(m_swerveController.GetHID().GetY(),
+      OperatorConstants::kStrafeDeadband);
+    auto squaredInput = input * std::abs(input);
+    auto alliance_flip = IsRed() ? -1 : 1;
+    return OperatorConstants::kMaxTeleopSpeed * squaredInput *
+      alliance_flip * throttle();
     };
 
-    auto rot = [this, throttle]() -> units::revolutions_per_minute_t {
-        auto input = frc::ApplyDeadband(-m_swerveController.GetHID().GetTwist(),
-                                        OperatorConstants::kRotDeadband);
-        auto squaredInput = input * std::abs(input);
-        return OperatorConstants::kMaxTeleopTurnSpeed * squaredInput *
-               throttle();
+  auto strafe = [this, throttle]() -> units::meters_per_second_t {
+    auto input = frc::ApplyDeadband(m_swerveController.GetHID().GetX(),
+      OperatorConstants::kStrafeDeadband);
+    auto squaredInput = input * std::abs(input);
+    auto alliance_flip = IsRed() ? -1 : 1;
+    return OperatorConstants::kMaxTeleopSpeed * squaredInput *
+      alliance_flip * throttle();
     };
 
-    frc2::CommandPtr testCmd =
-        frc2::cmd::Run([] { fmt::print("Test Command\n"); });
+  auto rot = [this, throttle]() -> units::revolutions_per_minute_t {
+    auto input = frc::ApplyDeadband(-m_swerveController.GetHID().GetTwist(),
+      OperatorConstants::kRotDeadband);
+    auto squaredInput = input * std::abs(input);
+    return OperatorConstants::kMaxTeleopTurnSpeed * squaredInput *
+      throttle();
+    };
 
-    m_swerve.SetDefaultCommand(m_swerve.CustomSwerveCommand(fwd, strafe, rot));
+  frc2::CommandPtr testCmd =
+    frc2::cmd::Run([] { fmt::print("Test Command\n"); });
 
-    m_swerveController.Button(12).OnTrue(m_swerve.ZeroHeadingCommand());
+  m_swerve.SetDefaultCommand(m_swerve.CustomSwerveCommand(fwd, strafe, rot));
 
-    m_swerveController.POVDown().WhileTrue(
-        m_swerve.DriveToPoseIndefinitelyCommand(AutoConstants::desiredPose));
-    PathFollower::registerCommand("test", std::move(testCmd));
-    auto traj = choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("Square");
-    traj.has_value()
-        ? m_swerveController.Button(11).WhileTrue(
-              m_swerve.FollowPathCommand(traj.value()))
-        : m_swerveController.Button(11).WhileTrue(frc2::cmd::None());
+  m_swerveController.Button(12).OnTrue(m_swerve.ZeroHeadingCommand());
+
+  m_swerveController.POVDown().WhileTrue(
+    m_swerve.DriveToPoseIndefinitelyCommand(AutoConstants::desiredPose));
+  PathFollower::registerCommand("test", std::move(testCmd));
+  auto traj = choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("Square");
+  traj.has_value()
+    ? m_swerveController.Button(11).WhileTrue(
+      m_swerve.FollowPathCommand(traj.value()))
+    : m_swerveController.Button(11).WhileTrue(frc2::cmd::None());
 }
 
 void RobotContainer::ConfigureDashboard() {
-    frc::SmartDashboard::PutData("Drivebase", &m_swerve);
+  frc::SmartDashboard::PutData("Drivebase", &m_swerve);
 }
 
 void RobotContainer::ConfigureAuto() {}
 
 void RobotContainer::ConfigureContinuous() {
-    // These commands are for transmitting data across subsystems
+  // These commands are for transmitting data across subsystems
 
-    // FMS info to ROS
-    frc2::CommandScheduler::GetInstance().Schedule(
-        frc2::cmd::Run([this] { m_ros.CheckFMS(); }).IgnoringDisable(true));
+  // FMS info to ROS
+  frc2::CommandScheduler::GetInstance().Schedule(
+    frc2::cmd::Run([this] { m_ros.CheckFMS(); }).IgnoringDisable(true));
 
-    // Odom to ROS
+  // Odom to ROS
+  frc2::CommandScheduler::GetInstance().Schedule(
+    frc2::cmd::Run([this] {
+      m_ros.PubOdom(m_swerve.GetOdomPose(), m_swerve.GetChassisSpeed(),
+        m_swerve.GetOdomTimestamp());
+      }).IgnoringDisable(true));
+
+  /* NOTE: It's a little weird to have a command adjust the pose estimate
+   * since 2 other commands might observe different pose estimates.
+   * Triggers are evaluated before commands, though, so it shouldnt cause
+   * any races there.
+   */
+   // ROS to swerve
+  frc2::CommandScheduler::GetInstance().Schedule(
+    frc2::cmd::Run([this] {
+      m_swerve.SetMapToOdom(m_ros.GetMapToOdom());
+      }).IgnoringDisable(true));
+
+  if constexpr (frc::RobotBase::IsSimulation()) {
     frc2::CommandScheduler::GetInstance().Schedule(
-        frc2::cmd::Run([this] {
-            m_ros.PubOdom(m_swerve.GetOdomPose(), m_swerve.GetChassisSpeed(),
-                          m_swerve.GetOdomTimestamp());
+      frc2::cmd::Run([this] {
+        m_ros.PubSim(m_swerve.GetSimulatedGroundTruth());
         }).IgnoringDisable(true));
-
-    /* NOTE: It's a little weird to have a command adjust the pose estimate
-     * since 2 other commands might observe different pose estimates.
-     * Triggers are evaluated before commands, though, so it shouldnt cause
-     * any races there.
-     */
-    // ROS to swerve
-    frc2::CommandScheduler::GetInstance().Schedule(
-        frc2::cmd::Run([this] {
-            m_swerve.SetMapToOdom(m_ros.GetMapToOdom());
-        }).IgnoringDisable(true));
-
-    if constexpr (frc::RobotBase::IsSimulation()) {
-        frc2::CommandScheduler::GetInstance().Schedule(
-            frc2::cmd::Run([this] {
-                m_ros.PubSim(m_swerve.GetSimulatedGroundTruth());
-            }).IgnoringDisable(true));
-    }
+  }
 }
 
 frc2::CommandPtr RobotContainer::GetAutonomousCommand() {
-    return frc2::cmd::None();
+  return frc2::cmd::None();
 }
 
 frc2::CommandPtr RobotContainer::GetDisabledCommand() {
-    return frc2::cmd::None();
+  return frc2::cmd::None();
 }
 
 bool RobotContainer::IsRed() {
-    m_isRed = (frc::DriverStation::GetAlliance() ==
-               frc::DriverStation::Alliance::kRed);
+  m_isRed = (frc::DriverStation::GetAlliance() ==
+    frc::DriverStation::Alliance::kRed);
 
-    return m_isRed;
+  return m_isRed;
 }

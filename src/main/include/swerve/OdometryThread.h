@@ -33,68 +33,68 @@
  * initial pose.
  */
 class OdometryThread {
-  public:
-    OdometryThread(const std::array<SwerveModule::SignalGroup, 4> &signals,
-                   studica::AHRS &gyro,
-                   const frc::SwerveDriveKinematics<4> &kinematics,
-                   units::millisecond_t period);
+public:
+  OdometryThread(const std::array<SwerveModule::SignalGroup, 4>& signals,
+    studica::AHRS& gyro,
+    const frc::SwerveDriveKinematics<4>& kinematics,
+    units::millisecond_t period);
 
-    ~OdometryThread();
+  ~OdometryThread();
 
-  public:
-    // Refreshes consumer cache with most recent odom data
-    void RefreshData();
+public:
+  // Refreshes consumer cache with most recent odom data
+  void RefreshData();
 
-    // Returns the cached pose data
-    frc::Pose2d GetPose();
-    frc::ChassisSpeeds GetVel();
+  // Returns the cached pose data
+  frc::Pose2d GetPose();
+  frc::ChassisSpeeds GetVel();
 
-    // Note: timestamp is converted to FPGA timescale for network tables
-    units::second_t GetTimestamp();
+  // Note: timestamp is converted to FPGA timescale for network tables
+  units::second_t GetTimestamp();
 
-  private:
-    std::array<SwerveModule::SignalGroup, 4> m_moduleSignals;
-    studica::AHRS &m_gyro;
+private:
+  std::array<SwerveModule::SignalGroup, 4> m_moduleSignals;
+  studica::AHRS& m_gyro;
 
-    frc::SwerveDriveKinematics<4> kDriveKinematics;
-    frc::SwerveDriveOdometry<4> m_odom;
+  frc::SwerveDriveKinematics<4> kDriveKinematics;
+  frc::SwerveDriveOdometry<4> m_odom;
 
-    std::thread m_thread;
+  std::thread m_thread;
 
-    // Special case of an overwriting circular buffer
-    frc::Pose2d m_poses[3];
-    frc::ChassisSpeeds m_vels[3];
-    units::second_t m_timestamps[3];
-    uint8_t m_consumerIndex{0};
-    uint8_t m_producerIndex{1};
-    std::atomic<uint8_t> m_freeIndex{2};
-    std::atomic<bool> m_unreadData{false};
-    std::atomic<bool> m_exit_flag{false};
+  // Special case of an overwriting circular buffer
+  frc::Pose2d m_poses[3];
+  frc::ChassisSpeeds m_vels[3];
+  units::second_t m_timestamps[3];
+  uint8_t m_consumerIndex{0};
+  uint8_t m_producerIndex{1};
+  std::atomic<uint8_t> m_freeIndex{2};
+  std::atomic<bool> m_unreadData{false};
+  std::atomic<bool> m_exit_flag{false};
 
-  private:
-    // the actual thread function
-    void Run(units::millisecond_t period);
-    void PutData(const frc::Pose2d &pose, const frc::ChassisSpeeds &vel,
-                 units::second_t timestamp);
-    frc::Rotation2d GetGyroHeading();
+private:
+  // the actual thread function
+  void Run(units::millisecond_t period);
+  void PutData(const frc::Pose2d& pose, const frc::ChassisSpeeds& vel,
+    units::second_t timestamp);
+  frc::Rotation2d GetGyroHeading();
 
-  private:
-    auto each_module(auto &&fn) {
-        return std::apply(
-            [&fn](auto &&...ms) {
-                return wpi::array{std::forward<decltype(fn)>(fn)(
-                    std::forward<decltype(ms)>(ms))...};
-            },
-            m_moduleSignals);
-    }
+private:
+  auto each_module(auto&& fn) {
+    return std::apply(
+      [&fn](auto &&...ms) {
+        return wpi::array{std::forward<decltype(fn)>(fn)(
+            std::forward<decltype(ms)>(ms))...};
+      },
+      m_moduleSignals);
+  }
 
-    auto each_position() {
-        return each_module(
-            [](SwerveModule::SignalGroup &g) { return g.GetPosition(); });
-    }
+  auto each_position() {
+    return each_module(
+      [](SwerveModule::SignalGroup& g) { return g.GetPosition(); });
+  }
 
-    auto each_state() {
-        return each_module(
-            [](SwerveModule::SignalGroup &g) { return g.GetState(); });
-    }
+  auto each_state() {
+    return each_module(
+      [](SwerveModule::SignalGroup& g) { return g.GetState(); });
+  }
 };
