@@ -179,6 +179,8 @@ private:
 
   const std::string m_name; // Useful to identify the module.
 
+  ctre::phoenix6::CANBus m_CANBusInstance;
+
   ctre::phoenix6::hardware::TalonFX m_driveMotor;
 
   ctre::phoenix6::hardware::TalonFX m_steerMotor;
