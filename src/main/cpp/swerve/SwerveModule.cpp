@@ -69,6 +69,8 @@ constexpr double kSteerP = 10, kSteerI = 0, kSteerD = 0.02, kSteerS = 0.03;
 
 const auto MotorModel = [](int N = 1) { return frc::DCMotor::Falcon500FOC(N); };
 
+constexpr ctre::phoenix6::CANBus kBus{"Drivebase"};
+
 } // namespace ModuleConstants
 
 using namespace ModuleConstants;
@@ -108,9 +110,9 @@ private:
 
 SwerveModule::SwerveModule(const std::string name, const int driveMotorId,
   const int steerMotorId, const int absoluteEncoderId)
-  : m_name{name}, m_driveMotor(driveMotorId, "Drivebase"),
-  m_steerMotor(steerMotorId, "Drivebase"),
-  m_absoluteEncoder(absoluteEncoderId, "Drivebase"),
+  : m_name{name}, m_driveMotor(driveMotorId, kBus),
+  m_steerMotor(steerMotorId, kBus),
+  m_absoluteEncoder(absoluteEncoderId, kBus),
   m_signals{m_driveMotor.GetPosition(), m_driveMotor.GetVelocity(),
             m_steerMotor.GetPosition(), //< FusedCANCoder
             m_steerMotor.GetVelocity()},
