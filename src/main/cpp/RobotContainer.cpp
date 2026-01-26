@@ -151,11 +151,14 @@ void RobotContainer::ConfigureBindings() {
 
   m_swerveController.POVDown().WhileTrue(
     m_swerve.DriveToPoseIndefinitelyCommand(AutoConstants::desiredPose));
-  if (auto traj = choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("Square"))
-    m_swerveController.Button(11).WhileTrue(
-      m_swerve.FollowPathCommand(traj.value()));
-  else
-    m_swerveController.Button(11).WhileTrue(frc2::cmd::None());
+  try {
+    if (auto traj = choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("Square"))
+      m_swerveController.Button(11).WhileTrue(
+        m_swerve.FollowPathCommand(traj.value()));
+    else
+      m_swerveController.Button(11).WhileTrue(frc2::cmd::None());
+  } catch(...) {
+  }
 }
 
 void RobotContainer::ConfigureDashboard() {
