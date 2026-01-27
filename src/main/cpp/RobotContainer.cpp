@@ -147,7 +147,12 @@ void RobotContainer::ConfigureBindings() {
 
   m_swerve.SetDefaultCommand(m_swerve.CustomSwerveCommand(fwd, strafe, rot));
 
-  m_swerveController.Button(12).OnTrue(m_swerve.ZeroHeadingCommand());
+  m_swerveController.Button(12).OnTrue(m_swerve.RunOnce([this] {
+    if (IsRed())
+      m_swerve.ResetControlHeading(0.5_tr);
+    else
+      m_swerve.ResetControlHeading();
+  }));
 
   m_swerveController.POVDown().WhileTrue(
     m_swerve.DriveToPoseIndefinitelyCommand(AutoConstants::desiredPose));

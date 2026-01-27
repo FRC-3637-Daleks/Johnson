@@ -191,9 +191,6 @@ public:
       [target] { return target; });
   }
 
-  // Returns a command that zeroes the robot heading.
-  frc2::CommandPtr ZeroHeadingCommand();
-
   frc2::CommandPtr CoastModeCommand(bool coast);
 
 private:

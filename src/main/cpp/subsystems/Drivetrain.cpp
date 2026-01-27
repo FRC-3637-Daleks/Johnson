@@ -97,7 +97,7 @@ frc2::CommandPtr Drivetrain::DynamicOdomReset() {
     auto reset_point = GetField().GetObject("reset_point")->GetPose();
     fmt::println("Resetting Odom to: {}, {}, {}", reset_point.X(),
       reset_point.Y(), reset_point.Rotation().Radians());
-    ResetOdometry(reset_point);
+    ResetPose(reset_point);
     })
     .IgnoringDisable(true);
 }
@@ -110,10 +110,6 @@ Drivetrain::RobotRelativeSwerveCommand(chassis_speed_supplier_t cmd_vel) {
 frc2::CommandPtr
 Drivetrain::BasicSwerveCommand(chassis_speed_supplier_t cmd_vel) {
   return this->Run([=, this] { Drive(cmd_vel()); });
-}
-
-frc2::CommandPtr Drivetrain::ZeroHeadingCommand() {
-  return this->RunOnce([&] { ZeroHeading(); });
 }
 
 frc2::CommandPtr Drivetrain::CoastModeCommand(bool coast) {

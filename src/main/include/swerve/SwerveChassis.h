@@ -81,9 +81,6 @@ public:
 
     frc::Rotation2d GetGyroHeading();
 
-    // Zeroes the robot heading.
-    void ZeroHeading();
-
     void SyncEncoders();
 
     void CoastMode(bool coast);
@@ -116,8 +113,26 @@ public:
 
     bool IsStopped();
 
-    void ResetOdometry(const frc::Pose2d& pose);
+    /* Sets the heading offset such that the current heading is aligned with 'heading'
+     * Note this only affects the control input.
+     * Calling this with 0 will result in a forward field-relative input 
+     * to drive the robot forward relative to its frame regardless of localization.
+     * 
+     * Hence, this should ONLY be called when localization is not functioning
+     */
+    void ResetControlHeading(frc::Rotation2d heading = {});
 
+    /* If the robot pose is at a known location,
+     * resets MapToOdom so GetPose will return 'pose'
+     * Also clears the control heading.
+     */
+    void ResetPose(const frc::Pose2d& pose);
+
+    /* This is an API surface for the localization system to estimate how
+     * the robot's current odometry differs from reality.
+     * This transform is expected to vary with 0-mean noise over time, so
+     * calling this method with a latent measurement should result in stable behavior.
+     */
     void SetMapToOdom(const frc::Transform2d& transform);
 
     // Display useful information on Shuffleboard.
@@ -132,8 +147,8 @@ private:
     studica::AHRS m_gyro;
 
     OdometryThread m_odom_thread;
-    frc::Transform2d m_initial_transform; //< initial pose if known
-    frc::Transform2d m_map_to_odom;       //< pose correction from sensors
+    frc::Transform2d m_map_to_odom;  //< pose correction from sensors
+    frc::Rotation2d m_heading_offset;  //< heading offset used for field_relative control
 
     // Field widget for Shuffleboard.
     frc::Field2d m_field;

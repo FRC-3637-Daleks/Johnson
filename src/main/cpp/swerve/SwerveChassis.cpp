@@ -151,7 +151,7 @@ void SwerveChassis::RobotRelativeDrive(const frc::ChassisSpeeds& cmd_vel) {
 
 void SwerveChassis::Drive(const frc::ChassisSpeeds& cmd_vel) {
     RobotRelativeDrive(
-        frc::ChassisSpeeds::FromFieldRelativeSpeeds(cmd_vel, GetHeading()));
+        frc::ChassisSpeeds::FromFieldRelativeSpeeds(cmd_vel, m_heading_offset + GetHeading()));
 }
 
 void SwerveChassis::SetModuleStates(
@@ -165,11 +165,6 @@ frc::Rotation2d SwerveChassis::GetHeading() { return GetPose().Rotation(); }
 frc::Rotation2d SwerveChassis::GetGyroHeading() {
     // The yaw for Nav-X doesn't use conventional rotation
     return units::degree_t(-m_gyro.GetYaw());
-}
-
-void SwerveChassis::ZeroHeading() {
-    auto pose = GetPose();
-    ResetOdometry(frc::Pose2d{pose.X(), pose.Y(), 0_deg});
 }
 
 void SwerveChassis::SyncEncoders() {
@@ -204,9 +199,7 @@ units::degrees_per_second_t SwerveChassis::GetTurnRate() {
 }
 
 frc::Pose2d SwerveChassis::GetOdomPose() {
-    constexpr frc::Pose2d origin{};
-    const auto odom_transform = m_odom_thread.GetPose() - origin;
-    return origin + m_initial_transform + odom_transform; // order matters
+    return m_odom_thread.GetPose();
 }
 
 units::second_t SwerveChassis::GetOdomTimestamp() {
@@ -244,17 +237,16 @@ bool SwerveChassis::IsStopped() {
     return currentSpeed < 0.1_mps;
 }
 
-void SwerveChassis::ResetOdometry(const frc::Pose2d& pose) {
-    // m_initial_transform is a "hardcoded" offset.
-    // it is defined to be the transform which when added to the other
-    // components of GetPose(), will produce the 'pose' passed in here.
-    // m_map_to_odom is reset since this value is effectively invalidated
-    // by resetting the odometry.
+void SwerveChassis::ResetControlHeading(frc::Rotation2d heading) {
+    m_heading_offset = heading - GetHeading();
+}
+
+void SwerveChassis::ResetPose(const frc::Pose2d& pose) {
     constexpr frc::Pose2d origin{};
-    m_initial_transform = {};
     m_map_to_odom = {};
+    m_heading_offset = {};
     const auto odom_transform = GetOdomPose() - origin;
-    m_initial_transform = (pose + odom_transform.Inverse()) - origin;
+    m_map_to_odom = (pose + odom_transform.Inverse()) - origin;
 }
 
 void SwerveChassis::SetMapToOdom(const frc::Transform2d& transform) {
@@ -279,8 +271,6 @@ void SwerveChassis::UpdateDashboard() {
     const auto robot_center = this->GetPose();
 
     m_field.SetRobotPose(this->GetPose());
-    m_field.GetObject("init pose")
-        ->SetPose(frc::Pose2d{}.TransformBy(m_initial_transform));
 
     constexpr int xs[] = {1, 1, -1, -1};
     constexpr int ys[] = {1, -1, 1, -1};
@@ -307,7 +297,7 @@ void SwerveChassis::UpdateDashboard() {
         m_holonomicController.GetXController().GetError(),
         m_holonomicController.GetYController().GetError(),
         m_holonomicController.GetThetaController().GetPositionError().value()};
-    frc::SmartDashboard::PutNumberArray("Error", error);
+    frc::SmartDashboard::PutNumberArray("Swerve/Control Error", error);
 }
 
 void SwerveChassis::SimulationPeriodic() {
