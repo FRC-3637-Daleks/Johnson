@@ -31,6 +31,9 @@
 #include <random>
 
 namespace ModuleConstants {
+
+using namespace ctre::phoenix6;
+
 // Motor outputs under 4% will just be cut to 0 (brake)
 constexpr double kNeutralDeadband = 0.04;
 
@@ -40,17 +43,15 @@ constexpr auto kSteerMotorCurrentLimit = 30_A;
 // Can exceed limit for 40ms seconds
 constexpr auto kCurrentLimitPeriod = 40_ms;
 
-// Indicates time from neutral to full output
-constexpr auto kRampRate = 0.2_s;
-
 constexpr auto kWheelDiameter = 4_in;
 
 constexpr double kDriveEncoderReduction = 6.75;     // reduction in drive motor
-constexpr auto kDriveEncoderDistancePerRevolution = // Linear distance per
-// revolution of motor
-kWheelDiameter * std::numbers::pi / kDriveEncoderReduction;
-constexpr auto kWheelMoment =
-.0101_kg_sq_m; // calculated based on a weight of 70lbs
+// Linear distance per revolution of motor
+constexpr auto kDriveEncoderDistancePerRevolution = 
+  kWheelDiameter * std::numbers::pi / kDriveEncoderReduction;
+
+  // calculated based on a weight of 70lbs
+constexpr auto kWheelMoment = .0101_kg_sq_m;
 constexpr auto kMotorSpeedChoreo = 5104_rpm; // choreo value
 constexpr auto kMotorSpeed = 6080_rpm;       // Website value
 constexpr auto kDriveMaxAcceleration = 500_tr_per_s_sq;
@@ -58,14 +59,32 @@ constexpr auto kDriveTargetAcceleration = 300_tr_per_s_sq;
 constexpr auto kDistanceToRotations = kDriveEncoderDistancePerRevolution / 1_tr;
 
 constexpr double kSteerGearReduction = 150.0 / 7.0;
-constexpr auto kSteerMoment =
-0.0001_kg_sq_m; // Reduced to near 0-mass for smooth sim driving
-constexpr auto kSteerAcceleration =
-135.7_tr_per_s_sq * 2; // Measured empirically, rough guess
+
+// Reduced to near 0-mass for smooth sim driving
+constexpr auto kSteerMoment = 0.0001_kg_sq_m;
+
+// Measured empirically, rough guess
+constexpr auto kSteerAcceleration = 135.7_tr_per_s_sq * 2;
 constexpr auto kSteerSpeed = kMotorSpeed / kSteerGearReduction;
 
-constexpr double kDriveP = 0, kDriveI = 0.1, kDriveD = 0;
-constexpr double kSteerP = 10, kSteerI = 0, kSteerD = 0.02, kSteerS = 0.03;
+constexpr auto kDriveV = 12.0_V/units::turns_per_second_t{kPhysicalMaxSpeed/kDistanceToRotations};
+constexpr auto kDriveGains = configs::Slot0Configs{}
+  .WithKP(0)
+  .WithKI(0.1)
+  .WithKD(0)
+  .WithKV(kDriveV.value())
+;
+
+constexpr auto kSteerV = 12.0_V/kSteerSpeed;
+constexpr auto kSteerA = 12.0_V/kSteerAcceleration;
+constexpr auto kSteerGains = configs::Slot0Configs{}
+  .WithKP(120)
+  .WithKI(0)
+  .WithKD(0.24)
+  .WithKS(0.36)
+  .WithKV(kSteerV.value())
+  .WithKA(kSteerA.value())
+;
 
 const auto MotorModel = [](int N = 1) { return frc::DCMotor::Falcon500FOC(N); };
 
@@ -126,74 +145,39 @@ SwerveModule::SwerveModule(const std::string name, const int driveMotorId,
 
   steerConfig.WithMotorOutput(configs::MotorOutputConfigs{}
     .WithNeutralMode(signals::NeutralModeValue::Brake)
-    .WithInverted(true));
+    .WithInverted(true)
+  );
 
   driveConfig.WithMotorOutput(configs::MotorOutputConfigs{}
     .WithNeutralMode(signals::NeutralModeValue::Brake)
-    .WithDutyCycleNeutralDeadband(kNeutralDeadband));
+    .WithDutyCycleNeutralDeadband(kNeutralDeadband)
+  );
 
-  driveConfig.WithOpenLoopRamps(configs::OpenLoopRampsConfigs{}
-    .WithDutyCycleOpenLoopRampPeriod(kRampRate)
-    .WithVoltageOpenLoopRampPeriod(kRampRate)
-    .WithTorqueOpenLoopRampPeriod(kRampRate));
-
-  driveConfig.WithClosedLoopRamps(configs::ClosedLoopRampsConfigs{}
-    .WithDutyCycleClosedLoopRampPeriod(kRampRate)
-    .WithVoltageClosedLoopRampPeriod(kRampRate)
-    .WithTorqueClosedLoopRampPeriod(kRampRate));
-
-  // CTRE Alleges that the new firmware has sensible default current limits
-  // driveConfig.WithCurrentLimits(configs::CurrentLimitsConfigs{}
-  //   .WithSupplyCurrentLimitEnable(true)
-  //   .WithSupplyCurrentLimit(kDriveMotorCurrentLimit)
-  // );
-
-  // steerConfig.WithCurrentLimits(configs::CurrentLimitsConfigs{}
-  //   .WithSupplyCurrentLimitEnable(true)
-  //   .WithSupplyCurrentLimit(kSteerMotorCurrentLimit)
-  // );
-
-  // max duty cycle / corresponding velocity
-  constexpr auto kDriveV = 1.0 / (kPhysicalMaxSpeed / kDistanceToRotations);
-  // constexpr auto kDriveA
-  // = 1.0/units::turns_per_second_squared_t{kDriveMaxAcceleration};
-  driveConfig.WithSlot0(configs::Slot0Configs{}
-    .WithKP(kDriveP)
-    .WithKI(kDriveI)
-    .WithKD(kDriveD)
-    .WithKV(ctre::unit::scalar_per_turn_per_second_t{kDriveV}.value()));
-
-  constexpr auto kSteerV = 1.0 / units::turns_per_second_t{kSteerSpeed};
-  constexpr auto kSteerA =
-    1.0 / units::turns_per_second_squared_t{kSteerAcceleration};
-  steerConfig.WithSlot0(configs::Slot0Configs{}
-    .WithKP(kSteerP)
-    .WithKI(kSteerI)
-    .WithKD(kSteerD)
-    .WithKV(kSteerV.value())
-    .WithKA(kSteerA.value())
-    .WithKS(kSteerS));
+  driveConfig.WithSlot0(kDriveGains);
+  steerConfig.WithSlot0(kSteerGains);
 
   driveConfig.WithMotionMagic(configs::MotionMagicConfigs{}
-  .WithMotionMagicAcceleration(kDriveTargetAcceleration));
+    .WithMotionMagicAcceleration(kDriveTargetAcceleration)
+  );
 
   steerConfig.WithMotionMagic(configs::MotionMagicConfigs{}
     .WithMotionMagicCruiseVelocity(kSteerSpeed)
     .WithMotionMagicAcceleration(kSteerAcceleration)
-    .WithMotionMagicExpo_kV(12.0_V * kSteerV)
-    .WithMotionMagicExpo_kA(12.0_V * kSteerA));
+    .WithMotionMagicExpo_kV(kSteerV)
+    .WithMotionMagicExpo_kA(kSteerA)
+  );
 
-  // this object has no "With*" API for some reason
-  configs::ClosedLoopGeneralConfigs steerClosedLoopConfig{};
-  steerClosedLoopConfig.ContinuousWrap = true;
-  steerConfig.WithClosedLoopGeneral(steerClosedLoopConfig);
+  steerConfig.WithClosedLoopGeneral(configs::ClosedLoopGeneralConfigs{}
+    .WithContinuousWrap(true)
+  );
 
   steerConfig.WithFeedback(configs::FeedbackConfigs{}
     .WithFeedbackSensorSource(
       signals::FeedbackSensorSourceValue::FusedCANcoder)
     .WithFeedbackRemoteSensorID(m_absoluteEncoder.GetDeviceID())
     .WithRotorToSensorRatio(kSteerGearReduction)
-    .WithSensorToMechanismRatio(1.0));
+    .WithSensorToMechanismRatio(1.0)
+  );
 
   /* Sometimes configuration fails, so we check the return code
    * and retry if needed.
@@ -285,13 +269,13 @@ void SwerveModule::SetDesiredState(
   state.Optimize(GetModuleHeading());
   state.speed *= (state.angle - GetModuleHeading()).Cos();
 
-  m_driveMotor.SetControl(p6::controls::MotionMagicVelocityDutyCycle{
+  m_driveMotor.SetControl(p6::controls::MotionMagicVelocityVoltage{
       state.speed / kDistanceToRotations}
       .WithEnableFOC(true)
     .WithSlot(0));
 
   m_steerMotor.SetControl(
-    p6::controls::MotionMagicExpoDutyCycle{state.angle.Radians()}
+    p6::controls::MotionMagicExpoVoltage{state.angle.Radians()}
     .WithEnableFOC(true)
     .WithSlot(0));
 }
