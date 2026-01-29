@@ -24,6 +24,7 @@
 #include "subsystems/ROSBridge.h"
 #include "subsystems/OperatorInterface.h"
 #include "subsystems/Intake.h"
+#include "subsystems/Climb.h"
 
 /**
  * This class is where the bulk of the robot should be declared.  Since
