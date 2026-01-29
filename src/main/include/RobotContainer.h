@@ -20,6 +20,7 @@
 
 #include "subsystems/Drivetrain.h"
 #include "subsystems/ROSBridge.h"
+#include "subsystems/Climb.h"
 
 /**
  * This class is where the bulk of the robot should be declared.  Since
