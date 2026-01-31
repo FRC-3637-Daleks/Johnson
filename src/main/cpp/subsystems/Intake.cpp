@@ -5,6 +5,11 @@ namespace IntakeConstants {
     int kIntakeMotorID = 3;
     int kArmMotorID = 2;
 
+    double kP = 2.4;
+    double kI = 0;
+    double kD = 0.1;    
+
+
     units::volt_t intakeFowardVoltage = 6_V;
     units::volt_t intakeBackwardsVoltage = -7_V;
     units::volt_t armFowardVoltage = 6_V;
@@ -16,6 +21,13 @@ Intake::Intake() :
     m_armMotor{IntakeConstants::kArmMotorID, m_CANBusInstance},
     m_intakeMotor{IntakeConstants::kIntakeMotorID, m_CANBusInstance} 
 {
+    
+    ctre::phoenix6::configs::Slot0Configs slot0Configs{};
+    slot0Configs.kP = IntakeConstants::kP; 
+    slot0Configs.kI = IntakeConstants::kI; 
+    slot0Configs.kD = IntakeConstants::kD; 
+
+    m_armMotor.GetConfigurator().Apply(slot0Configs);    
 }
 
 Intake::~Intake() {

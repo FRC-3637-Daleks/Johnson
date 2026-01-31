@@ -1,6 +1,6 @@
 #include <ctre/phoenix6/TalonFX.hpp>
 #include <ctre/phoenix6/CANBus.hpp>
-
+#include <ctre/phoenix6/configs/Slot0Configs.hpp>
 
 class Intake {
 public:
