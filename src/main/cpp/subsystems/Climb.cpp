@@ -20,10 +20,11 @@ namespace ClimbConstants{
 
     constexpr units::length::centimeter_t kTolerance = 1_in;
 
+    constexpr ctre::phoenix6::CANBus kBus{"Drivebase"};
 }
 
 Climb::Climb()
-    : m_climbMotor{ClimbConstants::kMotorID, "DriveBase"}  // CANBus instance should be passed here
+    : m_climbMotor{ClimbConstants::kMotorID, ClimbConstants::kBus}  
 {}
 
 Climb::~Climb(){}
