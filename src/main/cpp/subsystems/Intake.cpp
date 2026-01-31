@@ -2,8 +2,8 @@
 
 namespace IntakeConstants {
 
-    int kArmMotorID = 2;
     int kIntakeMotorID = 3;
+    int kArmMotorID = 2;
 
     units::volt_t intakeFowardVoltage = 6_V;
     units::volt_t intakeBackwardsVoltage = -7_V;
@@ -21,6 +21,8 @@ Intake::Intake() :
 Intake::~Intake() {
 }
 
+
+
 void Intake::IntakeIn() {
     m_intakeMotor.SetVoltage(IntakeConstants::intakeFowardVoltage);
 }
@@ -29,12 +31,18 @@ void Intake::IntakeOut() {
     m_intakeMotor.SetVoltage(IntakeConstants::intakeBackwardsVoltage);
 }
 
+void Intake::IntakeStop() {
+    m_intakeMotor.SetVoltage(0_V);
+}
+
 void Intake::ArmIn() {
-    m_intakeMotor.SetVoltage(IntakeConstants::armBackwardsVoltage);
+    m_armMotor.SetVoltage(IntakeConstants::armBackwardsVoltage);
 }
 
 void Intake::ArmOut() {
-    m_intakeMotor.SetVoltage(IntakeConstants::armBackwardsVoltage);
+    m_armMotor.SetVoltage(IntakeConstants::armBackwardsVoltage);
 }
 
-
+void Intake::ArmStop() {
+    m_armMotor.SetVoltage(0_V);
+}
