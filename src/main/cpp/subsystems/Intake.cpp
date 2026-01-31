@@ -27,13 +27,18 @@ Intake::Intake() :
     slot0Configs.kI = IntakeConstants::kI; 
     slot0Configs.kD = IntakeConstants::kD; 
 
-    m_armMotor.GetConfigurator().Apply(slot0Configs);    
+    m_armMotor.GetConfigurator().Apply(slot0Configs);  
+    
+
+
 }
 
 Intake::~Intake() {
 }
 
-
+units::angle::turn_t Intake::GetArmPos() {
+    return m_armMotor.GetPosition().GetValue();
+}
 
 void Intake::IntakeIn() {
     m_intakeMotor.SetVoltage(IntakeConstants::intakeFowardVoltage);
