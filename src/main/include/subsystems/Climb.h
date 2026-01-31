@@ -1,10 +1,10 @@
 #pragma once
 
-
 #include <ctre/phoenix6/TalonFX.hpp>
 #include <frc2/command/SubsystemBase.h>
 #include <frc2/command/CommandPtr.h>
 #include <units/base.h>
+#include <ctre/phoenix6/controls/PositionDutyCycle.hpp>
 
 class Climb : public frc2::SubsystemBase {
 public:
@@ -12,6 +12,8 @@ public:
     ~Climb() noexcept;
 
     void Periodic() override;
+    void UpdateDashboard();
+    void UpdateVisualization();
 
     enum Height : int{Bottom = 0, Top};
 
@@ -25,9 +27,9 @@ public:
 
     frc2::CommandPtr GoToHeight(Height goal);
 
-    
 private:
     ctre::phoenix6::hardware::TalonFX m_climbMotor;
 
-
+    units::angle::turn_t heightToRotorTurns(const units::centimeter_t height);
+    units::centimeter_t RotorTurnsToheight(const units::angle::turn_t turns);
 };
