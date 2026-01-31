@@ -10,6 +10,8 @@ public:
 
 private:
 
+    units::angle::turn_t GetArmPos();
+
     void IntakeIn();
     void IntakeOut();
     void IntakeStop();
