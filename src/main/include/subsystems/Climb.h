@@ -6,6 +6,8 @@
 #include <units/base.h>
 #include <ctre/phoenix6/controls/PositionDutyCycle.hpp>
 
+class ClimbSim;
+
 class Climb : public frc2::SubsystemBase {
 public:
     Climb();
@@ -32,4 +34,9 @@ private:
 
     units::angle::turn_t heightToRotorTurns(const units::centimeter_t height);
     units::centimeter_t RotorTurnsToheight(const units::angle::turn_t turns);
+
+
+    friend class ClimbSim;
+    std::unique_ptr<ClimbSim> m_sim_state;
+    void SimulationPeriodic() override;
 };
