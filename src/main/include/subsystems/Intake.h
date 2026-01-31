@@ -12,11 +12,11 @@ private:
 
     void IntakeIn();
     void IntakeOut();
-
+    void IntakeStop();
     
     void ArmIn();
     void ArmOut();
-
+    void ArmStop();
 
 private:
 
