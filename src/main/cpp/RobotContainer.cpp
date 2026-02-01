@@ -55,6 +55,7 @@ constexpr int kFieldRelativeButton = frc::XboxController::Button::kRightBumper;
 constexpr auto kMaxTeleopSpeed = 15.7_fps;
 constexpr auto kMaxTeleopTurnSpeed = 2.5 * std::numbers::pi * 1_rad_per_s;
 
+constexpr double kSlowModeFactor = 0.3;
 } // namespace OperatorConstants
 
 namespace FieldConstants {
@@ -113,41 +114,16 @@ RobotContainer::RobotContainer()
 }
 
 void RobotContainer::ConfigureBindings() {
-  auto throttle = [this]() -> double {
-    double input = m_swerveController.GetHID().GetThrottle();
-    double ret = ((-input + 1)) / 2;
-    return ret;
-    };
-  // Configure Swerve Bindings.
-  auto fwd = [this, throttle]() -> units::meters_per_second_t {
-    auto input = frc::ApplyDeadband(m_swerveController.GetHID().GetY(),
-      OperatorConstants::kStrafeDeadband);
-    auto squaredInput = input * std::abs(input);
-    auto alliance_flip = IsRed() ? -1 : 1;
-    return OperatorConstants::kMaxTeleopSpeed * squaredInput *
-      alliance_flip * throttle();
-    };
+    m_swerve.SetDefaultCommand(m_swerve.CustomSwerveCommand(
+      [this] { return m_oi.fwd(); }, [this] { return m_oi.strafe(); },
+      [this] { return m_oi.rot(); }));
 
-  auto strafe = [this, throttle]() -> units::meters_per_second_t {
-    auto input = frc::ApplyDeadband(m_swerveController.GetHID().GetX(),
-      OperatorConstants::kStrafeDeadband);
-    auto squaredInput = input * std::abs(input);
-    auto alliance_flip = IsRed() ? -1 : 1;
-    return OperatorConstants::kMaxTeleopSpeed * squaredInput *
-      alliance_flip * throttle();
-    };
+  auto slow = m_swerve.CustomSwerveCommand(
+      [this] { return m_oi.fwd() * OperatorConstants::kSlowModeFactor; }, 
+      [this] { return m_oi.strafe() * OperatorConstants::kSlowModeFactor; },
+      [this] { return m_oi.rot() * OperatorConstants::kSlowModeFactor; });
 
-  auto rot = [this, throttle]() -> units::revolutions_per_minute_t {
-    auto input = frc::ApplyDeadband(-m_swerveController.GetHID().GetTwist(),
-      OperatorConstants::kRotDeadband);
-    auto squaredInput = input * std::abs(input);
-    return OperatorConstants::kMaxTeleopTurnSpeed * squaredInput *
-      throttle();
-    };
-
-  m_swerve.SetDefaultCommand(m_swerve.CustomSwerveCommand(fwd, strafe, rot));
-
-  m_swerveController.Button(12).OnTrue(m_swerve.RunOnce([this] {
+  m_oi.ZeroHeadingTrigger.OnTrue(m_swerve.RunOnce([this] {
     if (IsRed())
       m_swerve.ResetControlHeading(0.5_tr);
     else
