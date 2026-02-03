@@ -14,26 +14,33 @@ public:
     ~Climb() noexcept;
 
     void Periodic() override;
-    void UpdateDashboard();
-    void UpdateVisualization();
 
-    enum Height : int{Bottom = 0, Top};
+    enum class Height : int{Bottom = 0, Top};
 
-    bool IsAtHeight(units::centimeter_t pos);
     bool IsAtHeight(Height height);
 
-    void SetGoalHeight(units::centimeter_t length);
-    void SetGoalHeight(Height height);
-    
-    units::centimeter_t GetHeight();
+    units::centimeter_t GetPosition();
 
     frc2::CommandPtr GoToHeight(Height goal);
+    frc2::CommandPtr ToggleHeight();
+    frc2::CommandPtr Deploy();
+    frc2::CommandPtr LiftBot();
+    frc2::CommandPtr Retract();
 
 private:
     ctre::phoenix6::hardware::TalonFX m_climbMotor;
+    Height m_targetHeight{Height::Bottom};
 
-    units::angle::turn_t heightToRotorTurns(const units::centimeter_t height);
-    units::centimeter_t RotorTurnsToheight(const units::angle::turn_t turns);
+    void UpdateDashboard();
+    void UpdateVisualization();
+
+    bool IsAtHeight(units::centimeter_t pos);
+
+    void SetGoalHeight(units::centimeter_t length);
+    void SetGoalHeight(Height height);
+
+    units::angle::turn_t HeightToRotorTurns(const units::centimeter_t height) const;
+    units::centimeter_t RotorTurnsToHeight(const units::angle::turn_t turns) const;
 
 
     friend class ClimbSim;
