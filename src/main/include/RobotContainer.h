@@ -45,6 +45,7 @@ public:
 
   Drivetrain m_swerve;
   ROSBridge m_ros;
+  Climb m_climb;
 
   bool m_isRed;
 
