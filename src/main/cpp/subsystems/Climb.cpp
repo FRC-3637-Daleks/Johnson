@@ -7,7 +7,7 @@
 
 namespace ClimbConstants{
 
-    int kMotorID = 1;
+    int kMotorID = 14;
     
     constexpr auto kSprocketTeeth = 22;
     constexpr auto kDistancePerChainLink = 0.25_in; 
@@ -56,10 +56,10 @@ void Climb::Periodic(){UpdateDashboard();}
 
 void Climb::UpdateDashboard(){
   frc::SmartDashboard::PutNumber("Climb/Height (in)",
-                                 units::inch_t{GetHeight()}.value());
+                                 units::inch_t{GetPosition()}.value());
   frc::SmartDashboard::PutNumber(
       "Climb/Height Setpoint (in)",
-      units::inch_t{RotorTurnsToheight(units::turn_t{
+      units::inch_t{RotorTurnsToHeight(units::turn_t{
                         m_climbMotor.GetClosedLoopReference().GetValue()})}
           .value());
   frc::SmartDashboard::PutNumber(
@@ -74,50 +74,72 @@ void Climb::UpdateDashboard(){
       m_climbMotor.GetSupplyCurrent().GetValue().value());
 }
 
-units::angle::turn_t Climb::heightToRotorTurns(const units::centimeter_t height){
+units::angle::turn_t Climb::HeightToRotorTurns(const units::centimeter_t height) const{
   return (height - ClimbConstants::kMinHeight) / 
           (3 * ClimbConstants::kSprocketCircum) *
           ClimbConstants::kGearReduction * 1_tr;
 }
 
-units::centimeter_t Climb::RotorTurnsToheight(const units::angle::turn_t turns){
+units::centimeter_t Climb::RotorTurnsToHeight(const units::angle::turn_t turns) const{
   
   return ((turns/ ClimbConstants::kGearReduction) * 
           (3 * ClimbConstants::kSprocketCircum / 1_tr) + ClimbConstants::kMinHeight);
 
 }
 
-units::centimeter_t Climb::GetHeight(){
-  return RotorTurnsToheight(m_climbMotor.GetPosition().GetValue());
+units::centimeter_t Climb::GetPosition(){
+  return RotorTurnsToHeight(m_climbMotor.GetPosition().GetValue());
 }
 
 
 void Climb::SetGoalHeight(const units::centimeter_t length){
-  auto request = ctre::phoenix6::controls::PositionDutyCycle{units::angle::turn_t{heightToRotorTurns(length)}};
+  auto request = ctre::phoenix6::controls::PositionDutyCycle{units::angle::turn_t{HeightToRotorTurns(length)}};
   m_climbMotor.SetControl(request);
 } 
 
 void Climb::SetGoalHeight(Climb::Height height){
   frc::SmartDashboard::PutString("Climb/Target Level",
-                                  ClimbConstants::goal_names[height]);
-  SetGoalHeight(ClimbConstants::goal_heights[height]);
+                                  ClimbConstants::goal_names[static_cast<int> (height)]);
+  SetGoalHeight(ClimbConstants::goal_heights[static_cast<int>(height)]);
 }
 
 bool Climb::IsAtHeight(units::length::centimeter_t height){
-    return (units::math::abs((height - GetHeight())) <=
+    return (units::math::abs((height - GetPosition())) <=
           (ClimbConstants::kTolerance));
 };
 
 bool Climb::IsAtHeight(Climb::Height height){
-    return IsAtHeight(ClimbConstants::goal_heights[height]);
+    return IsAtHeight(ClimbConstants::goal_heights[static_cast<int>(height)]);
 };
 
 
 frc2::CommandPtr Climb::GoToHeight(Height goal) {
+  m_targetHeight = goal;
   return Run([this, goal] { SetGoalHeight(goal); }).Until([this, goal] {
-    return IsAtHeight(ClimbConstants::goal_heights[goal]);
+    return IsAtHeight(ClimbConstants::goal_heights[static_cast<int>(goal)]);
   });
 }
+
+
+frc2::CommandPtr Climb::ToggleHeight(){
+    if(m_targetHeight == Height::Top){
+      return GoToHeight(Height::Bottom);
+    }
+      return GoToHeight(Height::Top);
+}
+
+frc2::CommandPtr Climb::Deploy(){
+  return GoToHeight(Height::Top);
+}
+
+frc2::CommandPtr Climb::LiftBot(){
+  return GoToHeight(Height::Bottom);
+}
+
+frc2::CommandPtr Climb::Retract(){
+  return GoToHeight(Height::Bottom);
+}
+
 
 //********************SIMULATION********************* 
 
