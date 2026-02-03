@@ -11,7 +11,16 @@ public:
 private:
 
     units::angle::turn_t GetArmPos();
-
+    
+    enum class ArmPos {
+        In = 0,
+        Out,
+    }
+    //void SetArmPos();
+    
+    bool IsArmOut(); 
+    bool IsArmIn();
+//Make a wrapper**
     void IntakeIn();
     void IntakeOut();
     void IntakeStop();
