@@ -14,15 +14,12 @@ namespace ClimbConstants{
     constexpr auto kSprocketCircum = kSprocketTeeth * kDistancePerChainLink;
     constexpr auto kGearReduction = 62.0 / 10.0 * 30.0 / 22.0;
 
-    constexpr auto kMinHeight = 1_in;
+    constexpr auto kMinHeight = 0_in;
     constexpr auto kMaxHeight = 10_in;
     constexpr auto kFirstStageLength =
     (kMaxHeight - kMinHeight) / 3;
-    
-    constexpr units::length::centimeter_t kBottom = 0_in;
-    constexpr units::length::centimeter_t kTop = 10_in;
-
-    constexpr units::length::centimeter_t goal_heights[] = {kBottom, kTop};
+  
+    constexpr units::length::centimeter_t goal_heights[] = {kMinHeight, kMaxHeight};
     constexpr std::string_view goal_names[] = {"Bottom", "Top"};
 
     constexpr units::length::centimeter_t kTolerance = 1_in;
@@ -76,14 +73,14 @@ void Climb::UpdateDashboard(){
 
 units::angle::turn_t Climb::HeightToRotorTurns(const units::centimeter_t height) const{
   return (height - ClimbConstants::kMinHeight) / 
-          (3 * ClimbConstants::kSprocketCircum) *
+          (ClimbConstants::kSprocketCircum) *
           ClimbConstants::kGearReduction * 1_tr;
 }
 
 units::centimeter_t Climb::RotorTurnsToHeight(const units::angle::turn_t turns) const{
   
   return ((turns/ ClimbConstants::kGearReduction) * 
-          (3 * ClimbConstants::kSprocketCircum / 1_tr) + ClimbConstants::kMinHeight);
+          (ClimbConstants::kSprocketCircum / 1_tr) + ClimbConstants::kMinHeight);
 
 }
 
@@ -98,6 +95,7 @@ void Climb::SetGoalHeight(const units::centimeter_t length){
 } 
 
 void Climb::SetGoalHeight(Climb::Height height){
+   m_targetHeight = height;
   frc::SmartDashboard::PutString("Climb/Target Level",
                                   ClimbConstants::goal_names[static_cast<int> (height)]);
   SetGoalHeight(ClimbConstants::goal_heights[static_cast<int>(height)]);
@@ -112,20 +110,24 @@ bool Climb::IsAtHeight(Climb::Height height){
     return IsAtHeight(ClimbConstants::goal_heights[static_cast<int>(height)]);
 };
 
-
+//Holds Function Until Climb is at Correct Height
 frc2::CommandPtr Climb::GoToHeight(Height goal) {
-  m_targetHeight = goal;
   return Run([this, goal] { SetGoalHeight(goal); }).Until([this, goal] {
     return IsAtHeight(ClimbConstants::goal_heights[static_cast<int>(goal)]);
   });
 }
-
-
-frc2::CommandPtr Climb::ToggleHeight(){
-    if(m_targetHeight == Height::Top){
-      return GoToHeight(Height::Bottom);
-    }
-      return GoToHeight(Height::Top);
+ 
+// Does NOT Hold Function Until Climb is at Position
+frc2::CommandPtr Climb::ToggleHeight(){ 
+    return 
+      RunOnce([this]{
+        if (m_targetHeight == Climb::Height::Top){
+          m_targetHeight = Climb::Height::Bottom;
+        }
+        else{
+          m_targetHeight = Climb::Height::Top;
+        }
+      }).AndThen(GoToHeight(m_targetHeight));
 }
 
 frc2::CommandPtr Climb::Deploy(){
