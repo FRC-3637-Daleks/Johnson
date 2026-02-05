@@ -21,6 +21,8 @@ namespace IntakeConstants {
     units::volt_t armFowardVoltage = 6_V;
     units::volt_t armBackwardsVoltage = -7_V;
 
+    units::volt_t constVoltage = 3_V; //volts to feed constanty out
+
 }
 
 Intake::Intake() :
@@ -53,6 +55,25 @@ Intake::Intake() :
 Intake::~Intake() {
 }
 
+frc2::CommandPtr Intake::GoArmOut() {
+    return Run([this] {ArmOut();});
+}
+
+frc2::CommandPtr Intake::GoArmIn() {
+    return Run([this] {ArmIn();});
+}
+
+frc2::CommandPtr Intake::IntakeFuel() {
+    return Run([this] {IntakeIn();});
+}
+
+frc2::CommandPtr Intake::OutakeFuel() {
+    return Run([this] {IntakeOut();});
+}
+
+
+//**************************** Private Members ****************************/
+
 units::angle::turn_t Intake::GetArmPos() {
     return m_armMotor.GetPosition().GetValue();
 }
@@ -81,6 +102,10 @@ void Intake::IntakeStop() {
     m_intakeMotor.SetVoltage(0_V);
 }
 
+void Intake::IntakeConstVoltage() {
+    m_intakeMotor.SetVoltage(IntakeConstants::constVoltage);
+}
+
 void Intake::ArmIn() {
     m_armMotor.SetVoltage(IntakeConstants::armBackwardsVoltage);
 }
@@ -92,3 +117,5 @@ void Intake::ArmOut() {
 void Intake::ArmStop() {
     m_armMotor.SetVoltage(0_V);
 }
+
+//**************************** Simulation ****************************/
