@@ -12,10 +12,6 @@ private:
 
     units::angle::turn_t GetArmPos();
     
-    enum class ArmPos {
-        In = 0,
-        Out,
-    }
     //void SetArmPos();
     
     bool IsArmOut(); 
