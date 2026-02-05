@@ -16,9 +16,6 @@ namespace IntakeConstants {
     units::angle::turn_t armInPos = 0_tr;
     units::angle::turn_t tolerance = 0.5_tr;
     
-    units::angle::turn_t armPositions[] = {0_tr, 10_tr};
-    std::string_view armPositionNames[] = {"In", "Out"};
-
     units::volt_t intakeFowardVoltage = 6_V;
     units::volt_t intakeBackwardsVoltage = -7_V;
     units::volt_t armFowardVoltage = 6_V;
