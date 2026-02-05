@@ -116,19 +116,6 @@ frc2::CommandPtr Climb::GoToHeight(Height goal) {
     return IsAtHeight(ClimbConstants::goal_heights[static_cast<int>(goal)]);
   });
 }
- 
-// Does NOT Hold Function Until Climb is at Position
-frc2::CommandPtr Climb::ToggleHeight(){ 
-    return 
-      RunOnce([this]{
-        if (m_targetHeight == Climb::Height::Top){
-          m_targetHeight = Climb::Height::Bottom;
-        }
-        else{
-          m_targetHeight = Climb::Height::Top;
-        }
-      }).AndThen(GoToHeight(m_targetHeight));
-}
 
 frc2::CommandPtr Climb::Deploy(){
   return GoToHeight(Height::Top);
