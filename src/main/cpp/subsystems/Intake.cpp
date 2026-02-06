@@ -25,6 +25,20 @@ namespace IntakeConstants {
 
 }
 
+class IntakeSim {
+public:
+    friend class Intake;
+
+public:
+    IntakeSim(Intake &in);
+
+public:
+    ctre::phoenix6::sim::TalonFXSimState m_ArmMotorState, m_IntakeMotorState;
+
+    frc::sim::SingleJointedArmSim m_armPhysics;
+
+};
+
 Intake::Intake() :
     m_CANBusInstance{"Drivebase"},
     m_armMotor{IntakeConstants::kArmMotorID, m_CANBusInstance},
@@ -111,7 +125,7 @@ void Intake::ArmIn() {
 }
 
 void Intake::ArmOut() {
-    m_armMotor.SetVoltage(IntakeConstants::armBackwardsVoltage);
+    m_armMotor.SetVoltage(IntakeConstants::armFowardVoltage);
 }
 
 void Intake::ArmStop() {
@@ -119,3 +133,36 @@ void Intake::ArmStop() {
 }
 
 //**************************** Simulation ****************************/
+
+//Look into whats actually doing the moving, is it the real motor or 
+//the simulated object? If its the sumulated object, how do you get its position
+
+IntakeSim::IntakeSim(Intake& in) :
+    m_armPhysics{
+        frc::DCMotor::Falcon500(1), // DCMotor
+        100.0,                      // Gearing
+        1.0_kg_sq_m,                // Moment of Inertia (Guess)
+        0.3_m,                      // Arm Length
+        units::radian_t{0_tr},      // Min Angle
+        units::radian_t{20_tr},     // Max Angle
+        true,                       // Simulate Gravity
+        units::radian_t{0_tr}       //Stating angle
+    }, 
+    m_ArmMotorState{in.m_armMotor},
+    m_IntakeMotorState{in.m_intakeMotor}   
+{}
+
+void Intake::SimulationPeriodic() {
+    if (!m_sim_state) return;
+
+    auto ssArmPhys = m_sim_state->m_armPhysics;
+
+    ssArmPhys.SetInputVoltage(
+        -m_sim_state->m_ArmMotorState.GetMotorVoltage());
+
+    ssArmPhys.Update(20_ms);
+
+    m_sim_state->m_ArmMotorState.SetRawRotorPosition(ssArmPhys.GetAngle());
+    m_sim_state->m_ArmMotorState.SetRotorVelocity(ssArmPhys.GetVelocity());
+
+}

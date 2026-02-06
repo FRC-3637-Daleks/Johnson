@@ -4,6 +4,9 @@
 #include <frc2/command/CommandPtr.h>
 #include <frc2/command/Commands.h>
 #include <frc2/command/SubsystemBase.h>
+#include <frc/simulation/SingleJointedArmSim.h>
+
+class IntakeSim;
 
 class Intake : public frc2::SubsystemBase {
 public:
@@ -46,5 +49,12 @@ private:
     ctre::phoenix6::CANBus m_CANBusInstance;
     ctre::phoenix6::hardware::TalonFX m_armMotor;
     ctre::phoenix6::hardware::TalonFX m_intakeMotor;
+
+private:
+    friend class IntakeSim;
+    std::unique_ptr<IntakeSim> m_sim_state;
+    void SimulationPeriodic() override;
+
+
 
 };
