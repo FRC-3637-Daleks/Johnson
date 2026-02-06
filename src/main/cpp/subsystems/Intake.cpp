@@ -134,9 +134,6 @@ void Intake::ArmStop() {
 
 //**************************** Simulation ****************************/
 
-//Look into whats actually doing the moving, is it the real motor or 
-//the simulated object? If its the sumulated object, how do you get its position
-
 IntakeSim::IntakeSim(Intake& in) :
     m_armPhysics{
         frc::DCMotor::Falcon500(1), // DCMotor
