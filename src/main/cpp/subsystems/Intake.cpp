@@ -20,9 +20,6 @@ namespace IntakeConstants {
     units::volt_t intakeBackwardsVoltage = -7_V;
     units::volt_t armFowardVoltage = 6_V;
     units::volt_t armBackwardsVoltage = -7_V;
-
-    units::volt_t constVoltage = 3_V; //volts to feed constanty out
-
 }
 
 class IntakeSim {
@@ -70,19 +67,23 @@ Intake::~Intake() {
 }
 
 frc2::CommandPtr Intake::GoArmOut() {
-    return Run([this] {ArmOut();});
+    return Run([this] {ArmOut();})
+    .Until([this]->bool{IsArmOut();});
 }
 
 frc2::CommandPtr Intake::GoArmIn() {
-    return Run([this] {ArmIn();});
+    return Run([this] {ArmIn();})
+    .Until([this]->bool{IsArmIn();});
 }
 
 frc2::CommandPtr Intake::IntakeFuel() {
-    return Run([this] {IntakeIn();});
+    return RunEnd([this] {IntakeIn();},
+    [this]{IntakeStop();});
 }
 
 frc2::CommandPtr Intake::OutakeFuel() {
-    return Run([this] {IntakeOut();});
+    return RunEnd([this] {IntakeOut();},
+    [this]{IntakeStop();});
 }
 
 
@@ -98,10 +99,8 @@ bool Intake::IsArmOut() {
 }
 
 bool Intake::IsArmIn() {
-
     return IntakeConstants::armInPos - IntakeConstants::tolerance < GetArmPos()
         && IntakeConstants::armInPos + IntakeConstants::tolerance > GetArmPos();
-
 }
 
 void Intake::IntakeIn() {
@@ -116,20 +115,16 @@ void Intake::IntakeStop() {
     m_intakeMotor.SetVoltage(0_V);
 }
 
-void Intake::IntakeConstVoltage() {
-    m_intakeMotor.SetVoltage(IntakeConstants::constVoltage);
-}
-
 void Intake::ArmIn() {
-    m_armMotor.SetVoltage(IntakeConstants::armBackwardsVoltage);
+    m_goal = IntakeConstants::armInPos;
+    m_armMotor.SetControl(ctre::phoenix6::controls::PositionVoltage{m_goal}
+        .WithSlot(0).WithPosition(m_goal));
 }
 
 void Intake::ArmOut() {
-    m_armMotor.SetVoltage(IntakeConstants::armFowardVoltage);
-}
-
-void Intake::ArmStop() {
-    m_armMotor.SetVoltage(0_V);
+    m_goal = IntakeConstants::armOutPos;
+    m_armMotor.SetControl(ctre::phoenix6::controls::PositionVoltage{m_goal}
+        .WithSlot(0).WithPosition(m_goal));
 }
 
 //**************************** Simulation ****************************/
