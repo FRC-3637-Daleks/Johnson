@@ -5,6 +5,7 @@
 #include <frc2/command/Commands.h>
 #include <frc2/command/SubsystemBase.h>
 #include <frc/simulation/SingleJointedArmSim.h>
+#include <ctre/phoenix6/controls/PositionVoltage.hpp>
 
 class IntakeSim;
 
@@ -16,7 +17,6 @@ public:
 
 public:
     //Hangs until compleated
-    //Uses const voltage once out to keep out
     frc2::CommandPtr GoArmOut();
 
     //Hangs until compleated
@@ -38,18 +38,16 @@ private:
     void IntakeIn();
     void IntakeOut();
     void IntakeStop();
-    void IntakeConstVoltage();
     
     void ArmIn();
     void ArmOut();
-    void ArmStop();
 
 private:
 
     ctre::phoenix6::CANBus m_CANBusInstance;
     ctre::phoenix6::hardware::TalonFX m_armMotor;
     ctre::phoenix6::hardware::TalonFX m_intakeMotor;
-
+    units::angle::turn_t m_goal{};
 private:
     friend class IntakeSim;
     std::unique_ptr<IntakeSim> m_sim_state;
