@@ -17,7 +17,7 @@ namespace ClimbConstants{
     constexpr auto kMinHeight = 0_in;
     constexpr auto kMaxHeight = 10_in;
     constexpr auto kFirstStageLength =
-    (kMaxHeight - kMinHeight) / 3;
+    (kMaxHeight - kMinHeight);
   
     constexpr units::length::centimeter_t goal_heights[] = {kMinHeight, kMaxHeight};
     constexpr std::string_view goal_names[] = {"Bottom", "Top"};
@@ -44,8 +44,25 @@ public:
 
 
 Climb::Climb()
-    : m_climbMotor{ClimbConstants::kMotorID, ClimbConstants::kBus}  
-{}
+    : m_climbMotor{ClimbConstants::kMotorID, ClimbConstants::kBus},
+    m_sim_state{new ClimbSim{*this}}
+{
+  ctre::phoenix6::configs::TalonFXConfiguration config{};
+  
+  config.Slot0.kP = 12.0;  
+  config.Slot0.kI = 0.0;
+  config.Slot0.kD = 0.1;
+  
+  config.Slot0.kG = 0.3;  
+  config.Slot0.GravityType = ctre::phoenix6::signals::GravityTypeValue::Elevator_Static;
+  
+  config.Feedback.SensorToMechanismRatio = 1.0;
+
+  //needed for sim, dont know the effect on sim
+  config.MotorOutput.Inverted = ctre::phoenix6::signals::InvertedValue::Clockwise_Positive;
+  
+  m_climbMotor.GetConfigurator().Apply(config);
+}
 
 Climb::~Climb(){}
 
@@ -146,43 +163,31 @@ ClimbSim::ClimbSim(Climb &climb):
       m_simState{climb.m_climbMotor}{}
 
 void Climb::SimulationPeriodic() {
-  if(!m_sim_state){
-    return;
-  }
-    
+  if(!m_sim_state) return;
 
-  //reduce code clutter
   auto &m_climbModel = m_sim_state->m_climbModel;
-  auto &m_simState = m_sim_state->m_simState; //motor
+  auto &m_simState = m_sim_state->m_simState;
     
-  const auto supply_voltage = 12_V; //frc::RobotController::GetBatteryVoltage();
-  m_simState.SetSupplyVoltage(supply_voltage);
+  m_simState.SetSupplyVoltage(12_V); //Prob gana be 12_V but should use frc::RobotController::GetBatteryVoltage()
 
-  //set inputs into model
   m_climbModel.SetInputVoltage(-m_simState.GetMotorVoltage());
 
-  //Simulate model over next 20ms
   m_climbModel.Update(20_ms);
 
-  // The motor turns kGearReduction times to turn the spool once
-  // This raises the elevator one spool circumference up
   constexpr auto rotor_turns_per_climb_height =
-    ClimbConstants::kGearReduction * 1_tr /
+    ClimbConstants::kGearReduction * 1_tr / 
     ClimbConstants::kSprocketCircum;
 
-
-  // Feed simulated outputs of model back into user program
   const auto position = m_climbModel.GetPosition();
   const units::turn_t rotor_turns = position * rotor_turns_per_climb_height;
 
   const auto velocity = m_climbModel.GetVelocity();
-  const units::turns_per_second_t rotor_velocity =
+  const units::turns_per_second_t rotor_velocity = 
     velocity * rotor_turns_per_climb_height;
-
-  // mechanically linked, though we should never read this value
+  
   m_simState.SetRawRotorPosition(-rotor_turns);
   m_simState.SetRotorVelocity(-rotor_velocity);
-
+  
   // Publishing data to NetworkTables
   frc::SmartDashboard::PutNumber("Climb/Sim Position (m)",
                                 units::meter_t{position}.value());
