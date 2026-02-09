@@ -1,6 +1,7 @@
 #include "subsystems/Shooter.h"
 
 namespace ShooterConstants {
+    int kfeederBreakBeamID = 5;
     int kFeederMotorID = 2;
 
     units::volt_t kFeederInV = 6_V;
@@ -21,7 +22,8 @@ namespace ShooterConstants {
 Shooter::Shooter() : 
     m_CANBusInstance{"Drivebase"},
     m_flyWheelLeadMotor{ShooterConstants::kShooterFlywheelLeaderID, m_CANBusInstance},
-    m_flyWheelFollowMotor{ShooterConstants::kShooterFlywheelFollowerID, m_CANBusInstance} ,
+    m_flyWheelFollowMotor{ShooterConstants::kShooterFlywheelFollowerID, m_CANBusInstance},
+    m_feederBreakBeam{ShooterConstants::kfeederBreakBeamID},
     m_feederMotor{ShooterConstants::kFeederMotorID, m_CANBusInstance}    
 {
     ctre::phoenix6::configs::TalonFXConfiguration m_armConfig;
@@ -42,6 +44,8 @@ Shooter::Shooter() :
 Shooter::~Shooter() {
 
 }
+
+bool Shooter::IsBBBroken() {return m_feederBreakBeam.Get();}
 
 void Shooter::FeederIn() {
     m_feederMotor.SetVoltage(ShooterConstants::kFeederInV);
