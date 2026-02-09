@@ -22,7 +22,6 @@ public:
     units::centimeter_t GetPosition();
 
     frc2::CommandPtr GoToHeight(Height goal);
-    frc2::CommandPtr ToggleHeight();
     frc2::CommandPtr Deploy();
     frc2::CommandPtr LiftBot();
     frc2::CommandPtr Retract();
