@@ -37,7 +37,7 @@ public:
 
   frc::sim::ElevatorSim m_climbModel;
 
-  ctre::phoenix6::sim::TalonFXSimState m_simState;
+  ctre::phoenix6::sim::TalonFXSimState m_simState; //Climb motor
 };
 
 
@@ -146,14 +146,16 @@ ClimbSim::ClimbSim(Climb &climb):
       m_simState{climb.m_climbMotor}{}
 
 void Climb::SimulationPeriodic() {
-  if(!m_sim_state){}
+  if(!m_sim_state){
     return;
+  }
+    
 
   //reduce code clutter
   auto &m_climbModel = m_sim_state->m_climbModel;
-  auto &m_simState = m_sim_state->m_simState;
+  auto &m_simState = m_sim_state->m_simState; //motor
     
-  const auto supply_voltage = frc::RobotController::GetBatteryVoltage();
+  const auto supply_voltage = 12_V; //frc::RobotController::GetBatteryVoltage();
   m_simState.SetSupplyVoltage(supply_voltage);
 
   //set inputs into model

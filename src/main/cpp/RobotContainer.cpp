@@ -155,7 +155,9 @@ void RobotContainer::ConfigureBindings() {
   } catch(...) {
   }
 
-  m_swerveController.Button(10).OnTrue(m_climb.ToggleHeight());
+  m_swerveController.Button(10).OnTrue(m_climb.Deploy());
+  m_swerveController.Button(9).OnTrue(m_climb.LiftBot());
+
 }
 
 void RobotContainer::ConfigureDashboard() {
