@@ -20,6 +20,7 @@
 
 #include "subsystems/Drivetrain.h"
 #include "subsystems/ROSBridge.h"
+#include "subsystems/Intake.h"
 
 /**
  * This class is where the bulk of the robot should be declared.  Since
@@ -44,6 +45,7 @@ public:
 
   Drivetrain m_swerve;
   ROSBridge m_ros;
+  Intake m_intake; 
 
   bool m_isRed;
 

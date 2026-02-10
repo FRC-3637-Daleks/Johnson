@@ -154,6 +154,11 @@ void RobotContainer::ConfigureBindings() {
       m_swerve.ResetControlHeading();
   }));
 
+
+  m_swerveController.Button(11).OnTrue(m_intake.GoArmOut());
+
+  m_swerveController.Button(10).OnTrue(m_intake.GoArmIn());
+
   m_swerveController.POVDown().WhileTrue(
     m_swerve.DriveToPoseIndefinitelyCommand(AutoConstants::desiredPose));
   try {
