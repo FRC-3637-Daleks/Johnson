@@ -59,5 +59,5 @@ private:
     frc::Mechanism2d m_mechIntake{3, 3};
     frc::MechanismRoot2d* m_root = m_mechIntake.GetRoot("intake", 2, 0);
 
-    frc::MechanismLigament2d* m_intake, m_wrist;
+    frc::MechanismLigament2d *m_intake{}, *m_wrist{};
 };
