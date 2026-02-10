@@ -6,6 +6,9 @@
 #include <frc2/command/SubsystemBase.h>
 #include <frc/simulation/SingleJointedArmSim.h>
 #include <ctre/phoenix6/controls/PositionVoltage.hpp>
+#include <frc/smartdashboard/MechanismLigament2d.h>
+#include <frc/smartdashboard/Mechanism2d.h>
+
 
 class IntakeSim;
 
@@ -53,6 +56,8 @@ private:
     std::unique_ptr<IntakeSim> m_sim_state;
     void SimulationPeriodic() override;
 
+    frc::Mechanism2d m_mechIntake{3, 3};
+    frc::MechanismRoot2d* m_root = m_mechIntake.GetRoot("intake", 2, 0);
 
-
+    frc::MechanismLigament2d* m_intake, m_wrist;
 };

@@ -1,4 +1,5 @@
 #include "subsystems/Intake.h"
+#include <frc/smartdashboard/SmartDashboard.h>
 
 namespace IntakeConstants {
 
@@ -39,7 +40,10 @@ public:
 Intake::Intake() :
     m_CANBusInstance{"Drivebase"},
     m_armMotor{IntakeConstants::kArmMotorID, m_CANBusInstance},
-    m_intakeMotor{IntakeConstants::kIntakeMotorID, m_CANBusInstance} 
+    m_intakeMotor{IntakeConstants::kIntakeMotorID, m_CANBusInstance},
+    m_intake{m_root->Append<frc::MechanismLigament2d>("intake", 1, 90_deg)},
+    m_wrist{m_root->Append<frc::MechanismLigament2d>(
+            "wrist", 0.5, 90_deg, 6, frc::Color8Bit{frc::Color::kPurple})}
 {
     ctre::phoenix6::configs::TalonFXConfiguration m_armConfig;
 
@@ -61,29 +65,34 @@ Intake::Intake() :
 
     m_armMotor.GetConfigurator().Apply(m_armConfig);  
     
+    frc::MechanismLigament2d* m_elevator =
+        m_root->Append<frc::MechanismLigament2d>("intake", 1, 90_deg);
+    frc::MechanismLigament2d* m_wrist =
+        m_elevator->Append<frc::MechanismLigament2d>(
+            "wrist", 0.5, 90_deg, 6, frc::Color8Bit{frc::Color::kPurple});
 }
 
 Intake::~Intake() {
 }
 
 frc2::CommandPtr Intake::GoArmOut() {
-    return Run([this] {ArmOut();})
-    .Until([this]->bool{IsArmOut();});
+    return Run([this]() {ArmOut();})
+    .Until([this]() -> bool{return IsArmOut();});
 }
 
 frc2::CommandPtr Intake::GoArmIn() {
-    return Run([this] {ArmIn();})
-    .Until([this]->bool{IsArmIn();});
+    return Run([this]() {ArmIn();})
+    .Until([this]() -> bool{return IsArmIn();});
 }
 
 frc2::CommandPtr Intake::IntakeFuel() {
-    return RunEnd([this] {IntakeIn();},
-    [this]{IntakeStop();});
+    return RunEnd([this]() {IntakeIn();},
+    [this]() {IntakeStop();});
 }
 
 frc2::CommandPtr Intake::OutakeFuel() {
-    return RunEnd([this] {IntakeOut();},
-    [this]{IntakeStop();});
+    return RunEnd([this]() {IntakeOut();},
+    [this]() {IntakeStop();});
 }
 
 
@@ -157,4 +166,6 @@ void Intake::SimulationPeriodic() {
     m_sim_state->m_ArmMotorState.SetRawRotorPosition(ssArmPhys.GetAngle());
     m_sim_state->m_ArmMotorState.SetRotorVelocity(ssArmPhys.GetVelocity());
 
+
+    frc::SmartDashboard::PutData("Mech2d", &m_mechIntake);
 }
