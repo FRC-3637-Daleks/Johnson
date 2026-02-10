@@ -23,6 +23,7 @@
 #include "subsystems/Feeder.h"
 #include "subsystems/ROSBridge.h"
 #include "subsystems/OperatorInterface.h"
+#include "subsystems/Intake.h"
 
 /**
  * This class is where the bulk of the robot should be declared.  Since
@@ -51,6 +52,7 @@ public:
   Shooter m_shooter;
   Feeder m_feederTop{Feeder::Type::Top};
   Feeder m_feederBottom{Feeder::Type::Bottom};
+  Intake m_intake; 
 
   bool m_isRed;
 
