@@ -41,7 +41,7 @@ Intake::Intake() :
     m_CANBusInstance{"Drivebase"},
     m_armMotor{IntakeConstants::kArmMotorID, m_CANBusInstance},
     m_intakeMotor{IntakeConstants::kIntakeMotorID, m_CANBusInstance},
-    m_intake{m_root->Append<frc::MechanismLigament2d>("intake", 1, 90_deg)},
+    m_intake{m_root->Append<frc::MechanismLigament2d>("intake", 1, 90_deg, 6, frc::Color8Bit{frc::Color::kBlue})},
     m_wrist{m_root->Append<frc::MechanismLigament2d>(
             "wrist", 0.5, 90_deg, 6, frc::Color8Bit{frc::Color::kPurple})}
 {
