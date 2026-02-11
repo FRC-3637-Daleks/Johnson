@@ -135,6 +135,8 @@ void RobotContainer::ConfigureBindings() {
 
   m_swerveController.Button(6).OnTrue(m_feederTop.setRPM(100));
   m_swerveController.Button(7).OnTrue(m_feederTop.setRPM(0));
+  m_swerveController.Button(7).OnTrue(m_intake.IntakeFuel());
+  m_swerveController.Button(8).OnTrue(m_intake.OutakeFuel());
 
   m_swerveController.Button(9).OnTrue(m_intake.GoArmOut());
 

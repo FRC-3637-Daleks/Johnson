@@ -3,8 +3,8 @@
 
 namespace IntakeConstants {
 
-    int kIntakeMotorID = 3;
-    int kArmMotorID = 2;
+    int kIntakeMotorID = 10;
+    int kArmMotorID = 11;
 
     double kP = 2.4;
     double kI = 0.0;
@@ -153,7 +153,7 @@ void Intake::SimulationPeriodic() {
     if (!m_sim_state) return;
 
     //update arm physics sim
-    auto ssArmPhys = m_sim_state->m_armPhysics;
+    auto& ssArmPhys = m_sim_state->m_armPhysics;
     ssArmPhys.SetInputVoltage(
         -m_sim_state->m_ArmMotorState.GetMotorVoltage());
     ssArmPhys.Update(20_ms);
