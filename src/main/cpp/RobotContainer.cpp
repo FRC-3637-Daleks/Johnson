@@ -155,7 +155,7 @@ void RobotContainer::ConfigureBindings() {
   }));
 
 
-  m_swerveController.Button(11).OnTrue(m_intake.GoArmOut());
+  m_swerveController.Button(9).OnTrue(m_intake.GoArmOut());
 
   m_swerveController.Button(10).OnTrue(m_intake.GoArmIn());
 
