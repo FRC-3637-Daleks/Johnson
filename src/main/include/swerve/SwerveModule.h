@@ -16,7 +16,7 @@
 namespace ModuleConstants {
 
 // Values measured with the drivetrain suspended.
-constexpr auto kPhysicalMaxSpeed = 15.7_fps;
+constexpr auto kPhysicalMaxSpeed = 17.1_fps;
 
 } // namespace ModuleConstants
 

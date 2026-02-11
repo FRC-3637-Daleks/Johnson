@@ -137,5 +137,7 @@ void OdometryThread::Run(units::millisecond_t period) {
 }
 
 frc::Rotation2d OdometryThread::GetGyroHeading() {
-  return units::degree_t(-m_gyro.GetYaw());
+  // first negative for nav-x clockwise being positive (unconventional)
+  // second negative for the whole sensor being inverted
+  return units::degree_t(-(-m_gyro.GetYaw()));
 }
