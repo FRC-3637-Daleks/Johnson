@@ -41,9 +41,10 @@ Intake::Intake() :
     m_CANBusInstance{"Drivebase"},
     m_armMotor{IntakeConstants::kArmMotorID, m_CANBusInstance},
     m_intakeMotor{IntakeConstants::kIntakeMotorID, m_CANBusInstance},
-    m_intake{m_root->Append<frc::MechanismLigament2d>("intake", 1, 90_deg, 6, frc::Color8Bit{frc::Color::kBlue})},
-    m_wrist{m_root->Append<frc::MechanismLigament2d>(
-            "wrist", 0.5, 90_deg, 6, frc::Color8Bit{frc::Color::kPurple})}
+    m_arm{m_root->Append<frc::MechanismLigament2d>("intake", 1, 90_deg, 6, frc::Color8Bit{frc::Color::kBlue})},
+    m_wrist{m_arm->Append<frc::MechanismLigament2d>(
+            "wrist", 0.5, 90_deg, 6, frc::Color8Bit{frc::Color::kPurple})},
+    m_sim_state{new IntakeSim{*this}}
 {
     ctre::phoenix6::configs::TalonFXConfiguration m_armConfig;
 
@@ -64,12 +65,6 @@ Intake::Intake() :
       units::angular_acceleration::turns_per_second_squared_t{200};
 
     m_armMotor.GetConfigurator().Apply(m_armConfig);  
-    
-    frc::MechanismLigament2d* m_elevator =
-        m_root->Append<frc::MechanismLigament2d>("intake", 1, 90_deg);
-    frc::MechanismLigament2d* m_wrist =
-        m_elevator->Append<frc::MechanismLigament2d>(
-            "wrist", 0.5, 90_deg, 6, frc::Color8Bit{frc::Color::kPurple});
 }
 
 Intake::~Intake() {
@@ -147,25 +142,31 @@ IntakeSim::IntakeSim(Intake& in) :
         units::radian_t{0_tr},      // Min Angle
         units::radian_t{20_tr},     // Max Angle
         true,                       // Simulate Gravity
-        units::radian_t{0_tr}       //Stating angle
+        units::radian_t{10_tr}       //Stating angle
     }, 
     m_ArmMotorState{in.m_armMotor},
     m_IntakeMotorState{in.m_intakeMotor}   
 {}
 
+#include <iostream>
 void Intake::SimulationPeriodic() {
     if (!m_sim_state) return;
 
+    //update arm physics sim
     auto ssArmPhys = m_sim_state->m_armPhysics;
-
     ssArmPhys.SetInputVoltage(
         -m_sim_state->m_ArmMotorState.GetMotorVoltage());
-
     ssArmPhys.Update(20_ms);
 
+    //update arm motor + visual sim
     m_sim_state->m_ArmMotorState.SetRawRotorPosition(ssArmPhys.GetAngle());
     m_sim_state->m_ArmMotorState.SetRotorVelocity(ssArmPhys.GetVelocity());
+    m_arm->SetAngle(ssArmPhys.GetAngle());
 
+    //update intake motor
+    double delta = (double)m_intakeMotor.Get() * 30;
+    auto newAngle =units::angle::degree_t(m_wrist->GetAngle() + delta);
+    m_wrist->SetAngle(newAngle);
 
-    frc::SmartDashboard::PutData("Mech2d", &m_mechIntake);
+    frc::SmartDashboard::PutData("Intake", &m_mechIntake);
 }
