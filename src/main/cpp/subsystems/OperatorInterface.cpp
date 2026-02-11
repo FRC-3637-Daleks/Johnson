@@ -47,7 +47,9 @@ units::meters_per_second_t OperatorInterface::strafe() {
                                   OperatorConstants::kStrafeDeadband);
   auto squaredInput = input * std::abs(input);
   auto alliance_flip = IsRed() ? -1 : 1;
-  return -OperatorConstants::kMaxTeleopSpeed * squaredInput * alliance_flip *
+
+  // positive input -> right -> negative y velocity on blue alliance
+  return -1 * OperatorConstants::kMaxTeleopSpeed * squaredInput * alliance_flip *
          throttle() * boolean_slowdown();
 }
 
@@ -56,7 +58,9 @@ units::meters_per_second_t OperatorInterface::fwd() {
                                   OperatorConstants::kStrafeDeadband);
   auto squaredInput = input * std::abs(input);
   auto alliance_flip = IsRed() ? -1 : 1;
-  return -OperatorConstants::kMaxTeleopSpeed * squaredInput * alliance_flip *
+
+  // positive input -> down -> negative x velocity on blue alliance
+  return -1 * OperatorConstants::kMaxTeleopSpeed * squaredInput * alliance_flip *
          throttle() * boolean_slowdown();
 }
 
@@ -70,10 +74,12 @@ units::meters_per_second_t OperatorInterface::alt_fwd() {
 }
 
 units::revolutions_per_minute_t OperatorInterface::rot() {
-  auto input = frc::ApplyDeadband(-m_swerveController.GetHID().GetRightX(),
+  auto input = frc::ApplyDeadband(m_swerveController.GetHID().GetRightX(),
                                   OperatorConstants::kRotDeadband);
   auto squaredInput = input * std::abs(input);
-  return OperatorConstants::kMaxTeleopTurnSpeed * squaredInput * throttle() *
+
+  // positive input -> right -> negative theta velocity
+  return -1 * OperatorConstants::kMaxTeleopTurnSpeed * squaredInput * throttle() *
          boolean_slowdown();
 }
 
