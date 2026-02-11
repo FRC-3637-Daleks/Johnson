@@ -45,7 +45,7 @@ constexpr auto kCurrentLimitPeriod = 40_ms;
 
 constexpr auto kWheelDiameter = 4_in;
 
-constexpr double kDriveEncoderReduction = 6.75;     // reduction in drive motor
+constexpr double kDriveEncoderReduction = 5.9;     // reduction in drive motor
 // Linear distance per revolution of motor
 constexpr auto kDriveEncoderDistancePerRevolution = 
   kWheelDiameter * std::numbers::pi / kDriveEncoderReduction;
@@ -53,12 +53,12 @@ constexpr auto kDriveEncoderDistancePerRevolution =
   // calculated based on a weight of 70lbs
 constexpr auto kWheelMoment = .0101_kg_sq_m;
 constexpr auto kMotorSpeedChoreo = 5104_rpm; // choreo value
-constexpr auto kMotorSpeed = 6080_rpm;       // Website value
+constexpr auto kMotorSpeed = 6000_rpm;       // Website value
 constexpr auto kDriveMaxAcceleration = 500_tr_per_s_sq;
 constexpr auto kDriveTargetAcceleration = 300_tr_per_s_sq;
 constexpr auto kDistanceToRotations = kDriveEncoderDistancePerRevolution / 1_tr;
 
-constexpr double kSteerGearReduction = 150.0 / 7.0;
+constexpr double kSteerGearReduction = 18.75;
 
 // Reduced to near 0-mass for smooth sim driving
 constexpr auto kSteerMoment = 0.0001_kg_sq_m;
@@ -86,7 +86,7 @@ constexpr auto kSteerGains = configs::Slot0Configs{}
   .WithKA(kSteerA.value())
 ;
 
-const auto MotorModel = [](int N = 1) { return frc::DCMotor::Falcon500FOC(N); };
+const auto MotorModel = [](int N = 1) { return frc::DCMotor::KrakenX60FOC(N); };
 
 constexpr ctre::phoenix6::CANBus kBus{"Drivebase"};
 

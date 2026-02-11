@@ -32,7 +32,7 @@
 #include <numeric>
 
 namespace ChassisConstants {
-constexpr auto kMaxSpeed = 15.7_fps;
+constexpr auto kMaxSpeed = ModuleConstants::kPhysicalMaxSpeed;
 constexpr auto kMaxAccel = 6_mps_sq;
 constexpr auto kWeight = 70_lb;
 constexpr auto kBatteryWeight = 12.9_lb;
@@ -56,8 +56,7 @@ inline const frc::PIDController kTranslatePID{kPXY, kIXY, kDXY};
 
 // Swerve Constants
 constexpr auto kTrackWidth = 25_in; // Distance between centers of right and left wheels.
-constexpr auto kWheelBase = 25_in; // Distance between centers of front and back wheels.
-const auto kRadius = units::meter_t(std::sqrt(.91));
+constexpr auto kWheelBase = 19_in; // Distance between centers of front and back wheels.
 
 constexpr int kFrontLeftDriveMotorId = 1;
 constexpr int kRearLeftDriveMotorId = 3;
@@ -163,8 +162,9 @@ void SwerveChassis::SetModuleStates(
 frc::Rotation2d SwerveChassis::GetHeading() { return GetPose().Rotation(); }
 
 frc::Rotation2d SwerveChassis::GetGyroHeading() {
-    // The yaw for Nav-X doesn't use conventional rotation
-    return units::degree_t(-m_gyro.GetYaw());
+    // The yaw for Nav-X doesn't use conventional counter-clockwise-positive
+    // But on this robot its also upside-down so
+    return units::degree_t(-(-m_gyro.GetYaw()));
 }
 
 void SwerveChassis::SyncEncoders() {
@@ -313,7 +313,8 @@ void SwerveChassis::SimulationPeriodic() {
     const auto new_theta =
         theta.RotateBy(units::radian_t{chassis_speed.omega * 20_ms});
     // robot nav x defines clockwise as positive instead of counterclockwise
-    m_sim_state->m_gyroYaw.Set(-new_theta.Degrees().value());
+    // but this robot is upside down so negate it again
+    m_sim_state->m_gyroYaw.Set(-(-new_theta.Degrees().value()));
 
     // Feed this simulated gyro angle into the odometry to get simulated
     // position
