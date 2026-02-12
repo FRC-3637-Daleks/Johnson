@@ -19,10 +19,8 @@ public:
     ~Intake();
 
 public:
-    //Hangs until compleated
     frc2::CommandPtr GoArmOut();
 
-    //Hangs until compleated
     frc2::CommandPtr GoArmIn();
 
     //RunEnd
@@ -31,13 +29,13 @@ public:
     //RunEnd
     frc2::CommandPtr OutakeFuel();
 
+    bool IsArmOut(); 
+    bool IsArmIn();
+
 private:
 
     units::angle::turn_t GetArmPos();
     
-    bool IsArmOut(); 
-    bool IsArmIn();
-
     void IntakeIn();
     void IntakeOut();
     void IntakeStop();
