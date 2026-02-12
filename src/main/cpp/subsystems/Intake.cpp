@@ -1,21 +1,24 @@
 #include "subsystems/Intake.h"
 #include <frc/smartdashboard/SmartDashboard.h>
 
+#include <iostream>
+
+
 namespace IntakeConstants {
 
     int kIntakeMotorID = 10;
     int kArmMotorID = 11;
 
-    double kP = 2.4;
+    double kP = 10.0;
     double kI = 0.0;
     double kD = 0.1;   
-    double kG = 0.0;
+    double kG = 5.0;
     double kS = 0.0;
     double kV = 0.0;
     
-    units::angle::turn_t armOutPos = 10_tr;
-    units::angle::turn_t armInPos = 0_tr;
-    units::angle::turn_t tolerance = 0.5_tr;
+    units::angle::turn_t armOutPos = 0_tr;
+    units::angle::turn_t armInPos = 0.25_tr;
+    units::angle::turn_t tolerance = 0.05_tr;
     
     units::volt_t intakeFowardVoltage = 6_V;
     units::volt_t intakeBackwardsVoltage = -7_V;
@@ -53,6 +56,7 @@ Intake::Intake() :
     slot0Configs.kI = IntakeConstants::kI; 
     slot0Configs.kD = IntakeConstants::kD; 
     slot0Configs.kG = IntakeConstants::kG; 
+    slot0Configs.GravityType = ctre::phoenix6::signals::GravityTypeValue::Arm_Cosine;
     slot0Configs.kS = IntakeConstants::kS; 
     slot0Configs.kV = IntakeConstants::kV;
 
@@ -71,13 +75,11 @@ Intake::~Intake() {
 }
 
 frc2::CommandPtr Intake::GoArmOut() {
-    return Run([this]() {ArmOut();})
-    .Until([this]() -> bool{return IsArmOut();});
+    return Run([this]() {ArmOut();});
 }
 
 frc2::CommandPtr Intake::GoArmIn() {
-    return Run([this]() {ArmIn();})
-    .Until([this]() -> bool{return IsArmIn();});
+    return Run([this]() {ArmIn();});
 }
 
 frc2::CommandPtr Intake::IntakeFuel() {
@@ -121,46 +123,47 @@ void Intake::IntakeStop() {
 
 void Intake::ArmIn() {
     m_goal = IntakeConstants::armInPos;
+    std::cout << m_goal.value() << std::endl;
     m_armMotor.SetControl(ctre::phoenix6::controls::PositionVoltage{m_goal}
-        .WithSlot(0).WithPosition(m_goal));
+        .WithSlot(0));
 }
 
 void Intake::ArmOut() {
     m_goal = IntakeConstants::armOutPos;
+    std::cout << m_goal.value() << std::endl;
     m_armMotor.SetControl(ctre::phoenix6::controls::PositionVoltage{m_goal}
-        .WithSlot(0).WithPosition(m_goal));
+        .WithSlot(0));
 }
 
 //**************************** Simulation ****************************/
 
 IntakeSim::IntakeSim(Intake& in) :
     m_armPhysics{
-        frc::DCMotor::Falcon500(1), // DCMotor
+        frc::DCMotor::KrakenX60(1), // DCMotor
         100.0,                      // Gearing
-        1.0_kg_sq_m,                // Moment of Inertia (Guess)
+        1.0_kg_sq_m,                // Moment of Inertia
         0.3_m,                      // Arm Length
         units::radian_t{0_tr},      // Min Angle
-        units::radian_t{20_tr},     // Max Angle
+        units::radian_t{0.25_tr},   // Max Angle
         true,                       // Simulate Gravity
-        units::radian_t{10_tr}       //Stating angle
+        units::radian_t{0.25_tr}       // Stating angle
     }, 
     m_ArmMotorState{in.m_armMotor},
     m_IntakeMotorState{in.m_intakeMotor}   
 {}
 
-#include <iostream>
 void Intake::SimulationPeriodic() {
     if (!m_sim_state) return;
 
     //update arm physics sim
     auto& ssArmPhys = m_sim_state->m_armPhysics;
     ssArmPhys.SetInputVoltage(
-        -m_sim_state->m_ArmMotorState.GetMotorVoltage());
+        m_sim_state->m_ArmMotorState.GetMotorVoltage());
     ssArmPhys.Update(20_ms);
 
     //update arm motor + visual sim
-    m_sim_state->m_ArmMotorState.SetRawRotorPosition(ssArmPhys.GetAngle());
-    m_sim_state->m_ArmMotorState.SetRotorVelocity(ssArmPhys.GetVelocity());
+    m_sim_state->m_ArmMotorState.SetRawRotorPosition(ssArmPhys.GetAngle() * 100.0);
+    m_sim_state->m_ArmMotorState.SetRotorVelocity(ssArmPhys.GetVelocity() * 100.0);
     m_arm->SetAngle(ssArmPhys.GetAngle());
 
     //update intake motor

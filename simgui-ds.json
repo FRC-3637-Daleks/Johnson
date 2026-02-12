@@ -40,8 +40,8 @@
         86,
         -1,
         -1,
-        -1,
-        -1,
+        75,
+        76,
         80,
         79,
         -1
@@ -51,12 +51,10 @@
     {
       "axisConfig": [
         {
-          "decKey": 74,
-          "incKey": 76
+          "decKey": 74
         },
         {
-          "decKey": 73,
-          "incKey": 75
+          "decKey": 73
         }
       ],
       "axisCount": 2,
