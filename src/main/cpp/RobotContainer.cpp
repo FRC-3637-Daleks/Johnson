@@ -187,9 +187,17 @@ void RobotContainer::ConfigureBindings() {
 
 void RobotContainer::ConfigureDashboard() {
   frc::SmartDashboard::PutData("Drivebase", &m_swerve);
+  frc::SmartDashboard::PutData(&m_chooser);
 }
 
-void RobotContainer::ConfigureAuto() {}
+void RobotContainer::ConfigureAuto() {
+
+  depotauto = AutoBuilder::DepotAuto(m_swerve);
+
+  m_chooser.SetDefaultOption(
+   "Default Auto: Go to the depot", depotauto.get());
+
+}
 
 void RobotContainer::ConfigureContinuous() {
   // These commands are for transmitting data across subsystems

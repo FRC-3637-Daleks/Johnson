@@ -25,6 +25,7 @@
 #include "subsystems/OperatorInterface.h"
 #include "subsystems/Intake.h"
 #include "subsystems/Climb.h"
+#include "AutoBuilder.h"
 
 /**
  * This class is where the bulk of the robot should be declared.  Since
@@ -58,6 +59,9 @@ public:
   // Climb m_climb;
 
   bool m_isRed;
+
+  frc::SendableChooser<frc2::Command *> m_chooser;
+  frc2::CommandPtr depotauto{frc2::cmd::None()};
 
 public:
   void ConfigureBindings();
