@@ -7,29 +7,41 @@
 #include <frc2/command/CommandPtr.h>
 #include <frc2/command/Commands.h>
 #include <frc2/command/SubsystemBase.h>
+#include <frc2/command/Subsystem.h>
 
 
 class ShooterSim;
 
-class Shooter {
+class Shooter : public frc2::SubsystemBase{
 public:
     Shooter();
     ~Shooter();
 
-private:
+public:
+    frc2::CommandPtr SetFlywheelSpeed(units::angular_velocity::turns_per_second_t velocity);
 
-    bool IsBBBroken(); 
-
-    void FeederIn();
-    void FeederOut();
-
+    frc2::CommandPtr FeederBottomIn();
+    frc2::CommandPtr FeederBottomOut();
+    frc2::CommandPtr FeederTopIn();
+    frc2::CommandPtr FeederTopOut();
 
     
+private:
 
-    void SetFlywheelSpeed(units::angular_velocity::turns_per_second_t velocity);
+    void SetFlywheelSpeedNRM(units::angular_velocity::turns_per_second_t velocity);
     units::angular_velocity::turns_per_second_t targetVelocity{}; //read only
     units::angular_velocity::turns_per_second_t GetCurrentFlywheelSpeed();
     bool isAtCorrectSpeed();
+
+    bool IsBBBroken(); 
+
+    //NRM = Non-returing member
+    void FeederBottomInNRM();
+    void FeederBottomOutNRM();
+    void FeederBottomStopNRM();
+    void FeederTopInNRM();
+    void FeederTopOutNRM();
+    void FeederTopStopNRM();
 
 private:
 
@@ -39,5 +51,5 @@ private:
     ctre::phoenix6::hardware::TalonFX m_flyWheelFollowMotor;
 
     frc::DigitalInput m_feederBreakBeam;
-    ctre::phoenix6::hardware::TalonFX m_feederMotor;
+    ctre::phoenix6::hardware::TalonFX m_feederBottomMotor, m_feederTopMotor;
 };
