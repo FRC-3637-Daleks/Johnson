@@ -9,12 +9,14 @@ namespace IntakeConstants {
     int kIntakeMotorID = 10;
     int kArmMotorID = 11;
 
-    double kP = 10.0;
+    double kP = 3.0;
     double kI = 0.0;
     double kD = 0.1;   
-    double kG = 5.0;
+    double kG = 0.3;
     double kS = 0.0;
     double kV = 0.0;
+
+    double GearRatio = 100;
     
     units::angle::turn_t armOutPos = 0_tr;
     units::angle::turn_t armInPos = 0.25_tr;
@@ -100,13 +102,13 @@ units::angle::turn_t Intake::GetArmPos() {
 }
 
 bool Intake::IsArmOut() {
-    return IntakeConstants::armOutPos - IntakeConstants::tolerance < GetArmPos()
-        && IntakeConstants::armOutPos + IntakeConstants::tolerance > GetArmPos();
+    return IntakeConstants::armOutPos - IntakeConstants::tolerance < GetArmPos()/IntakeConstants::GearRatio
+        && IntakeConstants::armOutPos + IntakeConstants::tolerance > GetArmPos()/IntakeConstants::GearRatio;
 }
 
 bool Intake::IsArmIn() {
-    return IntakeConstants::armInPos - IntakeConstants::tolerance < GetArmPos()
-        && IntakeConstants::armInPos + IntakeConstants::tolerance > GetArmPos();
+    return IntakeConstants::armInPos - IntakeConstants::tolerance < GetArmPos()/IntakeConstants::GearRatio
+        && IntakeConstants::armInPos + IntakeConstants::tolerance > GetArmPos()/IntakeConstants::GearRatio;
 }
 
 void Intake::IntakeIn() {
@@ -122,14 +124,14 @@ void Intake::IntakeStop() {
 }
 
 void Intake::ArmIn() {
-    m_goal = IntakeConstants::armInPos;
+    m_goal = IntakeConstants::armInPos * IntakeConstants::GearRatio;
     std::cout << m_goal.value() << std::endl;
     m_armMotor.SetControl(ctre::phoenix6::controls::PositionVoltage{m_goal}
         .WithSlot(0));
 }
 
 void Intake::ArmOut() {
-    m_goal = IntakeConstants::armOutPos;
+    m_goal = IntakeConstants::armOutPos * IntakeConstants::GearRatio;
     std::cout << m_goal.value() << std::endl;
     m_armMotor.SetControl(ctre::phoenix6::controls::PositionVoltage{m_goal}
         .WithSlot(0));
@@ -155,6 +157,9 @@ IntakeSim::IntakeSim(Intake& in) :
 void Intake::SimulationPeriodic() {
     if (!m_sim_state) return;
 
+    //does not command motor, just available enegery
+    m_sim_state->m_ArmMotorState.SetSupplyVoltage(12_V); 
+
     //update arm physics sim
     auto& ssArmPhys = m_sim_state->m_armPhysics;
     ssArmPhys.SetInputVoltage(
@@ -162,8 +167,8 @@ void Intake::SimulationPeriodic() {
     ssArmPhys.Update(20_ms);
 
     //update arm motor + visual sim
-    m_sim_state->m_ArmMotorState.SetRawRotorPosition(ssArmPhys.GetAngle() * 100.0);
-    m_sim_state->m_ArmMotorState.SetRotorVelocity(ssArmPhys.GetVelocity() * 100.0);
+    m_sim_state->m_ArmMotorState.SetRawRotorPosition(ssArmPhys.GetAngle() * IntakeConstants::GearRatio);
+    m_sim_state->m_ArmMotorState.SetRotorVelocity(ssArmPhys.GetVelocity() * IntakeConstants::GearRatio);
     m_arm->SetAngle(ssArmPhys.GetAngle());
 
     //update intake motor
@@ -171,5 +176,9 @@ void Intake::SimulationPeriodic() {
     auto newAngle =units::angle::degree_t(m_wrist->GetAngle() + delta);
     m_wrist->SetAngle(newAngle);
 
+    frc::SmartDashboard::PutNumber("Intake/Delta", delta);
+    frc::SmartDashboard::PutNumber("Intake/NewAngle", newAngle.value());
+    frc::SmartDashboard::PutNumber("Intake/PhysSimArmVelocity", ssArmPhys.GetVelocity().value());
+    
     frc::SmartDashboard::PutData("Intake", &m_mechIntake);
 }
