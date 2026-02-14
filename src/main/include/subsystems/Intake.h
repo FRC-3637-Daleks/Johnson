@@ -1,13 +1,12 @@
-#include <ctre/phoenix6/TalonFX.hpp>
-#include <ctre/phoenix6/CANBus.hpp>
-#include <ctre/phoenix6/configs/Slot0Configs.hpp>
 #include <frc2/command/CommandPtr.h>
 #include <frc2/command/Commands.h>
 #include <frc2/command/SubsystemBase.h>
-#include <frc/simulation/SingleJointedArmSim.h>
-#include <ctre/phoenix6/controls/PositionVoltage.hpp>
 #include <frc/smartdashboard/MechanismLigament2d.h>
 #include <frc/smartdashboard/Mechanism2d.h>
+
+#include <ctre/phoenix6/TalonFX.hpp>
+
+#include <rev/SparkFlex.h>
 
 
 class IntakeSim;
@@ -17,6 +16,9 @@ public:
 
     Intake();
     ~Intake();
+
+public:
+    void Periodic() override;
 
 public:
     frc2::CommandPtr GoArmOut();
@@ -33,7 +35,7 @@ public:
     bool IsArmIn();
 
 private:
-
+    // Returns arm angle relative to horizontal
     units::angle::turn_t GetArmPos();
     
     void IntakeIn();
@@ -44,11 +46,13 @@ private:
     void ArmOut();
 
 private:
+    void UpdateDashboard();
+    void UpdateVisualization();
 
-    ctre::phoenix6::CANBus m_CANBusInstance;
+private:
     ctre::phoenix6::hardware::TalonFX m_armMotor;
-    ctre::phoenix6::hardware::TalonFX m_intakeMotor;
-    units::angle::turn_t m_goal{};
+    rev::spark::SparkFlex m_intakeMotor;
+
 private:
     friend class IntakeSim;
     std::unique_ptr<IntakeSim> m_sim_state;
@@ -57,5 +61,5 @@ private:
     frc::Mechanism2d m_mechIntake{3, 3};
     frc::MechanismRoot2d* m_root = m_mechIntake.GetRoot("intake", 2, 0);
 
-    frc::MechanismLigament2d *m_arm{}, *m_wrist{};
+    frc::MechanismLigament2d *m_arm{}, *m_wheel{};
 };
