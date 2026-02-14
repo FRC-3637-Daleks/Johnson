@@ -1,5 +1,10 @@
 #include "subsystems/Shooter.h"
 
+#include <frc/system/plant/LinearSystemId.h>
+#include <frc/simulation/FlywheelSim.h>
+#include <frc/simulation/RoboRioSim.h>
+#include <frc/RobotController.h>
+
 namespace ShooterConstants {
     int kfeederBreakBeamID = 14;
     int kFeederBottomMotorID = 12;
@@ -18,7 +23,25 @@ namespace ShooterConstants {
 
     //used just in bool isAtCorrectSpeed()
     units::angular_velocity::turns_per_second_t kSpeedTolerance = 0.3_tps;
+
+    constexpr auto launcherGearing = 1.5;
+    constexpr auto launcherMOI = 0.01_kg_sq_m;
 }
+
+class ShooterSim {
+public:
+    friend class Shooter;
+
+public:
+    ShooterSim(Shooter &shooter);
+
+public:
+    // physics models
+    frc::sim::FlywheelSim m_launcherPhysics;
+
+    // sim state objects
+    ctre::phoenix6::sim::TalonFXSimState m_launcherMotorState;
+};
 
 Shooter::Shooter() : 
     m_CANBusInstance{"Drivebase"},
@@ -26,7 +49,8 @@ Shooter::Shooter() :
     m_flyWheelFollowMotor{ShooterConstants::kShooterFlywheelFollowerID, m_CANBusInstance},
     m_feederBreakBeam{ShooterConstants::kfeederBreakBeamID},
     m_feederBottomMotor{ShooterConstants::kFeederBottomMotorID, m_CANBusInstance},
-    m_feederTopMotor{ShooterConstants::kFeederTopMotorID, m_CANBusInstance}    
+    m_feederTopMotor{ShooterConstants::kFeederTopMotorID, m_CANBusInstance},
+    m_sim_state{new ShooterSim(*this)}
 {
     //Shooter PID config
     ctre::phoenix6::configs::TalonFXConfiguration PIDConfig;
@@ -107,3 +131,35 @@ void Shooter::FeederTopOutNRM() {
 
 void Shooter::FeederTopStopNRM() {
     m_feederTopMotor.SetVoltage(0_V);}
+
+    //**************************** Simulation ****************************/
+
+ShooterSim::ShooterSim(Shooter& shooter) :
+    m_launcherPhysics{
+        frc::LinearSystemId::FlywheelSystem(
+            frc::DCMotor::KrakenX60FOC(2),
+            ShooterConstants::launcherMOI,
+            ShooterConstants::launcherGearing),
+        frc::DCMotor::KrakenX60FOC(2)},
+    m_launcherMotorState{shooter.m_flyWheelLeadMotor}
+{
+}
+
+void Shooter::SimulationPeriodic() {
+    if (!m_sim_state) return;
+
+    const auto supply_voltage = frc::RobotController::GetInputVoltage()*1_V;
+
+    m_sim_state->m_launcherMotorState.SetSupplyVoltage(supply_voltage);
+
+    //update flywheel physics sim
+    m_sim_state->m_launcherPhysics.SetInputVoltage(
+        m_sim_state->m_launcherMotorState.GetMotorVoltage());
+        
+    m_sim_state->m_launcherPhysics.Update(20_ms);
+
+    //update launcher motor
+    m_sim_state->m_launcherMotorState.SetRotorVelocity(
+        m_sim_state->m_launcherPhysics.GetAngularVelocity() * ShooterConstants::launcherGearing);
+    m_sim_state->m_launcherMotorState.SetRotorAcceleration(m_sim_state->m_launcherPhysics.GetAngularAcceleration());
+}

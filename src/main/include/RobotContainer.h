@@ -19,6 +19,7 @@
 #include <numbers>
 
 #include "subsystems/Drivetrain.h"
+#include "subsystems/Shooter.h"
 #include "subsystems/ROSBridge.h"
 #include "subsystems/OperatorInterface.h"
 
@@ -46,6 +47,7 @@ public:
   Drivetrain m_swerve;
   ROSBridge m_ros;
   OperatorInterface m_oi;
+  Shooter m_shooter;
 
   bool m_isRed;
 
