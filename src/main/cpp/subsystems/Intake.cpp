@@ -1,31 +1,58 @@
 #include "subsystems/Intake.h"
 #include <frc/smartdashboard/SmartDashboard.h>
+#include <frc/MathUtil.h>
+#include <frc/simulation/SingleJointedArmSim.h>
+#include <frc/simulation/FlywheelSim.h>
+#include <frc/system/plant/LinearSystemId.h>
+#include <frc/RobotController.h>
+#include <frc/simulation/RoboRioSim.h>
+
+#include <ctre/phoenix6/configs/Slot0Configs.hpp>
+#include <ctre/phoenix6/controls/PositionVoltage.hpp>
+
+#include <rev/config/SparkFlexConfig.h>
+#include <rev/sim/SparkFlexSim.h>
 
 #include <iostream>
-
+#include <random>
 
 namespace IntakeConstants {
 
-    int kIntakeMotorID = 10;
-    int kArmMotorID = 11;
+    constexpr auto kCanBus = ctre::phoenix6::CANBus{"Drivebase"};
+    constexpr int kIntakeMotorID = 10;
+    constexpr int kArmMotorID = 11;
 
-    double kP = 3.0;
-    double kI = 0.0;
-    double kD = 0.1;   
-    double kG = 0.3;
-    double kS = 0.0;
-    double kV = 0.0;
+    constexpr auto kP = 3.0;
+    constexpr auto kI = 0.0;
+    constexpr auto kD = 0.1;   
+    constexpr auto kG = 0.3;
+    constexpr auto kS = 0.0;
+    constexpr auto kV = 0.0;
 
-    double GearRatio = 100;
+    constexpr auto armGearing = 20.0;
+    constexpr auto intakeGearing = 1.0;
     
-    units::angle::turn_t armOutPos = 0_tr;
-    units::angle::turn_t armInPos = 0.25_tr;
-    units::angle::turn_t tolerance = 0.05_tr;
+    constexpr auto armOutPos = 0_tr;
+    constexpr auto armInPos = 0.25_tr;
+    constexpr auto tolerance = 0.05_tr;
     
-    units::volt_t intakeFowardVoltage = 6_V;
-    units::volt_t intakeBackwardsVoltage = -7_V;
-    units::volt_t armFowardVoltage = 6_V;
-    units::volt_t armBackwardsVoltage = -7_V;
+    constexpr auto intakeFowardVoltage = 6_V;
+    constexpr auto intakeBackwardsVoltage = -7_V;
+
+    constexpr auto armInRequest = 
+        ctre::phoenix6::controls::PositionVoltage{armGearing*armInPos}
+        .WithSlot(0)
+    ;
+    constexpr auto armOutRequest = 
+        ctre::phoenix6::controls::PositionVoltage{armGearing*armOutPos}
+        .WithSlot(0)
+    ;
+
+    constexpr auto armLength = 0.3_m;
+    constexpr auto armMass = 15_lb;
+    constexpr auto armMOI = armMass * armLength * armLength;
+
+    constexpr auto wheelMOI = 0.001_kg_sq_m;
 }
 
 class IntakeSim {
@@ -36,44 +63,57 @@ public:
     IntakeSim(Intake &in);
 
 public:
-    ctre::phoenix6::sim::TalonFXSimState m_ArmMotorState, m_IntakeMotorState;
-
+    frc::DCMotor m_intakeMotorModel;
     frc::sim::SingleJointedArmSim m_armPhysics;
+    frc::sim::FlywheelSim m_wheelPhysics;
 
+    ctre::phoenix6::sim::TalonFXSimState m_ArmMotorState;
+    rev::spark::SparkFlexSim m_IntakeMotorState;
 };
 
 Intake::Intake() :
-    m_CANBusInstance{"Drivebase"},
-    m_armMotor{IntakeConstants::kArmMotorID, m_CANBusInstance},
-    m_intakeMotor{IntakeConstants::kIntakeMotorID, m_CANBusInstance},
-    m_arm{m_root->Append<frc::MechanismLigament2d>("intake", 1, 90_deg, 6, frc::Color8Bit{frc::Color::kBlue})},
-    m_wrist{m_arm->Append<frc::MechanismLigament2d>(
-            "wrist", 0.5, 90_deg, 6, frc::Color8Bit{frc::Color::kPurple})},
+    m_armMotor{IntakeConstants::kArmMotorID, IntakeConstants::kCanBus},
+    m_intakeMotor{IntakeConstants::kIntakeMotorID, rev::spark::SparkFlex::MotorType::kBrushless},
+    m_arm{m_root->Append<frc::MechanismLigament2d>(
+        "intake", 1, 90_deg, 20, frc::Color8Bit{frc::Color::kBlue})},
+    m_wheel{m_arm->Append<frc::MechanismLigament2d>(
+        "wheel", 0.1, 90_deg, 6, frc::Color8Bit{frc::Color::kPurple})},
     m_sim_state{new IntakeSim{*this}}
 {
-    ctre::phoenix6::configs::TalonFXConfiguration m_armConfig;
+    frc::SmartDashboard::PutData("Mechanisms", &m_mechIntake);
+
+    ctre::phoenix6::configs::TalonFXConfiguration armConfig;
 
     ctre::phoenix6::configs::Slot0Configs slot0Configs{};
-    slot0Configs.kP = IntakeConstants::kP; 
-    slot0Configs.kI = IntakeConstants::kI; 
-    slot0Configs.kD = IntakeConstants::kD; 
-    slot0Configs.kG = IntakeConstants::kG; 
+    slot0Configs.kP = IntakeConstants::kP;
+    slot0Configs.kI = IntakeConstants::kI;
+    slot0Configs.kD = IntakeConstants::kD;
+    slot0Configs.kG = IntakeConstants::kG;
     slot0Configs.GravityType = ctre::phoenix6::signals::GravityTypeValue::Arm_Cosine;
     slot0Configs.kS = IntakeConstants::kS; 
     slot0Configs.kV = IntakeConstants::kV;
 
-    m_armConfig.WithSlot0(slot0Configs);
+    armConfig.WithSlot0(slot0Configs);
 
-    auto &motionMagicConfigs = m_armConfig.MotionMagic;
+    auto &motionMagicConfigs = armConfig.MotionMagic;
     motionMagicConfigs.MotionMagicCruiseVelocity =
       units::angular_velocity::turns_per_second_t{65};
     motionMagicConfigs.MotionMagicAcceleration =
       units::angular_acceleration::turns_per_second_squared_t{200};
 
-    m_armMotor.GetConfigurator().Apply(m_armConfig);  
+    m_armMotor.GetConfigurator().Apply(armConfig);
+
+    rev::spark::SparkFlexConfig wheelConfig;
+    m_intakeMotor.Configure(wheelConfig,
+        rev::ResetMode::kResetSafeParameters,
+        rev::PersistMode::kPersistParameters);
 }
 
 Intake::~Intake() {
+}
+
+void Intake::Periodic() {
+    UpdateDashboard();
 }
 
 frc2::CommandPtr Intake::GoArmOut() {
@@ -98,17 +138,15 @@ frc2::CommandPtr Intake::OutakeFuel() {
 //**************************** Private Members ****************************/
 
 units::angle::turn_t Intake::GetArmPos() {
-    return m_armMotor.GetPosition().GetValue();
+    return m_armMotor.GetPosition().GetValue()/IntakeConstants::armGearing;
 }
 
 bool Intake::IsArmOut() {
-    return IntakeConstants::armOutPos - IntakeConstants::tolerance < GetArmPos()/IntakeConstants::GearRatio
-        && IntakeConstants::armOutPos + IntakeConstants::tolerance > GetArmPos()/IntakeConstants::GearRatio;
+    return frc::IsNear(IntakeConstants::armOutPos, GetArmPos(), IntakeConstants::tolerance);
 }
 
 bool Intake::IsArmIn() {
-    return IntakeConstants::armInPos - IntakeConstants::tolerance < GetArmPos()/IntakeConstants::GearRatio
-        && IntakeConstants::armInPos + IntakeConstants::tolerance > GetArmPos()/IntakeConstants::GearRatio;
+    return frc::IsNear(IntakeConstants::armInPos, GetArmPos(), IntakeConstants::tolerance);
 }
 
 void Intake::IntakeIn() {
@@ -124,61 +162,83 @@ void Intake::IntakeStop() {
 }
 
 void Intake::ArmIn() {
-    m_goal = IntakeConstants::armInPos * IntakeConstants::GearRatio;
-    std::cout << m_goal.value() << std::endl;
-    m_armMotor.SetControl(ctre::phoenix6::controls::PositionVoltage{m_goal}
-        .WithSlot(0));
+    m_armMotor.SetControl(IntakeConstants::armInRequest);
 }
 
 void Intake::ArmOut() {
-    m_goal = IntakeConstants::armOutPos * IntakeConstants::GearRatio;
-    std::cout << m_goal.value() << std::endl;
-    m_armMotor.SetControl(ctre::phoenix6::controls::PositionVoltage{m_goal}
-        .WithSlot(0));
+    m_armMotor.SetControl(IntakeConstants::armOutRequest);
+}
+
+void Intake::UpdateDashboard() {
+    UpdateVisualization();
+}
+
+void Intake::UpdateVisualization() {
+    m_arm->SetAngle(GetArmPos());
+    m_wheel->SetAngle(m_intakeMotor.GetEncoder().GetPosition()*1_tr);
 }
 
 //**************************** Simulation ****************************/
 
 IntakeSim::IntakeSim(Intake& in) :
+    m_intakeMotorModel{frc::DCMotor::NeoVortex(1)},
     m_armPhysics{
-        frc::DCMotor::KrakenX60(1), // DCMotor
-        100.0,                      // Gearing
-        1.0_kg_sq_m,                // Moment of Inertia
-        0.3_m,                      // Arm Length
-        units::radian_t{0_tr},      // Min Angle
-        units::radian_t{0.25_tr},   // Max Angle
-        true,                       // Simulate Gravity
-        units::radian_t{0.25_tr}       // Stating angle
-    }, 
+        frc::DCMotor::KrakenX60FOC(1),
+        IntakeConstants::armGearing,
+        IntakeConstants::armMOI,
+        IntakeConstants::armLength,
+        IntakeConstants::armOutPos,  // Min Angle
+        IntakeConstants::armInPos,   // Max Angle
+        true,                        // Simulate Gravity
+        IntakeConstants::armInPos   // Starting angle
+    },
+    m_wheelPhysics{
+        frc::LinearSystemId::FlywheelSystem(
+            m_intakeMotorModel,
+            IntakeConstants::wheelMOI,
+            IntakeConstants::intakeGearing),
+        m_intakeMotorModel},
     m_ArmMotorState{in.m_armMotor},
-    m_IntakeMotorState{in.m_intakeMotor}   
-{}
+    m_IntakeMotorState{&in.m_intakeMotor, &m_intakeMotorModel}
+{
+    /* This initializes the system to an "unknown" state which must be calibrated on boot
+     * using some technique or sensor.
+     */
+    std::random_device rng;
+    std::uniform_real_distribution dist{IntakeConstants::armOutPos.value(), IntakeConstants::armInPos.value()};
+    m_armPhysics.SetState(dist(rng)*1_tr, 0_rpm);
+    m_ArmMotorState.SetRawRotorPosition(m_armPhysics.GetAngle()*IntakeConstants::armGearing);
+    in.m_armMotor.SetPosition(0.0_tr);
+}
 
 void Intake::SimulationPeriodic() {
     if (!m_sim_state) return;
 
-    //does not command motor, just available enegery
-    m_sim_state->m_ArmMotorState.SetSupplyVoltage(12_V); 
+    const auto supply_voltage = frc::RobotController::GetInputVoltage()*1_V;
+
+    m_sim_state->m_ArmMotorState.SetSupplyVoltage(supply_voltage);
 
     //update arm physics sim
     auto& ssArmPhys = m_sim_state->m_armPhysics;
     ssArmPhys.SetInputVoltage(
         m_sim_state->m_ArmMotorState.GetMotorVoltage());
+        
+    const auto last_vel = ssArmPhys.GetVelocity();
     ssArmPhys.Update(20_ms);
 
-    //update arm motor + visual sim
-    m_sim_state->m_ArmMotorState.SetRawRotorPosition(ssArmPhys.GetAngle() * IntakeConstants::GearRatio);
-    m_sim_state->m_ArmMotorState.SetRotorVelocity(ssArmPhys.GetVelocity() * IntakeConstants::GearRatio);
-    m_arm->SetAngle(ssArmPhys.GetAngle());
+    //update arm motor
+    m_sim_state->m_ArmMotorState.SetRawRotorPosition(ssArmPhys.GetAngle() * IntakeConstants::armGearing);
+    m_sim_state->m_ArmMotorState.SetRotorVelocity(ssArmPhys.GetVelocity() * IntakeConstants::armGearing);
+    const auto accel = (ssArmPhys.GetVelocity() - last_vel)/20_ms;
+    m_sim_state->m_ArmMotorState.SetRotorAcceleration(accel);
 
     //update intake motor
-    double delta = (double)m_intakeMotor.Get() * 30;
-    auto newAngle =units::angle::degree_t(m_wrist->GetAngle() + delta);
-    m_wrist->SetAngle(newAngle);
-
-    frc::SmartDashboard::PutNumber("Intake/Delta", delta);
-    frc::SmartDashboard::PutNumber("Intake/NewAngle", newAngle.value());
-    frc::SmartDashboard::PutNumber("Intake/PhysSimArmVelocity", ssArmPhys.GetVelocity().value());
-    
-    frc::SmartDashboard::PutData("Intake", &m_mechIntake);
+    m_sim_state->m_wheelPhysics.SetInputVoltage(m_sim_state->m_IntakeMotorState.GetAppliedOutput()*supply_voltage);
+    m_sim_state->m_wheelPhysics.Update(20_ms);
+    m_sim_state->m_IntakeMotorState.iterate(
+        IntakeConstants::intakeGearing*units::revolutions_per_minute_t{
+            m_sim_state->m_wheelPhysics.GetAngularVelocity()}.value(),
+        supply_voltage.value(),
+        0.02
+    );
 }
