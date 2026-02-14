@@ -52,4 +52,11 @@ private:
 
     frc::DigitalInput m_feederBreakBeam;
     ctre::phoenix6::hardware::TalonFX m_feederBottomMotor, m_feederTopMotor;
+
+// simulation
+private:
+    friend class ShooterSim;
+    std::unique_ptr<ShooterSim> m_sim_state;
+
+    void SimulationPeriodic() override;
 };
