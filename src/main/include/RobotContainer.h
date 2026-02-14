@@ -39,7 +39,7 @@ public:
   RobotContainer();
 
   frc2::CommandPtr GetDisabledCommand();
-  frc2::CommandPtr GetAutonomousCommand();
+  frc2::Command* GetAutonomousCommand();
 
 public:
   // Replace with CommandPS4Controller or CommandJoystick if needed
@@ -61,7 +61,8 @@ public:
   bool m_isRed;
 
   frc::SendableChooser<frc2::Command *> m_chooser;
-  frc2::CommandPtr depotauto{frc2::cmd::None()};
+  frc2::CommandPtr m_depotauto{frc2::cmd::None()};
+  frc2::CommandPtr m_trenchauto{frc2::cmd::None()};
 
 public:
   void ConfigureBindings();

@@ -18,13 +18,25 @@ namespace AutoBuilder{
           frc::DriverStation::Alliance::kRed);
     };
 
-    inline auto LBDep_Dep =
-        choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("LBDep_Dep");
+    inline auto LBDep_Dep_Hub_Lad =
+        choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("LBDep_Dep_Hub_Lad");
+
+    inline auto LTrench_Fuel_LB_Hub_Lad =
+        choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("LTrench_Fuel_LB_Hub_Lad");
 
     inline frc2::CommandPtr DepotAuto(Drivetrain &swerve){
         return frc2::cmd::Sequence(
-            swerve.FollowPathCommand(LBDep_Dep.value())
+            swerve.FollowPathCommand(LBDep_Dep_Hub_Lad.value())
         );
     }
+
+    inline frc2::CommandPtr TrenchAuto(Drivetrain &swerve){
+        return frc2::cmd::Sequence(
+            swerve.FollowPathCommand(LTrench_Fuel_LB_Hub_Lad.value().GetSplit(0).value()),
+            frc2::cmd::Wait(2_s),
+            swerve.FollowPathCommand(LTrench_Fuel_LB_Hub_Lad.value().GetSplit(1).value())
+        );
+    }
+    
 
 };
