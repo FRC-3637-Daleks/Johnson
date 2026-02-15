@@ -16,6 +16,9 @@ public:
     ~Shooter();
 
 public:
+    void InitializeDashboard();
+
+public:
     frc2::CommandPtr SetFlywheelSpeed(units::angular_velocity::turns_per_second_t velocity);
 
     frc2::CommandPtr FeederBottomIn();
@@ -23,7 +26,7 @@ public:
     frc2::CommandPtr FeederTopIn();
     frc2::CommandPtr FeederTopOut();
 
-    
+
 private:
 
     void SetFlywheelSpeedNRM(units::angular_velocity::turns_per_second_t velocity);

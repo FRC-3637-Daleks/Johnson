@@ -6,6 +6,10 @@
 #include <frc/RobotController.h>
 #include <frc/RobotBase.h>
 
+#include <frc2/command/ProxyCommand.h>
+
+#include <frc/smartdashboard/SmartDashboard.h>
+
 #include <ctre/phoenix6/CANBus.hpp>
 #include <ctre/phoenix6/configs/Slot0Configs.hpp>
 #include <ctre/phoenix6/controls/VelocityVoltage.hpp>
@@ -70,10 +74,23 @@ Shooter::Shooter() :
 
     VoltConfig.PeakForwardVoltage = 12_V;
     VoltConfig.PeakReverseVoltage = 0_V;
+
+    InitializeDashboard();
 }
 
 Shooter::~Shooter() {
 
+}
+
+void Shooter::InitializeDashboard() {
+    frc::SmartDashboard::PutData("Shooter/FeederBottomIn", 
+        new frc2::ProxyCommand{[this] {return FeederBottomIn();}});
+    frc::SmartDashboard::PutData("Shooter/FeederBottomOut", 
+        new frc2::ProxyCommand{[this] {return FeederBottomOut();}});
+    frc::SmartDashboard::PutData("Shooter/FeederTopIn", 
+        new frc2::ProxyCommand{[this] {return FeederTopIn();}});
+    frc::SmartDashboard::PutData("Shooter/FeederTopOut", 
+        new frc2::ProxyCommand{[this] {return FeederTopOut();}});
 }
 
 frc2::CommandPtr Shooter::SetFlywheelSpeed(units::angular_velocity::turns_per_second_t velocity) {
