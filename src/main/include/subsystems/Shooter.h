@@ -6,6 +6,7 @@
 #include <frc2/command/Commands.h>
 #include <frc2/command/SubsystemBase.h>
 #include <frc2/command/Subsystem.h>
+#include <wpi/sendable/SendableBuilder.h>
 
 
 class ShooterSim;
@@ -17,6 +18,9 @@ public:
 
 public:
     void InitializeDashboard();
+    void UpdateDashboard();
+
+    void Periodic() override;
 
 public:
     frc2::CommandPtr SetFlywheelSpeed(units::angular_velocity::turns_per_second_t velocity);

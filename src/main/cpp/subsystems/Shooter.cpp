@@ -83,14 +83,37 @@ Shooter::~Shooter() {
 }
 
 void Shooter::InitializeDashboard() {
-    frc::SmartDashboard::PutData("Shooter/FeederBottomIn", 
-        new frc2::ProxyCommand{[this] {return FeederBottomIn();}});
-    frc::SmartDashboard::PutData("Shooter/FeederBottomOut", 
-        new frc2::ProxyCommand{[this] {return FeederBottomOut();}});
-    frc::SmartDashboard::PutData("Shooter/FeederTopIn", 
-        new frc2::ProxyCommand{[this] {return FeederTopIn();}});
-    frc::SmartDashboard::PutData("Shooter/FeederTopOut", 
-        new frc2::ProxyCommand{[this] {return FeederTopOut();}});
+    auto put_cmd = [this] (std::string_view name, frc2::CommandPtr&& cmd) {
+        frc::SmartDashboard::PutData(fmt::format("Shooter/{}", name),
+            std::move(cmd).WithName(name).Unwrap().release()
+        );
+    };
+
+    put_cmd("FeederBottomIn", FeederBottomIn());
+    put_cmd("FeederBottomOut", FeederBottomOut());
+    put_cmd("FeederTopIn", FeederTopIn());
+    put_cmd("FeederTopOut", FeederTopOut());
+
+    frc::SmartDashboard::PutNumber("Shooter/SetLauncherRPM", 0.0);
+    put_cmd("SetLauncher", Run([this] {
+        const auto dashboard_rpm = 
+            frc::SmartDashboard::GetNumber("Shooter/SetLauncherRPM", 0.0)*1.0_rpm;
+        SetFlywheelSpeedNRM(dashboard_rpm);
+    }));
+}
+
+void Shooter::UpdateDashboard() {
+    frc::SmartDashboard::PutNumber("Shooter/LauncherRPM",
+        units::revolutions_per_minute_t{GetCurrentFlywheelSpeed()}.value()
+    );
+    
+    frc::SmartDashboard::PutBoolean("Shooter/SpunUp",
+        isAtCorrectSpeed()
+    );
+}
+
+void Shooter::Periodic() {
+    UpdateDashboard();
 }
 
 frc2::CommandPtr Shooter::SetFlywheelSpeed(units::angular_velocity::turns_per_second_t velocity) {
