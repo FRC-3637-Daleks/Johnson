@@ -4,6 +4,13 @@
 #include <frc/simulation/FlywheelSim.h>
 #include <frc/simulation/RoboRioSim.h>
 #include <frc/RobotController.h>
+#include <frc/RobotBase.h>
+
+#include <ctre/phoenix6/CANBus.hpp>
+#include <ctre/phoenix6/configs/Slot0Configs.hpp>
+#include <ctre/phoenix6/controls/VelocityVoltage.hpp>
+
+#include <rev/sim/SparkFlexSim.h>
 
 namespace ShooterConstants {
     int kfeederBreakBeamID = 14;
@@ -24,33 +31,24 @@ namespace ShooterConstants {
     //used just in bool isAtCorrectSpeed()
     units::angular_velocity::turns_per_second_t kSpeedTolerance = 0.3_tps;
 
-    constexpr auto launcherGearing = 1.5;
+    constexpr auto launcherGearing = 24.0/18.0;
     constexpr auto launcherMOI = 0.01_kg_sq_m;
+
+    constexpr auto feederGearing = 1.0;
+    constexpr auto feederMOI = 0.001_kg_sq_m;
+
+    constexpr ctre::phoenix6::CANBus canBus{"Drivebase"};
 }
 
-class ShooterSim {
-public:
-    friend class Shooter;
-
-public:
-    ShooterSim(Shooter &shooter);
-
-public:
-    // physics models
-    frc::sim::FlywheelSim m_launcherPhysics;
-
-    // sim state objects
-    ctre::phoenix6::sim::TalonFXSimState m_launcherMotorState;
-};
+std::unique_ptr<ShooterSim> create_shooter_sim(Shooter& shooter);
 
 Shooter::Shooter() : 
-    m_CANBusInstance{"Drivebase"},
-    m_flyWheelLeadMotor{ShooterConstants::kShooterFlywheelLeaderID, m_CANBusInstance},
-    m_flyWheelFollowMotor{ShooterConstants::kShooterFlywheelFollowerID, m_CANBusInstance},
+    m_flyWheelLeadMotor{ShooterConstants::kShooterFlywheelLeaderID, ShooterConstants::canBus},
+    m_flyWheelFollowMotor{ShooterConstants::kShooterFlywheelFollowerID, ShooterConstants::canBus},
     m_feederBreakBeam{ShooterConstants::kfeederBreakBeamID},
-    m_feederBottomMotor{ShooterConstants::kFeederBottomMotorID, m_CANBusInstance},
-    m_feederTopMotor{ShooterConstants::kFeederTopMotorID, m_CANBusInstance},
-    m_sim_state{new ShooterSim(*this)}
+    m_feederBottomMotor{ShooterConstants::kFeederBottomMotorID, rev::spark::SparkFlex::MotorType::kBrushless},
+    m_feederTopMotor{ShooterConstants::kFeederTopMotorID, rev::spark::SparkFlex::MotorType::kBrushless},
+    m_sim_state{create_shooter_sim(*this)}
 {
     //Shooter PID config
     ctre::phoenix6::configs::TalonFXConfiguration PIDConfig;
@@ -134,6 +132,41 @@ void Shooter::FeederTopStopNRM() {
 
     //**************************** Simulation ****************************/
 
+class ShooterSim {
+public:
+    ShooterSim(Shooter &shooter);
+
+public:
+    // physics models
+    frc::sim::FlywheelSim m_launcherPhysics;
+
+    enum {kLower = 0, kUpper = 1};
+    frc::sim::FlywheelSim m_feederPhysics[2];
+
+    // sim state objects
+    ctre::phoenix6::sim::TalonFXSimState m_launcherMotorState;
+    frc::DCMotor m_feederMotors[2];
+    rev::spark::SparkFlexSim m_feederStates[2];
+};
+
+std::unique_ptr<ShooterSim> create_shooter_sim(Shooter &shooter) {
+    if constexpr (frc::RobotBase::IsSimulation()) {
+        return std::make_unique<ShooterSim>(shooter);
+    } else {
+        return nullptr;
+    }
+}
+
+auto make_feeder_sim() {
+    return frc::sim::FlywheelSim{
+        frc::LinearSystemId::FlywheelSystem(
+            frc::DCMotor::NeoVortex(1),
+            ShooterConstants::feederMOI,
+            ShooterConstants::feederGearing),
+        frc::DCMotor::NeoVortex(1)
+    };
+}
+
 ShooterSim::ShooterSim(Shooter& shooter) :
     m_launcherPhysics{
         frc::LinearSystemId::FlywheelSystem(
@@ -141,7 +174,13 @@ ShooterSim::ShooterSim(Shooter& shooter) :
             ShooterConstants::launcherMOI,
             ShooterConstants::launcherGearing),
         frc::DCMotor::KrakenX60FOC(2)},
-    m_launcherMotorState{shooter.m_flyWheelLeadMotor}
+    m_feederPhysics{make_feeder_sim(), make_feeder_sim()},
+    m_launcherMotorState{shooter.m_flyWheelLeadMotor},
+    m_feederMotors{frc::DCMotor::NeoVortex(1), frc::DCMotor::NeoVortex(1)},
+    m_feederStates{
+        {&shooter.m_feederBottomMotor, &m_feederMotors[0]},
+        {&shooter.m_feederTopMotor, &m_feederMotors[1]}
+    }
 {
 }
 
@@ -162,4 +201,18 @@ void Shooter::SimulationPeriodic() {
     m_sim_state->m_launcherMotorState.SetRotorVelocity(
         m_sim_state->m_launcherPhysics.GetAngularVelocity() * ShooterConstants::launcherGearing);
     m_sim_state->m_launcherMotorState.SetRotorAcceleration(m_sim_state->m_launcherPhysics.GetAngularAcceleration());
+
+    for (int i = 0; i < 2; i++) {
+        auto &phys = m_sim_state->m_feederPhysics[i];
+        auto &state = m_sim_state->m_feederStates[i];
+
+        phys.SetInputVoltage(state.GetAppliedOutput()*supply_voltage);
+        phys.Update(20_ms);
+        state.iterate(
+            ShooterConstants::feederGearing*units::revolutions_per_minute_t{
+                phys.GetAngularVelocity()}.value(),
+            supply_voltage.value(),
+            0.02
+        );
+    }
 }
