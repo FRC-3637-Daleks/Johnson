@@ -19,16 +19,22 @@
 namespace ShooterConstants {
     int kfeederBreakBeamID = 14;
 
-    units::volt_t kFeederInV = 6_V;
-    units::volt_t kFeederOutV = -6_V;
-
     int kShooterFlywheelLeaderID = 10;
     int kShooterFlywheelFollowerID = 11;
 
+    //PID
     double kP = 2.0;
     double kI = 0.001;
     double kD = 0.1;
     double kV = 1;
+
+    //Voltage
+    units::volt_t kPeakForwardVoltage = 12_V;
+    units::volt_t kReverseForwardVoltage = 0_V;
+
+    //Torque
+    units::ampere_t PeakForwardTorqueCurrent = 80_A;
+    units::ampere_t PeakReverseTorqueCurrent = 0_A;
 
     //used just in bool isAtCorrectSpeed()
     units::angular_velocity::turns_per_second_t kSpeedTolerance = 0.3_tps;
@@ -67,9 +73,15 @@ Shooter::Shooter() :
 
     //Shooter Voltage config
     ctre::phoenix6::configs::VoltageConfigs VoltConfig;
-
     VoltConfig.PeakForwardVoltage = 12_V;
     VoltConfig.PeakReverseVoltage = 0_V;
+    m_flyWheelLeadMotor.GetConfigurator().Apply(VoltConfig);
+
+    //Shooter Torque config
+    ctre::phoenix6::configs::TorqueCurrentConfigs TorqueConfig;
+    TorqueConfig.PeakForwardTorqueCurrent = ShooterConstants::PeakForwardTorqueCurrent;
+    TorqueConfig.PeakReverseTorqueCurrent = ShooterConstants::PeakReverseTorqueCurrent;
+    m_flyWheelLeadMotor.GetConfigurator().Apply(TorqueConfig);
 
     InitializeDashboard();
 }
@@ -125,7 +137,8 @@ bool Shooter::isHoodAtPos() {
 
 //side-effect of setting targetVelocity (read only)
 void Shooter::SetFlywheelSpeedNRM(units::angular_velocity::turns_per_second_t velocity) {
-    m_flyWheelLeadMotor.SetControl(ctre::phoenix6::controls::VelocityVoltage(velocity).WithSlot(0));
+    // m_flyWheelLeadMotor.SetControl(ctre::phoenix6::controls::VelocityVoltage(velocity).WithSlot(0)); //Voltage
+    m_flyWheelLeadMotor.SetControl(ctre::phoenix6::controls::VelocityTorqueCurrentFOC(velocity).WithSlot(0)); //Torque
     targetVelocity = velocity;
 }
 
