@@ -111,6 +111,16 @@ frc2::CommandPtr Shooter::SetFlywheelSpeed(units::angular_velocity::turns_per_se
     return Run([this, velocity] {SetFlywheelSpeedNRM(velocity);});
 }
 
+
+frc2::CommandPtr Shooter::SetHoodPosPercent(double percent) {
+    return m_hood.SetPosPercent(percent);}
+
+frc2::CommandPtr Shooter::SetHoodPosPercentUntilThere(double percent) {
+    return m_hood.SetPosPercentUntilThere(percent);}
+
+bool Shooter::isHoodAtPos() {
+    return m_hood.isHoodAtPos();}
+
 //********************** Private **********************/
 
 //side-effect of setting targetVelocity (read only)

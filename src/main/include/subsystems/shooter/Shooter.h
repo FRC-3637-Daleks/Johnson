@@ -8,6 +8,8 @@
 #include <frc2/command/Subsystem.h>
 #include <wpi/sendable/SendableBuilder.h>
 
+#include "subsystems/shooter/Hood.h"
+
 
 class ShooterSim;
 
@@ -25,6 +27,11 @@ public:
 public:
     frc2::CommandPtr SetFlywheelSpeed(units::angular_velocity::turns_per_second_t velocity);
 
+    //Hood stuff
+    frc2::CommandPtr SetHoodPosPercent(double percent);
+    frc2::CommandPtr SetHoodPosPercentUntilThere(double percent);
+    bool isHoodAtPos();
+
 private:
 
     void SetFlywheelSpeedNRM(units::angular_velocity::turns_per_second_t velocity);
@@ -34,11 +41,15 @@ private:
 
     bool IsBBBroken(); 
 
+    Hood m_hood;
+
 private:
     ctre::phoenix6::hardware::TalonFX m_flyWheelLeadMotor;
     ctre::phoenix6::hardware::TalonFX m_flyWheelFollowMotor;
 
     frc::DigitalInput m_feederBreakBeam;
+
+
 
 // simulation
 private:

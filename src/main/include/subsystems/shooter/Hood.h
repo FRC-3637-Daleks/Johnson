@@ -25,7 +25,7 @@ public:
 
     frc2::CommandPtr SetPosPercentUntilThere(double percent);
 
-    bool isArmAtPos();
+    bool isHoodAtPos();
 
 private:
     //percent as range of 0-1 were zero and one are within limits

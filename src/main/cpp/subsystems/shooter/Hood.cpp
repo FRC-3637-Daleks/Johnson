@@ -2,7 +2,7 @@
 #include <algorithm>
 
 namespace HoodConstants {
-    int LinearActuatorID = 30;
+    int LinearActuatorID = 15;
 
     units::time::microsecond_t max =            2.0_ms;
     units::time::microsecond_t deadbandMax =    1.9_ms;
@@ -41,14 +41,14 @@ frc2::CommandPtr Hood::SetPosPercentUntilThere(double percent) {
            .AndThen(Run([this]{ /* Waiting */ }).Until([this] { return !isMoving; }));
 }
 
-bool Hood::isArmAtPos() {
+bool Hood::isHoodAtPos() {
     return std::abs(percentTarget - percentEstimate) < HoodConstants::tolerance;
 }
 
 //********************** Private **********************/
 
 void Hood::SetPos(double percent) {
-    isMoving = true && !isArmAtPos(); //prevents race condition were this runs before periodic and make .until hang
+    isMoving = true && !isHoodAtPos(); //prevents race condition were this runs before periodic and make .until hang
 
     percentTarget = std::clamp(percent, 0.0, 1.0); 
     actuator.Set(percentTarget);
@@ -74,7 +74,7 @@ void Hood::CalculateTravelPeriodic() {
     }
 
     //redundent/backup
-    if (isArmAtPos()) {
+    if (isHoodAtPos()) {
             isMoving = false;
             percentEstimate = percentTarget; //eliminate error build up
     }
