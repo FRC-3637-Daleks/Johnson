@@ -193,12 +193,17 @@ void RobotContainer::ConfigureDashboard() {
 void RobotContainer::ConfigureAuto() {
 
   m_depotauto = AutoBuilder::DepotAuto(m_swerve);
-  m_trenchauto = AutoBuilder::TrenchAuto(m_swerve);
+  m_Ltrenchauto = AutoBuilder::LTrenchAuto(m_swerve);
+  m_Rtrenchauto = AutoBuilder::RTrenchAuto(m_swerve);
+
   m_chooser.SetDefaultOption(
    "Default Auto: Go to the depot then score then climb", m_depotauto.get());
 
   m_chooser.AddOption(
-    "Go through trench to fuel then score then climb", m_trenchauto.get());
+    "Go through Left trench to fuel then score then climb", m_Ltrenchauto.get());
+
+  m_chooser.AddOption(
+    "Go through Right trench to fuel then score then climb", m_Rtrenchauto.get()); 
 }
 
 void RobotContainer::ConfigureContinuous() {
