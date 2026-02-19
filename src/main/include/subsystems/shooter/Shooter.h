@@ -25,12 +25,6 @@ public:
 public:
     frc2::CommandPtr SetFlywheelSpeed(units::angular_velocity::turns_per_second_t velocity);
 
-    frc2::CommandPtr FeederBottomIn();
-    frc2::CommandPtr FeederBottomOut();
-    frc2::CommandPtr FeederTopIn();
-    frc2::CommandPtr FeederTopOut();
-
-
 private:
 
     void SetFlywheelSpeedNRM(units::angular_velocity::turns_per_second_t velocity);
@@ -40,20 +34,11 @@ private:
 
     bool IsBBBroken(); 
 
-    //NRM = Non-returing member
-    void FeederBottomInNRM();
-    void FeederBottomOutNRM();
-    void FeederBottomStopNRM();
-    void FeederTopInNRM();
-    void FeederTopOutNRM();
-    void FeederTopStopNRM();
-
 private:
     ctre::phoenix6::hardware::TalonFX m_flyWheelLeadMotor;
     ctre::phoenix6::hardware::TalonFX m_flyWheelFollowMotor;
 
     frc::DigitalInput m_feederBreakBeam;
-    rev::spark::SparkFlex m_feederBottomMotor, m_feederTopMotor;
 
 // simulation
 private:

@@ -19,7 +19,7 @@
 #include <numbers>
 
 #include "subsystems/Drivetrain.h"
-#include "subsystems/Shooter.h"
+#include "subsystems/shooter/Shooter.h"
 #include "subsystems/ROSBridge.h"
 #include "subsystems/OperatorInterface.h"
 

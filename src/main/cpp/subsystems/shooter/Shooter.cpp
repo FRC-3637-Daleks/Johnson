@@ -1,4 +1,4 @@
-#include "subsystems/Shooter.h"
+#include "subsystems/shooter/Shooter.h"
 
 #include <frc/system/plant/LinearSystemId.h>
 #include <frc/simulation/FlywheelSim.h>
@@ -18,8 +18,6 @@
 
 namespace ShooterConstants {
     int kfeederBreakBeamID = 14;
-    int kFeederBottomMotorID = 12;
-    int kFeederTopMotorID = 13;
 
     units::volt_t kFeederInV = 6_V;
     units::volt_t kFeederOutV = -6_V;
@@ -50,8 +48,6 @@ Shooter::Shooter() :
     m_flyWheelLeadMotor{ShooterConstants::kShooterFlywheelLeaderID, ShooterConstants::canBus},
     m_flyWheelFollowMotor{ShooterConstants::kShooterFlywheelFollowerID, ShooterConstants::canBus},
     m_feederBreakBeam{ShooterConstants::kfeederBreakBeamID},
-    m_feederBottomMotor{ShooterConstants::kFeederBottomMotorID, rev::spark::SparkFlex::MotorType::kBrushless},
-    m_feederTopMotor{ShooterConstants::kFeederTopMotorID, rev::spark::SparkFlex::MotorType::kBrushless},
     m_sim_state{create_shooter_sim(*this)}
 {
     //Shooter PID config
@@ -89,11 +85,6 @@ void Shooter::InitializeDashboard() {
         );
     };
 
-    put_cmd("FeederBottomIn", FeederBottomIn());
-    put_cmd("FeederBottomOut", FeederBottomOut());
-    put_cmd("FeederTopIn", FeederTopIn());
-    put_cmd("FeederTopOut", FeederTopOut());
-
     frc::SmartDashboard::PutNumber("Shooter/SetLauncherRPM", 0.0);
     put_cmd("SetLauncher", Run([this] {
         const auto dashboard_rpm = 
@@ -120,18 +111,6 @@ frc2::CommandPtr Shooter::SetFlywheelSpeed(units::angular_velocity::turns_per_se
     return Run([this, velocity] {SetFlywheelSpeedNRM(velocity);});
 }
 
-frc2::CommandPtr Shooter::FeederBottomIn() {
-    return RunEnd([this] {FeederBottomInNRM();}, [this] {FeederBottomStopNRM();});}
-
-frc2::CommandPtr Shooter::FeederBottomOut() {
-    return RunEnd([this] {FeederBottomInNRM();}, [this] {FeederBottomStopNRM();});}
-
-frc2::CommandPtr Shooter::FeederTopIn() {
-    return RunEnd([this] {FeederBottomInNRM();}, [this] {FeederBottomStopNRM();});}
-
-frc2::CommandPtr Shooter::FeederTopOut() {
-    return RunEnd([this] {FeederBottomInNRM();}, [this] {FeederBottomStopNRM();});}
-
 //********************** Private **********************/
 
 //side-effect of setting targetVelocity (read only)
@@ -152,24 +131,6 @@ bool Shooter::isAtCorrectSpeed() {
 
 bool Shooter::IsBBBroken() {return m_feederBreakBeam.Get();}
 
-void Shooter::FeederBottomInNRM() {
-    m_feederBottomMotor.SetVoltage(ShooterConstants::kFeederInV);}
-
-void Shooter::FeederBottomOutNRM() {
-    m_feederBottomMotor.SetVoltage(ShooterConstants::kFeederOutV);}
-
-void Shooter::FeederBottomStopNRM() {
-    m_feederBottomMotor.SetVoltage(0_V);}
-
-void Shooter::FeederTopInNRM() {
-    m_feederTopMotor.SetVoltage(ShooterConstants::kFeederInV);}
-
-void Shooter::FeederTopOutNRM() {
-    m_feederTopMotor.SetVoltage(ShooterConstants::kFeederOutV);}
-
-void Shooter::FeederTopStopNRM() {
-    m_feederTopMotor.SetVoltage(0_V);}
-
     //**************************** Simulation ****************************/
 
 class ShooterSim {
@@ -185,8 +146,6 @@ public:
 
     // sim state objects
     ctre::phoenix6::sim::TalonFXSimState m_launcherMotorState;
-    frc::DCMotor m_feederMotors[2];
-    rev::spark::SparkFlexSim m_feederStates[2];
 };
 
 std::unique_ptr<ShooterSim> create_shooter_sim(Shooter &shooter) {
@@ -215,12 +174,7 @@ ShooterSim::ShooterSim(Shooter& shooter) :
             ShooterConstants::launcherGearing),
         frc::DCMotor::KrakenX60FOC(2)},
     m_feederPhysics{make_feeder_sim(), make_feeder_sim()},
-    m_launcherMotorState{shooter.m_flyWheelLeadMotor},
-    m_feederMotors{frc::DCMotor::NeoVortex(1), frc::DCMotor::NeoVortex(1)},
-    m_feederStates{
-        {&shooter.m_feederBottomMotor, &m_feederMotors[0]},
-        {&shooter.m_feederTopMotor, &m_feederMotors[1]}
-    }
+    m_launcherMotorState{shooter.m_flyWheelLeadMotor}
 {
 }
 
@@ -241,18 +195,4 @@ void Shooter::SimulationPeriodic() {
     m_sim_state->m_launcherMotorState.SetRotorVelocity(
         m_sim_state->m_launcherPhysics.GetAngularVelocity() * ShooterConstants::launcherGearing);
     m_sim_state->m_launcherMotorState.SetRotorAcceleration(m_sim_state->m_launcherPhysics.GetAngularAcceleration());
-
-    for (int i = 0; i < 2; i++) {
-        auto &phys = m_sim_state->m_feederPhysics[i];
-        auto &state = m_sim_state->m_feederStates[i];
-
-        phys.SetInputVoltage(state.GetAppliedOutput()*supply_voltage);
-        phys.Update(20_ms);
-        state.iterate(
-            ShooterConstants::feederGearing*units::revolutions_per_minute_t{
-                phys.GetAngularVelocity()}.value(),
-            supply_voltage.value(),
-            0.02
-        );
-    }
 }
