@@ -61,18 +61,20 @@ Feeder::Feeder(FeederConstants::Perams peramConfig) :
     .feedForward.kS(peramConfig.kFF); //maybe add KV?
 
     m_feederMotor.Configure(feederConfig, 
-                rev::spark::SparkBase::ResetMode::kNoResetSafeParameters, 
-                rev::spark::SparkBase::PersistMode::kNoPersistParameters);
+                rev::ResetMode::kNoResetSafeParameters, 
+                rev::PersistMode::kNoPersistParameters);
 
 }
 
 Feeder::~Feeder() {}
 
+void Feeder::Periodic() {}
+
 frc2::CommandPtr Feeder::setRPM(double RPM) {
     return Run([this, RPM] {setVelocity(RPM);});
 }
 
-frc2::CommandPtr Feeder::setRPM(double RPM) {
+frc2::CommandPtr Feeder::setRPMUntilThere(double RPM) {
     return setRPM(RPM).Until([this, RPM]() -> bool{return isAtRPM(RPM);});
 }
 
@@ -83,7 +85,7 @@ double Feeder::getRPM() {
 // ************************* Private ************************* //
 void Feeder::setVelocity(double RPM) {
     targetRPM = RPM;
-    m_pidController.SetReference(RPM, rev::spark::SparkFlex::ControlType::kVelocity);
+    m_pidController.SetSetpoint(RPM, rev::spark::SparkFlex::ControlType::kVelocity);
 }
 
 bool Feeder::isAtRPM(double RPM_Target) {
