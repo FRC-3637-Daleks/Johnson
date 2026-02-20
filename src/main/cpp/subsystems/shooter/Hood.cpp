@@ -11,9 +11,9 @@ namespace HoodConstants {
     units::time::microsecond_t Min =            1.0_ms;
 
     //Percent of allowed movement that it moves a sec
-    double movementPerSecond = 0.1; 
+    double movementPerSecond = 0.1; //MUST: (Speed * 0.02) < Tolerance
 
-    double tolerance = 0.01; //As a percentage
+    double tolerance = 0.01; //As a percentage of 0-1
 }
 
 Hood::Hood() :
@@ -21,9 +21,6 @@ Hood::Hood() :
 {
     actuator.SetBounds(HoodConstants::max, HoodConstants::deadbandMax, HoodConstants::center,
         HoodConstants::deadbandMin, HoodConstants::Min);
-        
-    m_timer.Start();
-    lastTime = m_timer.Get();
 }
 
 Hood::~Hood() {}
@@ -38,7 +35,7 @@ frc2::CommandPtr Hood::SetPosPercent(double percent) {
 
 frc2::CommandPtr Hood::SetPosPercentUntilThere(double percent) {
     return RunOnce([this, percent] { SetPos(percent); })
-           .AndThen(Run([this]{ /* Waiting */ }).Until([this] { return !isMoving; }));
+           .AndThen(Run([this]{ /* Waiting */ }).Until([this] { return isHoodAtPos(); }));
 }
 
 bool Hood::isHoodAtPos() {
@@ -48,34 +45,19 @@ bool Hood::isHoodAtPos() {
 //********************** Private **********************/
 
 void Hood::SetPos(double percent) {
-    isMoving = true && !isHoodAtPos(); //prevents race condition were this runs before periodic and make .until hang
-
+    //in the future, math here if it needs to be scaled/clamped more than 0-1
     percentTarget = std::clamp(percent, 0.0, 1.0); 
     actuator.Set(percentTarget);
 }
 
 
 void Hood::CalculateTravelPeriodic() {
-    units::time::second_t newTime = m_timer.Get();
-    units::time::second_t timeGap = newTime - lastTime;
-    lastTime = newTime;
-
-    if (isMoving) {
-        double distMoved = HoodConstants::movementPerSecond * timeGap.value();
-        int direction = (percentTarget - percentEstimate >= 0) ? 1 : -1;
-        double vectorMoved = distMoved * direction;
-
-        if (distMoved >= std::abs(percentTarget - percentEstimate)) { //prevent overshooting
-            percentEstimate = percentTarget; //eliminate error
-            isMoving = false;
-        } else {
-            percentEstimate += vectorMoved;
-        }
-    }
-
-    //redundent/backup
+    //Assumes/Ignores loop overuns, runs @ 20ms
     if (isHoodAtPos()) {
-            isMoving = false;
-            percentEstimate = percentTarget; //eliminate error build up
+        percentEstimate = percentTarget;
+    } else if (percentEstimate < percentTarget) {
+        percentEstimate += HoodConstants::movementPerSecond * 0.02;
+    } else { //percentEstimate > percentTarget
+        percentEstimate -= HoodConstants::movementPerSecond * 0.02;
     }
 }

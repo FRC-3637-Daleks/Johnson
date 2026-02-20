@@ -37,9 +37,6 @@ private:
     frc::Servo actuator;    
 
     //State managing stuff
-    bool isMoving = false;
-    units::time::second_t lastTime = 0_s;
-    frc::Timer m_timer;
     double percentTarget = 0;
     double percentEstimate = 0;
     
