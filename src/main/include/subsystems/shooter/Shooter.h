@@ -8,7 +8,7 @@
 #include <frc2/command/Subsystem.h>
 #include <wpi/sendable/SendableBuilder.h>
 
-#include "subsystems/shooter/Hood.h"
+#include "subsystems/shooter/LinearActuator.h"
 
 
 class ShooterSim;
