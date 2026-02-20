@@ -8,10 +8,10 @@
 #include <frc2/command/Subsystem.h>
 #include <wpi/sendable/SendableBuilder.h>
 
-class Hood  : public frc2::SubsystemBase {
+class LinearActuator  : public frc2::SubsystemBase {
 public:
-    Hood();
-    ~Hood();
+    LinearActuator();
+    ~LinearActuator();
 
 public:
     void InitializeDashboard();
@@ -21,15 +21,17 @@ public:
 
 public:
     //percent as range of 0-1 were zero and one are within limits
-    frc2::CommandPtr SetPosPercent(double percent);
+    frc2::CommandPtr SetPosition(double point);
 
-    frc2::CommandPtr SetPosPercentUntilThere(double percent);
+    frc2::CommandPtr SetPositionUntilThere(double point);
 
-    bool isHoodAtPos();
+    bool isLinearActuatorAtPos();
 
 private:
+    int ClampPoint(double point);
+
     //percent as range of 0-1 were zero and one are within limits
-    void SetPos(double percent);
+    void SetPos(double point);
 
     void CalculateTravelPeriodic();
 
@@ -37,7 +39,7 @@ private:
     frc::Servo actuator;    
 
     //State managing stuff
-    double percentTarget = 0;
-    double percentEstimate = 0;
+    double positionTarget = 0;
+    double positionEstimate = 0;
     
 };

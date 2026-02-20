@@ -28,8 +28,8 @@ public:
     frc2::CommandPtr SetFlywheelSpeed(units::angular_velocity::turns_per_second_t velocity);
 
     //Hood stuff
-    frc2::CommandPtr SetHoodPosPercent(double percent);
-    frc2::CommandPtr SetHoodPosPercentUntilThere(double percent);
+    frc2::CommandPtr SetHoodPosition(double percent);
+    frc2::CommandPtr SetHoodPositionUntilThere(double percent);
     bool isHoodAtPos();
 
 private:
@@ -41,7 +41,7 @@ private:
 
     bool IsBBBroken(); 
 
-    Hood m_hood;
+    LinearActuator m_hoodActuator;
 
 private:
     ctre::phoenix6::hardware::TalonFX m_flyWheelLeadMotor;
