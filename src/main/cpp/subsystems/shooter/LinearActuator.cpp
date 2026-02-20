@@ -1,4 +1,4 @@
-#include "subsystems/shooter/Hood.h"
+#include "subsystems/shooter/LinearActuator.h"
 #include <algorithm>
 
 #include <frc/smartdashboard/MechanismLigament2d.h>
