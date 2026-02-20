@@ -123,15 +123,14 @@ frc2::CommandPtr Shooter::SetFlywheelSpeed(units::angular_velocity::turns_per_se
     return Run([this, velocity] {SetFlywheelSpeedNRM(velocity);});
 }
 
+frc2::CommandPtr Shooter::SetHoodPosition(double point) {
+    return m_hoodActuator.SetPosition(point);}
 
-frc2::CommandPtr Shooter::SetHoodPosPercent(double percent) {
-    return m_hood.SetPosPercent(percent);}
-
-frc2::CommandPtr Shooter::SetHoodPosPercentUntilThere(double percent) {
-    return m_hood.SetPosPercentUntilThere(percent);}
+frc2::CommandPtr Shooter::SetHoodPositionUntilThere(double point) {
+    return m_hoodActuator.SetPositionUntilThere(point);}
 
 bool Shooter::isHoodAtPos() {
-    return m_hood.isHoodAtPos();}
+    return m_hoodActuator.isLinearActuatorAtPos();}
 
 //********************** Private **********************/
 
