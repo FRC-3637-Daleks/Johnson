@@ -127,12 +127,12 @@ public:
 };
 
 void Feeder::InitializeDashboard() {
-    frc::SmartDashboard::PutData("Shooter/Feeder"+ std::to_string(thisClassesIndex), &m_mech);
+    frc::SmartDashboard::PutData("Feeder"+ std::to_string(thisClassesIndex), &m_mech);
 }
 
 void Feeder::UpdateDashboard() {
     if (m_sim_state) {
-        frc::SmartDashboard::PutNumber("Shooter/Feeder"+std::to_string(thisClassesIndex)+"/Velocity", 
+        frc::SmartDashboard::PutNumber("Feeder"+std::to_string(thisClassesIndex)+"/Velocity", 
             FeederConstants::feederGearing*units::revolutions_per_minute_t{
             m_sim_state->m_feederPhysics.GetAngularVelocity()}.value());
 
