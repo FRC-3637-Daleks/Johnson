@@ -165,7 +165,6 @@ FeederSim::FeederSim(Feeder &feeder) :
 {
 }
 
-#include <iostream>
 void Feeder::SimulationPeriodic() {
     if (!m_sim_state) return;
 
