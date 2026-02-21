@@ -10,6 +10,8 @@
 #include <wpi/sendable/SendableBuilder.h>
 
 class FeederSim; //forward declarations
+
+
 namespace FeederConstants {
     struct Perams; // Forward declaration
 }
@@ -44,8 +46,10 @@ private:
 
 // simulation
 private:
-    // friend class ShooterSim;
-    // std::unique_ptr<FeederSim> m_sim_state;
+    friend class FeederSim;
+    std::unique_ptr<FeederSim> m_sim_state;
 
-    // void SimulationPeriodic() override;
+    void SimulationPeriodic() override;
+
+    inline static int classIndex = 0; //should only be init once
 };
