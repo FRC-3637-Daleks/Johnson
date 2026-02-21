@@ -20,7 +20,7 @@
 
 #include "subsystems/Drivetrain.h"
 #include "subsystems/shooter/Shooter.h"
-#include "subsystems/shooter/Feeder.h"
+#include "subsystems/Feeder.h"
 #include "subsystems/ROSBridge.h"
 #include "subsystems/OperatorInterface.h"
 
