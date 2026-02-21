@@ -11,14 +11,15 @@
 
 class FeederSim; //forward declarations
 
-
-namespace FeederConstants {
-    struct Perams; // Forward declaration
-}
-
 class Feeder : public frc2::SubsystemBase{
 public:
-    Feeder(FeederConstants::Perams peramConfig); //get the motor ID from constants and pass it in here
+
+    enum class Type {
+        Top,
+        Bottom
+    };
+
+    Feeder(Type type); //get the motor ID from constants and pass it in here
     ~Feeder();
 
 public:

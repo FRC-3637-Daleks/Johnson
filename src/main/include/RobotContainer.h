@@ -20,6 +20,7 @@
 
 #include "subsystems/Drivetrain.h"
 #include "subsystems/shooter/Shooter.h"
+#include "subsystems/shooter/Feeder.h"
 #include "subsystems/ROSBridge.h"
 #include "subsystems/OperatorInterface.h"
 
@@ -48,6 +49,8 @@ public:
   ROSBridge m_ros;
   OperatorInterface m_oi;
   Shooter m_shooter;
+  Feeder m_feederTop{Feeder::Type::Top};
+  Feeder m_feederBottom{Feeder::Type::Bottom};
 
   bool m_isRed;
 
