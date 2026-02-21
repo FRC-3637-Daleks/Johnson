@@ -66,7 +66,7 @@ void LinearActuator::SetPos(double point) {
     actuator.SetSpeed((positionTarget/LinearActuatorConstants::length *2)-1);
 }
 
-
+#include <iostream>
 void LinearActuator::CalculateTravelPeriodic() {
     //above going down
     if (positionEstimate > positionTarget + (LinearActuatorConstants::speed * 0.02)) { 
@@ -79,27 +79,28 @@ void LinearActuator::CalculateTravelPeriodic() {
 }
 
 //Dirty Trick because lazy
-namespace { //anonomous namespace accessable only in .cpp
-    frc::Mechanism2d m_mech{3, 3};
-    frc::MechanismRoot2d* m_root = m_mech.GetRoot("LinearActuator", 2, 0);
-    frc::MechanismLigament2d* m_RealLine =
-        m_root->Append<frc::MechanismLigament2d>("RealLine", 1, 90_deg);
+namespace { //anonomous namespace accessable only in .cpp, dont make multip
+    frc::Mechanism2d m_mech{1, 2};
+    frc::MechanismRoot2d* m_rootReal = m_mech.GetRoot("LinearActuatorReal", 1, 0);
+    frc::MechanismRoot2d* m_rootTarget = m_mech.GetRoot("LinearActuatorTarget", 0, 0);
     frc::MechanismLigament2d* m_TargetLine =
-        m_root->Append<frc::MechanismLigament2d>("TargetLine", 1, 90_deg);
-
+        m_rootReal->Append<frc::MechanismLigament2d>("TargetLine", 1, 90_deg, 
+            6, frc::Color8Bit{frc::Color::kPurple});
+    frc::MechanismLigament2d* m_RealLine =
+        m_rootTarget->Append<frc::MechanismLigament2d>("RealLine", 1, 90_deg);
 }
 
 void LinearActuator::InitializeDashboard() {
-    frc::SmartDashboard::PutNumber
-    ("Shooter/LinearActuator/PosEstimate", positionEstimate);
-    frc::SmartDashboard::PutNumber
-    ("Shooter/LinearActuator/PosTarget", positionTarget);
-
     frc::SmartDashboard::PutData("Shooter/LinearActuator", &m_mech);
 }
 
 void LinearActuator::UpdateDashboard() {
     m_RealLine->SetLength(positionEstimate/LinearActuatorConstants::length);
     m_TargetLine->SetLength(positionTarget/LinearActuatorConstants::length);
+
+    frc::SmartDashboard::PutNumber
+    ("Shooter/LinearActuator/PosEstimate", positionEstimate);
+    frc::SmartDashboard::PutNumber
+    ("Shooter/LinearActuator/PosTarget", positionTarget);
 }
 
