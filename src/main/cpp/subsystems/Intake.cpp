@@ -192,7 +192,20 @@ Intake::Intake() :
         "wheel", 0.1, 90_deg, 6, frc::Color8Bit{frc::Color::kPurple})},
     m_sim_state{new IntakeSim{*this}}
 {
+    auto put_cmd = [this] (std::string_view name, frc2::CommandPtr&& cmd) {
+        frc::SmartDashboard::PutData(fmt::format("Intake/{}", name),
+            std::move(cmd).WithName(name).Unwrap().release());
+    };
+
     frc::SmartDashboard::PutData("Mechanisms", &m_mechIntake);
+    put_cmd("Extend", Extend());
+    put_cmd("Retract", Retract());
+    put_cmd("BlindExtend", BlindExtend());
+    put_cmd("BlindRetract", BlindRetract());
+    put_cmd("HomeArm", HomeArm());
+    put_cmd("IntakeFuel", IntakeFuel());
+    put_cmd("OutakeFuel", OutakeFuel());
+    put_cmd("ScoreFuel", ScoreFuel());
 
     using namespace ctre::phoenix6;
     configs::TalonFXConfiguration armConfig;
