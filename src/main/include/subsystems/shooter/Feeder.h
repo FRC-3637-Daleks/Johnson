@@ -9,6 +9,9 @@
 #include <frc2/command/Subsystem.h>
 #include <wpi/sendable/SendableBuilder.h>
 
+#include <frc/smartdashboard/MechanismLigament2d.h>
+#include <frc/smartdashboard/Mechanism2d.h>
+
 class FeederSim; //forward declarations
 
 class Feeder : public frc2::SubsystemBase{
@@ -53,4 +56,11 @@ private:
     void SimulationPeriodic() override;
 
     inline static int classIndex = 0; //should only be init once
+    int thisClassesIndex{};
+    
+    frc::Mechanism2d m_mech{2, 2};
+    frc::MechanismRoot2d* m_root = m_mech.GetRoot("Feeder", 1, 1);
+    frc::MechanismLigament2d* m_MotorLine =
+        m_root->Append<frc::MechanismLigament2d>("Angle", 1, 0_deg);
+    units::degree_t motorDegState = 0_deg;
 };

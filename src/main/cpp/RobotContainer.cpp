@@ -130,6 +130,11 @@ void RobotContainer::ConfigureBindings() {
       m_swerve.ResetControlHeading();
   }));
 
+  m_swerveController.Button(3).OnTrue(m_shooter.SetHoodPosition(50));
+
+  m_swerveController.Button(4).OnTrue(m_feederTop.setRPM(100));
+  m_swerveController.Button(5).OnTrue(m_feederBottom.setRPM(100));
+
   m_swerveController.POVDown().WhileTrue(
     m_swerve.DriveToPoseIndefinitelyCommand(AutoConstants::desiredPose));
   try {

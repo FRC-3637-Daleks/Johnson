@@ -27,9 +27,10 @@ public:
 public:
     frc2::CommandPtr SetFlywheelSpeed(units::angular_velocity::turns_per_second_t velocity);
 
-    //Hood stuff
-    frc2::CommandPtr SetHoodPosition(double percent);
-    frc2::CommandPtr SetHoodPositionUntilThere(double percent);
+    //Point in mm
+    frc2::CommandPtr SetHoodPosition(double point);
+    //Point in mm
+    frc2::CommandPtr SetHoodPositionUntilThere(double point);
     bool isHoodAtPos();
 
 private:
