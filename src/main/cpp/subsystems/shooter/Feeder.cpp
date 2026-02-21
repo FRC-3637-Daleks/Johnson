@@ -135,6 +135,8 @@ void Feeder::UpdateDashboard() {
         frc::SmartDashboard::PutNumber("Shooter/Feeder"+std::to_string(thisClassesIndex)+"/Velocity", 
             FeederConstants::feederGearing*units::revolutions_per_minute_t{
             m_sim_state->m_feederPhysics.GetAngularVelocity()}.value());
+
+        m_MotorLine->SetAngle(motorDegState);
     }
 }
 
@@ -163,6 +165,7 @@ FeederSim::FeederSim(Feeder &feeder) :
 {
 }
 
+#include <iostream>
 void Feeder::SimulationPeriodic() {
     if (!m_sim_state) return;
 
