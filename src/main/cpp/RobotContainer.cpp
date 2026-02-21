@@ -140,9 +140,9 @@ void RobotContainer::ConfigureBindings() {
   m_swerveController.Button(7).WhileTrue(m_intake.IntakeFuel());
   m_swerveController.Button(8).WhileTrue(m_intake.OutakeFuel());
 
-  m_swerveController.Button(9).OnTrue(m_intake.GoArmOut());
+  m_swerveController.Button(9).OnTrue(m_intake.Extend());
 
-  m_swerveController.Button(10).OnTrue(m_intake.GoArmIn());
+  m_swerveController.Button(10).OnTrue(m_intake.Retract());
 
   m_swerveController.POVDown().WhileTrue(
     m_swerve.DriveToPoseIndefinitelyCommand(AutoConstants::desiredPose));
