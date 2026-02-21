@@ -4,8 +4,6 @@
 #include <frc/simulation/FlywheelSim.h>
 #include <frc/system/plant/LinearSystemId.h>
 
-#include <frc/smartdashboard/MechanismLigament2d.h>
-#include <frc/smartdashboard/Mechanism2d.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <frc/RobotController.h>
 #include <frc/RobotBase.h>
@@ -47,6 +45,7 @@ namespace FeederConstants {
     int getMotorID(Feeder::Type id) {
         if (id == Feeder::Type::Top) return kTopMotorID;
         if (id == Feeder::Type::Bottom) return kBottomMotorID;
+        return 12345; //clear error
     }
 }
 
@@ -58,6 +57,7 @@ Feeder::Feeder(Type type) :
     m_sim_state{create_feeder_sim(*this)}
 {
     classIndex++;
+    thisClassesIndex = classIndex;
     FeederConstants::Perams peramConfig{};
     if (type == Type::Top) peramConfig = FeederConstants::TopMotor;
     else if (type == Type::Bottom) peramConfig = FeederConstants::BottomMotor;
@@ -126,22 +126,13 @@ public:
     rev::spark::SparkFlexSim m_feederState;
 };
 
-// Fixing my lazyness is left as an excersize to the reader
-namespace { //Wont leave the .cpp
-    frc::Mechanism2d m_mech{2, 2};
-    frc::MechanismRoot2d* m_root = m_mech.GetRoot("LinearActuator", 1, 1);
-    frc::MechanismLigament2d* m_MotorLine =
-        m_root->Append<frc::MechanismLigament2d>("RealLine", 1, 0_deg);
-    units::degree_t motorDegState = 0_deg;
-}
-
 void Feeder::InitializeDashboard() {
-    frc::SmartDashboard::PutData("Shooter/Feeder"+(char)classIndex, &m_mech);
+    frc::SmartDashboard::PutData("Shooter/Feeder"+ std::to_string(thisClassesIndex), &m_mech);
 }
 
 void Feeder::UpdateDashboard() {
     if (m_sim_state) {
-        frc::SmartDashboard::PutNumber("Shooter/Feeder/Velocity"+(char)classIndex, 
+        frc::SmartDashboard::PutNumber("Shooter/Feeder"+std::to_string(thisClassesIndex)+"/Velocity", 
             FeederConstants::feederGearing*units::revolutions_per_minute_t{
             m_sim_state->m_feederPhysics.GetAngularVelocity()}.value());
     }
