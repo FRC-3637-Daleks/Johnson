@@ -17,54 +17,50 @@ namespace FeederConstants {
 
     double kToleranceRPM = 100; //only used for setVelocityUntilSpeed
 
-    //Top Motor
-    units::volt_t TopMotorVoltageComp = 12_V;
-    units::ampere_t TopMotorSmartCurrentLimit = 40_A;
-    double TopMotor_P = 1.0;
-    double TopMotor_I = 0.0001;
-    double TopMotor_D = 0.0;
-    double TopMotor_FF = 0.1; 
-
-    //Bottom Motor
-    units::volt_t BottomMotorVoltageComp = 12_V;
-    units::ampere_t BottomMotorSmartCurrentLimit = 40_A;
-    double BottomMotor_P = 1.0;
-    double BottomMotor_I = 0.0001;
-    double BottomMotor_D = 0.0;
-    double BottomMotor_FF = 0.1; 
-
-    //For cleaner initialization of feeder class
     struct Perams {
-        int motorID;
         units::volt_t VoltComp;
         units::ampere_t SmartCurrLim;
         double kP, kI, kD, kFF;
-        
-        //True = Top Motor config, False = Bottom Motor config
-        Perams(bool isTopMotor) {
-            if (isTopMotor) {motorID = kTopMotorID; 
-                VoltComp = TopMotorVoltageComp; SmartCurrLim = TopMotorSmartCurrentLimit; 
-                kP = TopMotor_P; kI = TopMotor_I; kD = TopMotor_D; kFF = TopMotor_FF;
-            } else { motorID = kBottomMotorID; 
-                VoltComp = BottomMotorVoltageComp; SmartCurrLim = BottomMotorSmartCurrentLimit; 
-                kP = BottomMotor_P; kI = BottomMotor_I; kD = BottomMotor_D; kFF = BottomMotor_FF;
-            }
-        }
+    };
+
+    Perams TopMotor {
+    /*units::volt_t VoltComp*/          12_V,
+    /*units::ampere_t SmartCurrLim*/    40_A,
+    /*double P*/                        1.0,
+    /*double I*/                        0.0001,
+    /*double D*/                        0.0,
+    /*double FF*/                       0.1 
+    };
+
+    Perams BottomMotor {
+    /*units::volt_t VoltComp*/          12_V,
+    /*units::ampere_t SmartCurrLim*/    40_A,
+    /*double P*/                        1.0,
+    /*double I*/                        0.0001,
+    /*double D*/                        0.0,
+    /*double FF*/                       0.1 
     };
 
     constexpr auto feederGearing = 1.0;
     constexpr auto feederMOI = 0.001_kg_sq_m;
 
+    int getMotorID(Feeder::Type id) {
+        if (id == Feeder::Type::Top) return kTopMotorID;
+        if (id == Feeder::Type::Bottom) return kBottomMotorID;
+    }
 }
 
 std::unique_ptr<FeederSim> create_feeder_sim(Feeder& feeder);
 
-Feeder::Feeder(FeederConstants::Perams peramConfig) :
-    m_feederMotor(peramConfig.motorID, rev::spark::SparkFlex::MotorType::kBrushless),
+Feeder::Feeder(Type type) :
+    m_feederMotor(FeederConstants::getMotorID(type), rev::spark::SparkFlex::MotorType::kBrushless),
     m_pidController(m_feederMotor.GetClosedLoopController()),
     m_sim_state{create_feeder_sim(*this)}
 {
     classIndex++;
+    FeederConstants::Perams peramConfig{};
+    if (type == Type::Top) peramConfig = FeederConstants::TopMotor;
+    else if (type == Type::Bottom) peramConfig = FeederConstants::BottomMotor;
 
     //velocty control (voltage but with some compensation)
     rev::spark::SparkMaxConfig feederConfig = rev::spark::SparkMaxConfig();
