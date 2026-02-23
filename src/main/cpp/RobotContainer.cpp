@@ -154,10 +154,6 @@ void RobotContainer::ConfigureBindings() {
       m_swerveController.Button(11).WhileTrue(frc2::cmd::None());
   } catch(...) {
   }
-
-  m_swerveController.Button(10).OnTrue(m_climb.Deploy());
-  m_swerveController.Button(9).OnTrue(m_climb.LiftBot());
-
 }
 
 void RobotContainer::ConfigureDashboard() {
