@@ -22,12 +22,6 @@ namespace ShooterConstants {
     int kShooterFlywheelLeaderID = 10;
     int kShooterFlywheelFollowerID = 11;
 
-    //PID
-    double kP = 2.0;
-    double kI = 0.001;
-    double kD = 0.1;
-    double kV = 1;
-
     //Voltage
     units::volt_t kPeakForwardVoltage = 12_V;
     units::volt_t kReverseForwardVoltage = 0_V;
@@ -41,9 +35,19 @@ namespace ShooterConstants {
 
     constexpr auto launcherGearing = 24.0/18.0;
     constexpr auto launcherMOI = 0.01_kg_sq_m;
+    constexpr auto launcherMotor = frc::DCMotor::KrakenX60FOC(2).WithReduction(launcherGearing);
 
     constexpr auto feederGearing = 1.0;
     constexpr auto feederMOI = 0.001_kg_sq_m;
+
+    //PID
+    double kP = 0.1;
+    double kI = 0.000;
+    double kD = 0.0;
+    constexpr auto kS = 0.1_A;
+    constexpr ctre::unit::amperes_per_turn_per_second_squared_t kA = 
+        7.5*launcherMOI/launcherMotor.Kt/1_tr;
+    constexpr auto kMotionMagicAcc = 50_tr_per_s_sq;
 
     constexpr ctre::phoenix6::CANBus canBus{"Drivebase"};
 }
@@ -58,16 +62,20 @@ Shooter::Shooter() :
 {
     //Shooter PID config
     ctre::phoenix6::configs::TalonFXConfiguration PIDConfig;
+    ctre::phoenix6::configs::MotionMagicConfigs MMConfig;
+
+    MMConfig.MotionMagicAcceleration = ShooterConstants::kMotionMagicAcc;
+
 
     ctre::phoenix6::configs::Slot0Configs slot0Configs{};
     slot0Configs.kP = ShooterConstants::kP; 
     slot0Configs.kI = ShooterConstants::kI; 
     slot0Configs.kD = ShooterConstants::kD; 
-    slot0Configs.kV = ShooterConstants::kV;
 
     PIDConfig.WithSlot0(slot0Configs);
 
     m_flyWheelLeadMotor.GetConfigurator().Apply(PIDConfig);  
+    m_flyWheelLeadMotor.GetConfigurator().Apply(MMConfig);
     m_flyWheelFollowMotor.SetControl(ctre::phoenix6::controls::Follower
         {ShooterConstants::kShooterFlywheelLeaderID, false});
 
@@ -137,7 +145,7 @@ bool Shooter::isHoodAtPos() {
 //side-effect of setting targetVelocity (read only)
 void Shooter::SetFlywheelSpeedNRM(units::angular_velocity::turns_per_second_t velocity) {
     // m_flyWheelLeadMotor.SetControl(ctre::phoenix6::controls::VelocityVoltage(velocity).WithSlot(0)); //Voltage
-    m_flyWheelLeadMotor.SetControl(ctre::phoenix6::controls::VelocityTorqueCurrentFOC(velocity).WithSlot(0)); //Torque
+    m_flyWheelLeadMotor.SetControl(ctre::phoenix6::controls::MotionMagicVelocityTorqueCurrentFOC(velocity).WithSlot(0)); //Torque
     targetVelocity = velocity;
 }
 
