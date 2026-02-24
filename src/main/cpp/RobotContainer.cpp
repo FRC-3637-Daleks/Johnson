@@ -130,19 +130,17 @@ void RobotContainer::ConfigureBindings() {
       m_swerve.ResetControlHeading();
   }));
 
-  // m_swerveController.Button(3).OnTrue(m_shooter.SetHoodPosition(25));
-  // m_swerveController.Button(4).OnTrue(m_shooter.SetHoodPosition(70));
+  m_swerveController.Button(3).OnTrue(m_shooter.SetHoodPosition(25));
+  m_swerveController.Button(4).OnTrue(m_shooter.SetHoodPosition(70));
 
-  // m_swerveController.Button(6).OnTrue(m_feederTop.setRPM(100));
-  // m_swerveController.Button(7).OnTrue(m_feederTop.setRPM(0));
-  // m_swerveController.Button(7).OnTrue(m_intake.IntakeFuel());
-  // m_swerveController.Button(8).OnTrue(m_intake.OutakeFuel());
-  // m_swerveController.Button(7).WhileTrue(m_intake.IntakeFuel());
-  // m_swerveController.Button(8).WhileTrue(m_intake.OutakeFuel());
+  m_swerveController.Button(5).OnTrue(m_feederTop.setRPM(100));
+  m_swerveController.Button(6).OnTrue(m_feederTop.setRPM(0));
 
-  // m_swerveController.Button(9).OnTrue(m_intake.Extend());
+  m_swerveController.Button(7).OnTrue(m_intake.Extend());
+  m_swerveController.Button(8).OnTrue(m_intake.Retract());
 
-  // m_swerveController.Button(10).OnTrue(m_intake.Retract());
+  m_swerveController.Button(9).OnTrue(m_intake.IntakeFuel());
+  m_swerveController.Button(10).OnTrue(m_intake.OutakeFuel());
 
   m_swerveController.POVDown().WhileTrue(
     m_swerve.DriveToPoseIndefinitelyCommand(AutoConstants::desiredPose));

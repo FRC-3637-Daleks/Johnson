@@ -101,7 +101,6 @@ double Feeder::getRPM() {
     return m_feederMotor.GetEncoder().GetVelocity();
 }
 
-// ************************* Private ************************* //
 void Feeder::setVelocity(double RPM) {
     targetRPM = RPM;
     m_pidController.SetSetpoint(RPM, rev::spark::SparkFlex::ControlType::kVelocity);
