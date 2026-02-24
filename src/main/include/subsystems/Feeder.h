@@ -36,8 +36,6 @@ public:
     frc2::CommandPtr setRPMUntilThere(double RPM);
     double getRPM();
 
-private:
-
     void setVelocity(double RPM);
     bool isAtRPM(double RPM);
 
