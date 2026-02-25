@@ -233,8 +233,10 @@ bool SwerveChassis::AtPose(const frc::Pose2d& desiredPose,
 }
 
 bool SwerveChassis::IsStopped() {
-    auto currentSpeed = GetSpeed();
-    return currentSpeed < 0.1_mps;
+    const auto [vx, vy, omega] = GetChassisSpeed();
+    return frc::IsNear({}, vx, 0.1_mps)
+        && frc::IsNear({}, vy, 0.1_mps)
+        && frc::IsNear({}, omega, 0.1_rad_per_s);
 }
 
 void SwerveChassis::ResetControlHeading(frc::Rotation2d heading) {

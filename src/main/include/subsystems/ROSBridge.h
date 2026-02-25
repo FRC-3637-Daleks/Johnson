@@ -15,6 +15,8 @@
 #include <networktables/NetworkTableInstance.h>
 #include <networktables/StringTopic.h>
 
+#include <optional>
+
 class ROSBridge {
 public:
   ROSBridge();
@@ -28,6 +30,8 @@ public:
 
   void CheckFMS();
   frc::Transform2d GetMapToOdom();
+  // if there is a new updated transform return it. otherwise empty optional
+  std::optional<frc::Transform2d> GetNewMapToOdom();
 
 private:
   nt::NetworkTableInstance m_ntInst;

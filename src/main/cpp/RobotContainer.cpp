@@ -186,16 +186,22 @@ void RobotContainer::ConfigureContinuous() {
         m_swerve.GetOdomTimestamp());
       }).IgnoringDisable(true));
 
-  /* NOTE: It's a little weird to have a command adjust the pose estimate
-   * since 2 other commands might observe different pose estimates.
-   * Triggers are evaluated before commands, though, so it shouldnt cause
-   * any races there.
-   */
-   // ROS to swerve
-  frc2::CommandScheduler::GetInstance().Schedule(
-    frc2::cmd::Run([this] {
-      m_swerve.SetMapToOdom(m_ros.GetMapToOdom());
-      }).IgnoringDisable(true));
+  // trigger active when robot is stopped for half a second
+  // though this shouldnt be necessary with well timestamped camera frames
+  // we dont want any teleportation during high speed motion
+  auto robot_still = frc2::Trigger{[this] {return m_swerve.IsStopped();}}.Debounce(0.5_s);
+
+  // ROS to swerve
+  robot_still.WhileTrue(
+    frc2::cmd::StartRun(
+      // toss old values
+      [this] {m_ros.GetNewMapToOdom();},
+      [this] {
+        // this allows other sources to override this if it dies on an erroneous state
+        if (auto map_to_odom = m_ros.GetNewMapToOdom())
+          m_swerve.SetMapToOdom(map_to_odom.value());
+      }
+    ).IgnoringDisable(true));
 
   if constexpr (frc::RobotBase::IsSimulation()) {
     frc2::CommandScheduler::GetInstance().Schedule(

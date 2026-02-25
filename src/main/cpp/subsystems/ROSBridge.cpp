@@ -126,3 +126,24 @@ frc::Transform2d ROSBridge::GetMapToOdom() {
 
   return frc::Transform2d{x, y, theta};
 }
+
+std::optional<frc::Transform2d> ROSBridge::GetNewMapToOdom() {
+  // disgusting allocations, can be optimized
+  auto orientations = m_subMapToOdomAngular.ReadQueue();
+  auto offsets = m_subMapToOdomLinear.ReadQueue();
+
+  if (offsets.size() == 0 || orientations.size() == 0) return {};
+
+  auto orientation = orientations.back().value;
+  auto offset = offsets.back().value;
+  if (orientation.size() < 3)
+    orientation = {0., 0., 0.};
+  if (offset.size() < 3)
+    offset = {0., 0., 0.};
+
+  const units::meter_t x{offset[0]};
+  const units::meter_t y{offset[1]};
+  const units::degree_t theta{orientation[2]};
+
+  return frc::Transform2d{x, y, theta};
+}
