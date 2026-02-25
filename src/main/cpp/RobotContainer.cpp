@@ -192,9 +192,10 @@ void RobotContainer::ConfigureDashboard() {
 
 void RobotContainer::ConfigureAuto() {
 
-  m_depotauto = AutoBuilder::DepotAuto(m_swerve);
-  m_Ltrenchauto = AutoBuilder::LTrenchAuto(m_swerve);
-  m_Rtrenchauto = AutoBuilder::RTrenchAuto(m_swerve);
+  m_depotauto = AutoBuilder::DepotAuto(*this);
+  m_Ltrenchauto = AutoBuilder::LTrenchAuto(*this);
+  m_Rtrenchauto = AutoBuilder::RTrenchAuto(*this);
+  m_RtrenchtoDepot = AutoBuilder::TrenchToDepotAuto(*this);
 
   m_chooser.SetDefaultOption(
    "Default Auto: Go to the depot then score then climb", m_depotauto.get());
@@ -204,7 +205,10 @@ void RobotContainer::ConfigureAuto() {
 
   m_chooser.AddOption(
     "Go through Right trench to fuel then score then climb", m_Rtrenchauto.get()); 
-}
+
+  m_chooser.AddOption(
+    "Go from trench auto to depot auto", m_RtrenchtoDepot.get());
+} 
 
 void RobotContainer::ConfigureContinuous() {
   // These commands are for transmitting data across subsystems
