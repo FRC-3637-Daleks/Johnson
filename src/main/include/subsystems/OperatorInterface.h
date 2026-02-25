@@ -54,7 +54,7 @@ public:
 
   frc2::CommandPtr RumbleController(units::second_t time, double intensity);
 
-private:
+public:
   frc2::CommandXboxController m_swerveController;
   frc2::CommandXboxController m_copilotController;
   

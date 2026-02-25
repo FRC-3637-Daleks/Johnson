@@ -22,6 +22,10 @@
 #include "subsystems/ROSBridge.h"
 #include "subsystems/OperatorInterface.h"
 
+#include <rev/SparkFlex.h>
+#include <rev/config/SparkFlexConfig.h>
+#include <rev/SparkClosedLoopController.h>
+
 /**
  * This class is where the bulk of the robot should be declared.  Since
  * Command-based is a "declarative" paradigm, very little robot logic should
@@ -46,6 +50,9 @@ public:
   Drivetrain m_swerve;
   ROSBridge m_ros;
   OperatorInterface m_oi;
+
+  rev::spark::SparkFlex m_intake{10, rev::spark::SparkFlex::MotorType::kBrushless};
+  rev::spark::SparkClosedLoopController m_pid{m_intake.GetClosedLoopController()};
 
   bool m_isRed;
 

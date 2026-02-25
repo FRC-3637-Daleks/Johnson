@@ -110,6 +110,16 @@ RobotContainer::RobotContainer()
   // Configure routines which one periodically and indefinitely
   ConfigureContinuous();
 
+  rev::spark::SparkFlexConfig conf;
+  conf.closedLoop.P(1).I(0).D(0).feedForward.kV(0.12);
+  conf.encoder.VelocityConversionFactor(0.016); // 1/60
+  m_intake.Configure(conf, rev::ResetMode::kNoResetSafeParameters, rev::PersistMode::kPersistParameters);
+
+  m_oi.m_copilotController.A().WhileTrue(frc2::cmd::RunEnd(
+    [this] {m_pid.SetSetpoint(60, rev::spark::SparkFlex::ControlType::kVelocity);},
+    [this] {m_intake.StopMotor();}
+  ));
+
   frc::DataLogManager::Log(fmt::format("Finished initializing robot."));
 }
 
