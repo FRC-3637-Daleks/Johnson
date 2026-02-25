@@ -125,18 +125,28 @@ public:
     rev::spark::SparkFlexSim m_feederState;
 };
 
+auto getFeederStr = [](int index) -> std::string {
+    return "Feeder" + std::to_string(index);};
+
 void Feeder::InitializeDashboard() {
     frc::SmartDashboard::PutData("Feeder"+ std::to_string(thisClassesIndex), &m_mech);
+    frc::SmartDashboard::PutNumber(getFeederStr(classIndex)+"/Velocity", -1);
+    frc::SmartDashboard::PutNumber(getFeederStr(classIndex)+"/targetRPM", -1);
+    frc::SmartDashboard::PutNumber(getFeederStr(classIndex)+"/currentRPM", -1);
+    frc::SmartDashboard::PutBoolean(getFeederStr(classIndex)+"/isAtRPM", false);
 }
 
 void Feeder::UpdateDashboard() {
     if (m_sim_state) {
-        frc::SmartDashboard::PutNumber("Feeder"+std::to_string(thisClassesIndex)+"/Velocity", 
+        frc::SmartDashboard::PutNumber(getFeederStr(classIndex)+"/Velocity", 
             FeederConstants::feederGearing*units::revolutions_per_minute_t{
             m_sim_state->m_feederPhysics.GetAngularVelocity()}.value());
 
         m_MotorLine->SetAngle(motorDegState);
     }
+    frc::SmartDashboard::PutNumber(getFeederStr(classIndex)+"/targetRPM", targetRPM);
+    frc::SmartDashboard::PutNumber(getFeederStr(classIndex)+"/currentRPM", getRPM());
+    frc::SmartDashboard::PutBoolean(getFeederStr(classIndex)+"/isAtRPM", isAtRPM(targetRPM));
 }
 
 std::unique_ptr<FeederSim> create_feeder_sim(Feeder &feeder) {

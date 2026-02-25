@@ -92,6 +92,10 @@ namespace { //anonomous namespace accessable only in .cpp, dont make multip
 
 void LinearActuator::InitializeDashboard() {
     frc::SmartDashboard::PutData("Shooter/LinearActuator", &m_mech);
+    frc::SmartDashboard::PutNumber
+    ("Shooter/LinearActuator/PosEstimate", -1);
+    frc::SmartDashboard::PutNumber
+    ("Shooter/LinearActuator/PosTarget", -1);
 }
 
 void LinearActuator::UpdateDashboard() {
