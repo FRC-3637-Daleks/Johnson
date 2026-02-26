@@ -17,7 +17,7 @@
 #include <rev/sim/SparkFlexSim.h>
 
 namespace ShooterConstants {
-    int kfeederBreakBeamID = 14;
+    int kfeederBreakBeamID = 1;
 
     int kShooterFlywheelLeaderID = 10;
     int kShooterFlywheelFollowerID = 11;
@@ -33,7 +33,7 @@ namespace ShooterConstants {
     //used just in bool isAtCorrectSpeed()
     units::angular_velocity::turns_per_second_t kSpeedTolerance = 0.3_tps;
 
-    constexpr auto launcherGearing = 24.0/18.0;
+    constexpr auto launcherGearing = 26.0/18.0;
     constexpr auto launcherMOI = 0.01_kg_sq_m;
     constexpr auto launcherMotor = frc::DCMotor::KrakenX60FOC(2).WithReduction(launcherGearing);
 
@@ -77,7 +77,9 @@ Shooter::Shooter() :
     m_flyWheelLeadMotor.GetConfigurator().Apply(PIDConfig);  
     m_flyWheelLeadMotor.GetConfigurator().Apply(MMConfig);
     m_flyWheelFollowMotor.SetControl(ctre::phoenix6::controls::Follower
-        {ShooterConstants::kShooterFlywheelLeaderID, false});
+        {ShooterConstants::kShooterFlywheelLeaderID, true/*Invert*/});
+
+    PIDConfig.Feedback.SensorToMechanismRatio = ShooterConstants::launcherGearing;
 
     //Shooter Voltage config
     ctre::phoenix6::configs::VoltageConfigs VoltConfig;
