@@ -19,8 +19,8 @@
 namespace ShooterConstants {
     int kfeederBreakBeamID = 1;
 
-    int kShooterFlywheelLeaderID = 10;
-    int kShooterFlywheelFollowerID = 11;
+    int kShooterFlywheelLeaderID = 20;
+    int kShooterFlywheelFollowerID = 21;
 
     //Voltage
     units::volt_t kPeakForwardVoltage = 12_V;
