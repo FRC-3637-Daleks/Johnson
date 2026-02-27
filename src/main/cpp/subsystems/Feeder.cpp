@@ -27,7 +27,7 @@ namespace FeederConstants {
     /*double P*/                        0,
     /*double I*/                        0.0,
     /*double D*/                        0.0,
-    /*double FF*/                       0.0 
+    /*double FF*/                       0.1 
     };
 
     Perams BottomMotor {
@@ -36,7 +36,7 @@ namespace FeederConstants {
     /*double P*/                        0.0,
     /*double I*/                        0.0,
     /*double D*/                        0.0,
-    /*double FF*/                       0.0 
+    /*double FF*/                       0.1 
     };
 
     constexpr auto feederGearing = 1.0;
@@ -70,12 +70,13 @@ Feeder::Feeder(Type type) :
     feederConfig.VoltageCompensation(peramConfig.VoltComp.value());
     feederConfig.SmartCurrentLimit(peramConfig.SmartCurrLim.value());
 
+    constexpr auto Kv = (FeederConstants::feederMotor.Kv * 1_V);
     feederConfig.closedLoop
     .P(peramConfig.kP)
     .I(peramConfig.kI)
     .D(peramConfig.kD)
-    .feedForward.kS(peramConfig.kFF).kV(
-        units::turns_per_second_t((FeederConstants::feederMotor.Kv * 1_V)).value());
+    .feedForward.kV(
+        units::turns_per_second_t(Kv).value());
 
 
     feederConfig.encoder.VelocityConversionFactor(FeederConstants::VelocityConversionFactor);
@@ -133,7 +134,17 @@ public:
 };
 
 void Feeder::InitializeDashboard() {
+        auto put_cmd = [this] (std::string_view name, frc2::CommandPtr&& cmd) {
+        frc::SmartDashboard::PutData(fmt::format("Feeder{}/{}", thisClassesIndex, name),
+            std::move(cmd).WithName(name).Unwrap().release()
+        );
+    };
+
     frc::SmartDashboard::PutData("Feeder"+ std::to_string(thisClassesIndex), &m_mech);
+    frc::SmartDashboard::PutNumber("Feeder"+ std::to_string(thisClassesIndex)+"/SetFeederSpeedTPS", 0.0);
+    put_cmd("SetFeeder"+ std::to_string(thisClassesIndex), 
+    setRPM(frc::SmartDashboard::GetNumber(
+        "Feeder"+ std::to_string(thisClassesIndex)+"/SetFeederSpeedTPS", 0.0)*1.0_tps));
 }
 
 void Feeder::UpdateDashboard() {
