@@ -28,7 +28,7 @@ namespace ShooterConstants {
 
     //Torque
     units::ampere_t PeakForwardTorqueCurrent = 80_A;
-    units::ampere_t PeakReverseTorqueCurrent = 0_A;
+    units::ampere_t PeakReverseTorqueCurrent = -10_A;
 
     //used just in bool isAtCorrectSpeed()
     units::angular_velocity::turns_per_second_t kSpeedTolerance = 0.3_tps;
@@ -41,12 +41,12 @@ namespace ShooterConstants {
     constexpr auto feederMOI = 0.001_kg_sq_m;
 
     //PID
-    double kP = 0.1;
+    double kP = 10.0;
     double kI = 0.000;
     double kD = 0.0;
-    constexpr auto kS = 0.1_A;
-    constexpr ctre::unit::amperes_per_turn_per_second_squared_t kA = 
-        7.5*launcherMOI/launcherMotor.Kt/1_tr;
+    constexpr auto kS = 2.0_A;
+    constexpr ctre::unit::amperes_per_turn_per_second_squared_t kA = //0.6
+        1.68*launcherMOI/launcherMotor.Kt/1_tr;
     constexpr auto kMotionMagicAcc = 50_tr_per_s_sq;
 
     constexpr ctre::phoenix6::CANBus canBus{"Drivebase"};
@@ -71,6 +71,7 @@ Shooter::Shooter() :
     slot0Configs.kP = ShooterConstants::kP; 
     slot0Configs.kI = ShooterConstants::kI; 
     slot0Configs.kD = ShooterConstants::kD; 
+    slot0Configs.kA = ShooterConstants::kA.value();
 
     PIDConfig.WithSlot0(slot0Configs);
 
