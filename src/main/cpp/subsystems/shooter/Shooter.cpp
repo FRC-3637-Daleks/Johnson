@@ -137,6 +137,10 @@ frc2::CommandPtr Shooter::SetHoodPosition(double point) {
 frc2::CommandPtr Shooter::SetHoodPositionUntilThere(double point) {
     return m_hoodActuator.SetPositionUntilThere(point);}
 
+frc2::CommandPtr Shooter::SetHoodPositionMin() {
+    return m_hoodActuator.SetPosition(0);
+}
+
 bool Shooter::isHoodAtPos() {
     return m_hoodActuator.isLinearActuatorAtPos();}
 
