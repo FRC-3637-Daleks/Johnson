@@ -13,7 +13,7 @@ namespace FeederConstants {
     int kTopMotorID = 21;
     int kBottomMotorID = 22;
 
-    double kToleranceRPM = 100; //only used for setVelocityUntilSpeed
+    units::turns_per_second_t kToleranceRPM = 2_tps; //only used for setVelocityUntilSpeed
 
     struct Perams {
         units::volt_t VoltComp;
@@ -24,23 +24,25 @@ namespace FeederConstants {
     Perams TopMotor {
     /*units::volt_t VoltComp*/          12_V,
     /*units::ampere_t SmartCurrLim*/    40_A,
-    /*double P*/                        1.0,
-    /*double I*/                        0.0001,
+    /*double P*/                        0,
+    /*double I*/                        0.0,
     /*double D*/                        0.0,
-    /*double FF*/                       0.1 
+    /*double FF*/                       0.0 
     };
 
     Perams BottomMotor {
     /*units::volt_t VoltComp*/          12_V,
     /*units::ampere_t SmartCurrLim*/    40_A,
-    /*double P*/                        1.0,
-    /*double I*/                        0.0001,
+    /*double P*/                        0.0,
+    /*double I*/                        0.0,
     /*double D*/                        0.0,
-    /*double FF*/                       0.1 
+    /*double FF*/                       0.0 
     };
 
     constexpr auto feederGearing = 1.0;
     constexpr auto feederMOI = 0.001_kg_sq_m;
+    constexpr auto VelocityConversionFactor = 1.0/60; //RPM -> RPS
+    constexpr auto feederMotor = frc::DCMotor::NeoVortex(1).WithReduction(feederGearing);
 
     int getMotorID(Feeder::Type id) {
         if (id == Feeder::Type::Top) return kTopMotorID;
@@ -72,7 +74,11 @@ Feeder::Feeder(Type type) :
     .P(peramConfig.kP)
     .I(peramConfig.kI)
     .D(peramConfig.kD)
-    .feedForward.kS(peramConfig.kFF); //maybe add KV?
+    .feedForward.kS(peramConfig.kFF).kV(
+        units::turns_per_second_t((FeederConstants::feederMotor.Kv * 1_V)).value());
+
+
+    feederConfig.encoder.VelocityConversionFactor(FeederConstants::VelocityConversionFactor);
 
     m_feederMotor.Configure(feederConfig, 
                 rev::ResetMode::kNoResetSafeParameters, 
@@ -89,24 +95,25 @@ void Feeder::Periodic() {
     UpdateDashboard();
 }
 
-frc2::CommandPtr Feeder::setRPM(double RPM) {
-    return Run([this, RPM] {setVelocity(RPM);});
+frc2::CommandPtr Feeder::setRPM(units::turns_per_second_t speed) {
+    return Run([this, speed] {setVelocity(speed);});
 }
 
-frc2::CommandPtr Feeder::setRPMUntilThere(double RPM) {
-    return setRPM(RPM).Until([this, RPM]() -> bool{return isAtRPM(RPM);});
+frc2::CommandPtr Feeder::setRPMUntilThere(units::turns_per_second_t speed) {
+    return setRPM(speed).Until([this, speed]() -> bool{return isAtRPM((speed));});
 }
 
-double Feeder::getRPM() {
-    return m_feederMotor.GetEncoder().GetVelocity();
+units::turns_per_second_t Feeder::getRPM() {
+    return units::turns_per_second_t(m_feederMotor.GetEncoder().GetVelocity());
 }
 
-void Feeder::setVelocity(double RPM) {
-    targetRPM = RPM;
-    m_pidController.SetSetpoint(RPM, rev::spark::SparkFlex::ControlType::kVelocity);
+// ************************* Private ************************* //
+void Feeder::setVelocity(units::turns_per_second_t speed) {
+    targetSpeed = speed;
+    m_pidController.SetSetpoint(speed.value(), rev::spark::SparkFlex::ControlType::kVelocity);
 }
 
-bool Feeder::isAtRPM(double RPM_Target) {
+bool Feeder::isAtRPM(units::turns_per_second_t RPM_Target) {
     return RPM_Target - FeederConstants::kToleranceRPM < getRPM() &&
             RPM_Target + FeederConstants::kToleranceRPM > getRPM();
 }
@@ -120,33 +127,23 @@ public:
     FeederSim(Feeder &feeder);
 
 public:
-    frc::sim::FlywheelSim m_feederPhysics;
     frc::DCMotor m_feederMotor;
     rev::spark::SparkFlexSim m_feederState;
+    frc::sim::FlywheelSim m_feederPhysics;
 };
-
-auto getFeederStr = [](int index) -> std::string {
-    return "Feeder" + std::to_string(index);};
 
 void Feeder::InitializeDashboard() {
     frc::SmartDashboard::PutData("Feeder"+ std::to_string(thisClassesIndex), &m_mech);
-    frc::SmartDashboard::PutNumber(getFeederStr(classIndex)+"/Velocity", -1);
-    frc::SmartDashboard::PutNumber(getFeederStr(classIndex)+"/targetRPM", -1);
-    frc::SmartDashboard::PutNumber(getFeederStr(classIndex)+"/currentRPM", -1);
-    frc::SmartDashboard::PutBoolean(getFeederStr(classIndex)+"/isAtRPM", false);
 }
 
 void Feeder::UpdateDashboard() {
     if (m_sim_state) {
-        frc::SmartDashboard::PutNumber(getFeederStr(classIndex)+"/Velocity", 
+        frc::SmartDashboard::PutNumber("Feeder"+std::to_string(thisClassesIndex)+"/Velocity", 
             FeederConstants::feederGearing*units::revolutions_per_minute_t{
             m_sim_state->m_feederPhysics.GetAngularVelocity()}.value());
 
         m_MotorLine->SetAngle(motorDegState);
     }
-    frc::SmartDashboard::PutNumber(getFeederStr(classIndex)+"/targetRPM", targetRPM);
-    frc::SmartDashboard::PutNumber(getFeederStr(classIndex)+"/currentRPM", getRPM());
-    frc::SmartDashboard::PutBoolean(getFeederStr(classIndex)+"/isAtRPM", isAtRPM(targetRPM));
 }
 
 std::unique_ptr<FeederSim> create_feeder_sim(Feeder &feeder) {
@@ -192,5 +189,5 @@ void Feeder::SimulationPeriodic() {
         );
 
     //only for visualizatoin
-    motorDegState += units::degree_t(phys.GetAngularVelocity().value() *0.02 /*20ms*/ * 57.3 /*to deg*/); 
+    motorDegState += units::degree_t(phys.GetAngularVelocity() *0.02_s /*20ms*/ * 57.3 /*to deg*/); 
 }

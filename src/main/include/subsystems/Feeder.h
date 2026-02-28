@@ -32,19 +32,21 @@ public:
 
 public:
 
-    frc2::CommandPtr setRPM(double RPM);
-    frc2::CommandPtr setRPMUntilThere(double RPM);
-    double getRPM();
+    frc2::CommandPtr setRPM(units::turns_per_second_t speed);
+    frc2::CommandPtr setRPMUntilThere(units::turns_per_second_t speed);
+    units::turns_per_second_t getRPM();
 
-    void setVelocity(double RPM);
-    bool isAtRPM(double RPM);
+private:
+
+    void setVelocity(units::turns_per_second_t speed);
+    bool isAtRPM(units::turns_per_second_t speed);
 
 private:
 
     rev::spark::SparkFlex m_feederMotor;
     rev::spark::SparkClosedLoopController m_pidController;
 
-    double targetRPM = 0;
+    units::turns_per_second_t targetSpeed = 0_tps;
 
 // simulation
 private:

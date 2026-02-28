@@ -163,7 +163,7 @@ void RobotContainer::ConfigureBindings() {
   m_oi.HUBAim.OnTrue(m_shooter.SetFlywheelSpeedAndHoodPosParallel(1234_rad_per_s, 67)); //TODO: Change placeholders
   m_oi.TowerAim.OnTrue(m_shooter.SetFlywheelSpeedAndHoodPosParallel(1234_rad_per_s, 67)); //TODO: Change placeholders
   // m_feederBottom.SetRPM(Controller RT); //need std::function cmd
-  m_oi.OutTake.WhileTrue(m_feederBottom.setRPM(-10).AlongWith(m_intake.OutakeFuel()));
+  m_oi.OutTake.WhileTrue(m_feederBottom.setRPM(-10_tps).AlongWith(m_intake.OutakeFuel()));
   m_oi.LiftArm.WhileTrue(m_intake.Lift());
   m_oi.ClimbUp.OnTrue(m_climb.Deploy());
   m_oi.ClimbLift.OnTrue(m_climb.LiftBot());
@@ -179,8 +179,8 @@ void RobotContainer::ConfigureBindings() {
   m_oi.ClimbUpManual.OnTrue(m_climb.Deploy());
   m_oi.ClimbDownManual.OnTrue(m_climb.LiftBot());
   // make R stick control feeder+intake
-  m_oi.TopFeederInManual.OnTrue(m_feederTop.setRPM(10));
-  m_oi.TopFeederOutManual.OnTrue(m_feederTop.setRPM(-10));
+  m_oi.TopFeederInManual.OnTrue(m_feederTop.setRPM(10_tps));
+  m_oi.TopFeederOutManual.OnTrue(m_feederTop.setRPM(-10_tps));
   // m_oi.HoodRaise.OnTrue(m_shooter.SetHoodPosition(+1));
   // m_oi.HoodLower.OnTrue(m_shooter.SetHoodPosition(-1));
   //RT + class state variable for right trigger shooter stuff
