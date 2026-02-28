@@ -163,7 +163,11 @@ void RobotContainer::ConfigureBindings() {
   m_oi.HUBAim.OnTrue(m_shooter.SetFlywheelSpeedAndHoodPosParallel(1234_rad_per_s, 67)); //TODO: Change placeholders
   m_oi.TowerAim.OnTrue(m_shooter.SetFlywheelSpeedAndHoodPosParallel(1234_rad_per_s, 67)); //TODO: Change placeholders
   // m_feederBottom.SetRPM(Controller RT); //need std::function cmd
-  m_oi.OutTake.OnTrue(m_feederBottom.setRPM(-10).AlongWith(m_intake.OutakeFuel()));
+  m_oi.OutTake.WhileTrue(m_feederBottom.setRPM(-10).AlongWith(m_intake.OutakeFuel()));
+  m_oi.LiftArm.WhileTrue(m_intake.Lift());
+  m_oi.ClimbUp.OnTrue(m_climb.Deploy());
+  m_oi.ClimbLift.OnTrue(m_climb.LiftBot());
+  m_oi.ClimbDown.OnTrue(m_climb.Retract());
 
   m_oi.ArmDownAndIntake.OnTrue(m_intake.IntakeFuel());
   m_oi.ArmRetract.OnTrue(m_intake.Retract());

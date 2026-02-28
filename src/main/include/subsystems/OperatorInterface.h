@@ -54,8 +54,6 @@ public:
 
   frc2::CommandPtr RumbleController(units::second_t time, double intensity);
 
-  //TODO: Default command intakes
-  //TODO: Defualt command for shooter is hood down.
   frc2::Trigger RetractHoldArm = m_swerveController.RightBumper();
   frc2::Trigger AutoAim = m_swerveController.Y(); //from any place
   frc2::Trigger HUBAim = m_swerveController.A(); //HUB
@@ -63,9 +61,11 @@ public:
   //TODO: Trigger to set speed of the bottom feeder
   frc2::Trigger OutTake = m_swerveController.B();
   frc2::Trigger LiftArm = m_swerveController.LeftBumper();
-  //TODO: Make climbUp left trigger
-  // frc2::Trigger ClimbUp = m_swerveController.POVUp();
-  frc2::Trigger ClimbDown = m_swerveController.POVDown();
+  frc2::Trigger ClimbUp{
+    [this] {return m_swerveController.GetRightTriggerAxis() > 0.3;}
+  };
+  frc2::Trigger ClimbDown = m_swerveController.POVRight();
+  frc2::Trigger ClimbLift = m_swerveController.POVDown();
 
   frc2::Trigger ArmDownAndIntake = m_copilotController.POVDown();
   frc2::Trigger ArmDown = m_copilotController.POVRight();

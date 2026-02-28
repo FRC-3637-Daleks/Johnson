@@ -28,6 +28,10 @@ public:
     // Smoothly retracts the arm to the starting position using closed loop control on rotor position
     frc2::CommandPtr Retract();
 
+    // Smoothly lifts arm (expected but not nessiary) from Exteneded Pos
+    frc2::CommandPtr Lift();
+
+
     // Extends arm at a constant velocity for a duration that should roughly extend it fully
     frc2::CommandPtr BlindExtend();
 
@@ -51,7 +55,7 @@ public:
     std::function<bool()> ArmOut{[this] {return IsArmOut();}};
     bool IsArmIn();
     std::function<bool()> ArmIn{[this] {return IsArmIn();}};
-
+    
 private:
     // Returns arm angle relative to horizontal
     units::angle::turn_t GetArmPos();
@@ -60,7 +64,7 @@ private:
     void SetIntakeSpeed(units::turns_per_second_t speed);
 
     // Applies a bit of pressure at the extents to help keep the intake secure
-    void HoldExtended(); void HoldRetracted();
+    void HoldExtended(); void HoldRetracted(); void HoldLift();
 
 private:
     void UpdateDashboard();
