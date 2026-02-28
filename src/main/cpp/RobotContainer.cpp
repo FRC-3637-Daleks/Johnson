@@ -114,44 +114,53 @@ RobotContainer::RobotContainer()
 }
 
 void RobotContainer::ConfigureBindings() {
-    m_swerve.SetDefaultCommand(m_swerve.CustomSwerveCommand(
-      [this] { return m_oi.fwd(); }, [this] { return m_oi.strafe(); },
-      [this] { return m_oi.rot(); }));
+  //   m_swerve.SetDefaultCommand(m_swerve.CustomSwerveCommand(
+  //     [this] { return m_oi.fwd(); }, [this] { return m_oi.strafe(); },
+  //     [this] { return m_oi.rot(); }));
 
-  auto slow = m_swerve.CustomSwerveCommand(
-      [this] { return m_oi.fwd() * OperatorConstants::kSlowModeFactor; }, 
-      [this] { return m_oi.strafe() * OperatorConstants::kSlowModeFactor; },
-      [this] { return m_oi.rot() * OperatorConstants::kSlowModeFactor; });
+  // auto slow = m_swerve.CustomSwerveCommand(
+  //     [this] { return m_oi.fwd() * OperatorConstants::kSlowModeFactor; }, 
+  //     [this] { return m_oi.strafe() * OperatorConstants::kSlowModeFactor; },
+  //     [this] { return m_oi.rot() * OperatorConstants::kSlowModeFactor; });
 
-  m_oi.ZeroHeadingTrigger.OnTrue(m_swerve.RunOnce([this] {
-    if (IsRed())
-      m_swerve.ResetControlHeading(0.5_tr);
-    else
-      m_swerve.ResetControlHeading();
-  }));
+  // m_oi.ZeroHeadingTrigger.OnTrue(m_swerve.RunOnce([this] {
+  //   if (IsRed())
+  //     m_swerve.ResetControlHeading(0.5_tr);
+  //   else
+  //     m_swerve.ResetControlHeading();
+  // }));
 
-  m_swerveController.Button(3).OnTrue(m_shooter.SetHoodPosition(25));
-  m_swerveController.Button(4).OnTrue(m_shooter.SetHoodPosition(70));
+  // m_swerveController.Button(3).OnTrue(m_shooter.SetHoodPosition(25));
+  // m_swerveController.Button(4).OnTrue(m_shooter.SetHoodPosition(70));
 
-  m_swerveController.Button(5).OnTrue(m_feederTop.setRPM(100));
-  m_swerveController.Button(6).OnTrue(m_feederTop.setRPM(0));
+  // m_swerveController.Button(5).OnTrue(m_feederTop.setRPM(100));
+  // m_swerveController.Button(6).OnTrue(m_feederTop.setRPM(0));
 
-  m_swerveController.Button(7).OnTrue(m_intake.Extend());
-  m_swerveController.Button(8).OnTrue(m_intake.Retract());
+  // m_swerveController.Button(7).OnTrue(m_intake.Extend());
+  // m_swerveController.Button(8).OnTrue(m_intake.Retract());
 
-  m_swerveController.Button(9).OnTrue(m_intake.IntakeFuel());
-  m_swerveController.Button(10).OnTrue(m_intake.OutakeFuel());
+  // m_swerveController.Button(9).OnTrue(m_intake.IntakeFuel());
+  // m_swerveController.Button(10).OnTrue(m_intake.OutakeFuel());
 
-  m_swerveController.POVDown().WhileTrue(
-    m_swerve.DriveToPoseIndefinitelyCommand(AutoConstants::desiredPose));
-  try {
-    if (auto traj = choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("Square"))
-      m_swerveController.Button(11).WhileTrue(
-        m_swerve.FollowPathCommand(traj.value()));
-    else
-      m_swerveController.Button(11).WhileTrue(frc2::cmd::None());
-  } catch(...) {
-  }
+  // m_swerveController.POVDown().WhileTrue(
+  //   m_swerve.DriveToPoseIndefinitelyCommand(AutoConstants::desiredPose));
+  // try {
+  //   if (auto traj = choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("Square"))
+  //     m_swerveController.Button(11).WhileTrue(
+  //       m_swerve.FollowPathCommand(traj.value()));
+  //   else
+  //     m_swerveController.Button(11).WhileTrue(frc2::cmd::None());
+  // } catch(...) {
+  // }
+
+  m_intake.SetDefaultCommand(m_intake.IntakeFuel());
+  
+
+  m_oi.ArmDownAndIntake.OnTrue(m_intake.IntakeFuel());
+  m_oi.ArmRetract.OnTrue(m_intake.Retract());
+  m_oi.ArmLifted.OnTrue(m_intake.Retract()/*TODO: Make it*/);
+
+
 }
 
 void RobotContainer::ConfigureDashboard() {
