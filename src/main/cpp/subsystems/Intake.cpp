@@ -42,6 +42,7 @@ namespace IntakeConstants {
     // Configurations
     constexpr auto tolerance = 0.005_tr;
     constexpr auto armOutPos = 0.25_tr;
+    constexpr auto armLiftPos = 0.1_tr;
     constexpr auto armInPos = 0.0_tr;
     constexpr auto armRange = units::math::abs(armOutPos - armInPos);
     constexpr auto extendTime = 1_s;
@@ -112,6 +113,10 @@ namespace IntakeConstants {
 
     constexpr auto armInRequest = 
         ctre::phoenix6::controls::MotionMagicExpoTorqueCurrentFOC{armInPos}
+        .WithSlot(0)
+    ;
+    constexpr auto armLiftRequest = 
+        ctre::phoenix6::controls::MotionMagicExpoTorqueCurrentFOC{armLiftPos}
         .WithSlot(0)
     ;
     constexpr auto armOutRequest = 
@@ -285,6 +290,12 @@ frc2::CommandPtr Intake::Retract() {
             Zeroed)
         .AndThen(RunOnce([this] {HoldRetracted();}))
     ;
+}
+
+frc2::CommandPtr Intake::Lift() {
+    return 
+        (Run([this] {m_armMotor.SetControl(IntakeConstants::armLiftRequest;)})
+        ).OnlyIf(Zeroed);
 }
 
 frc2::CommandPtr Intake::BlindExtend() {
