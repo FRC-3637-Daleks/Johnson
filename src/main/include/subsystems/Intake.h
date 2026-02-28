@@ -34,6 +34,8 @@ public:
     // Smoothly lifts arm (expected but not nessiary) from Exteneded Pos
     frc2::CommandPtr Lift();
 
+    //
+    frc2::CommandPtr ManuallyControlArm(std::function<double()> input);
 
     // Extends arm at a constant velocity for a duration that should roughly extend it fully
     frc2::CommandPtr BlindExtend();
@@ -79,11 +81,12 @@ private:
 
 private:
     friend class IntakeSim;
-    std::unique_ptr<IntakeSim> m_sim_state;
     void SimulationPeriodic() override;
 
     frc::Mechanism2d m_mechIntake{3, 3};
     frc::MechanismRoot2d* m_root = m_mechIntake.GetRoot("intake", 2, 0);
 
     frc::MechanismLigament2d *m_arm{}, *m_wheel{};
+    std::unique_ptr<IntakeSim> m_sim_state;
+
 };

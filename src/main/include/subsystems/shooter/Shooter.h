@@ -37,6 +37,7 @@ public:
     //Point in mm
     frc2::CommandPtr SetHoodPositionUntilThere(double point);
     frc2::CommandPtr SetHoodPositionMin();
+    frc2::CommandPtr SetHoodPositionRelative(double change);
     bool isHoodAtPos();
 
 private:

@@ -50,6 +50,12 @@ frc2::CommandPtr LinearActuator::SetPositionUntilThere(double point) {
            .AndThen(Run([this]{ /* Waiting */ }).Until([this] { return isLinearActuatorAtPos(); }));
 }
 
+frc2::CommandPtr LinearActuator::RelativePositionChange(double change) {
+    return RunOnce([this, change] {
+        this->positionTarget += change;
+    }).AndThen(SetPosition(positionTarget));
+}
+
 bool LinearActuator::isLinearActuatorAtPos() {
     return std::abs(positionEstimate - positionTarget) < LinearActuatorConstants::tolerance; 
 }

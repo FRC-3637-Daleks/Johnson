@@ -108,6 +108,10 @@ void Feeder::Periodic() {
     UpdateDashboard();
 }
 
+frc2::CommandPtr Feeder::ManuallySetMotor(std::function<double()> input) {
+    return Run([this, input] {m_feederMotor.Set(input()*0.5/*Scaler*/);});
+}
+
 frc2::CommandPtr Feeder::setRPM(units::turns_per_second_t speed) {
     return Run([this, speed] {setVelocity(speed);});
 }

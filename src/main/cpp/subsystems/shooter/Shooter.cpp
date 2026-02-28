@@ -148,6 +148,10 @@ frc2::CommandPtr Shooter::SetHoodPositionMin() {
     return m_hoodActuator.SetPosition(0);
 }
 
+frc2::CommandPtr Shooter::SetHoodPositionRelative(double change) {
+    return m_hoodActuator.RelativePositionChange(change);
+}
+
 bool Shooter::isHoodAtPos() {
     return m_hoodActuator.isLinearActuatorAtPos();}
 
