@@ -19,7 +19,6 @@
 namespace IntakeConstants {
     // Ports
     constexpr auto kCanBus = ctre::phoenix6::CANBus{"Drivebase"};
-    constexpr int kIntakeMotorID = 10;
     constexpr int kArmMotorID = 11;
 
     // Arm
@@ -179,17 +178,14 @@ public:
     IntakeSim(Intake &in);
 
 public:
-    frc::DCMotor m_intakeMotorModel;
     frc::sim::SingleJointedArmSim m_armPhysics;
-    frc::sim::FlywheelSim m_wheelPhysics;
 
     ctre::phoenix6::sim::TalonFXSimState m_ArmMotorState;
-    rev::spark::SparkFlexSim m_IntakeMotorState;
 };
 
 Intake::Intake() :
     m_armMotor{IntakeConstants::kArmMotorID, IntakeConstants::kCanBus},
-    m_intakeMotor{IntakeConstants::kIntakeMotorID, rev::spark::SparkFlex::MotorType::kBrushless},
+    m_intakeMotor{Feeder::Type::Intake},
     m_armZeroed{false},
     m_arm{m_root->Append<frc::MechanismLigament2d>(
         "intake", 1, 90_deg, 20, frc::Color8Bit{frc::Color::kBlue})},
@@ -250,10 +246,6 @@ Intake::Intake() :
 
     m_armMotor.GetConfigurator().Apply(armConfig);
 
-    rev::spark::SparkFlexConfig wheelConfig;
-    m_intakeMotor.Configure(wheelConfig,
-        rev::ResetMode::kResetSafeParameters,
-        rev::PersistMode::kPersistParameters);
 }
 
 Intake::~Intake() {
@@ -347,10 +339,8 @@ frc2::CommandPtr Intake::IntakeFuel() {
     return 
         Extend()
         .AndThen(
-            RunEnd(
-                [this] {SetIntakeSpeed(IntakeConstants::intakingWheelVelocity);},
-                [this] {SetIntakeSpeed(0_tps);}
-            )
+            m_intakeMotor.setRPMEnd(
+                IntakeConstants::intakingWheelVelocity)
         )
     ;
 }
@@ -359,10 +349,8 @@ frc2::CommandPtr Intake::OutakeFuel() {
     return 
         Extend()
         .AndThen(
-            RunEnd(
-                [this] {SetIntakeSpeed(IntakeConstants::outakingWheelVelocity);},
-                [this] {SetIntakeSpeed(0_tps);}
-            )
+           m_intakeMotor.setRPMEnd(
+                IntakeConstants::outakingWheelVelocity)
         )
     ;
 }
@@ -394,11 +382,6 @@ bool Intake::IsArmIn() {
     return m_armZeroed && frc::IsNear(IntakeConstants::armInPos, GetArmPos(), IntakeConstants::tolerance);
 }
 
-void Intake::SetIntakeSpeed(units::turns_per_second_t speed) {
-    const auto percent = speed / frc::DCMotor::NeoVortex(1).freeSpeed;
-    m_intakeMotor.SetVoltage(percent*12_V);
-}
-
 void Intake::HoldExtended() {
     m_armMotor.SetControl(IntakeConstants::holdExtendRequest);
 }
@@ -418,13 +401,11 @@ void Intake::UpdateDashboard() {
 
 void Intake::UpdateVisualization() {
     m_arm->SetAngle(0.25_tr - GetArmPos());
-    m_wheel->SetAngle(m_intakeMotor.GetEncoder().GetPosition()*1_tr);
 }
 
 //**************************** Simulation ****************************/
 
 IntakeSim::IntakeSim(Intake& in) :
-    m_intakeMotorModel{frc::DCMotor::NeoVortex(1)},
     m_armPhysics{
         frc::DCMotor::KrakenX60FOC(1),
         IntakeConstants::armGearing,
@@ -435,14 +416,7 @@ IntakeSim::IntakeSim(Intake& in) :
         true,                        // Simulate Gravity
         IntakeConstants::armInPos   // Starting angle
     },
-    m_wheelPhysics{
-        frc::LinearSystemId::FlywheelSystem(
-            m_intakeMotorModel,
-            IntakeConstants::wheelMOI,
-            IntakeConstants::intakeGearing),
-        m_intakeMotorModel},
-    m_ArmMotorState{in.m_armMotor},
-    m_IntakeMotorState{&in.m_intakeMotor, &m_intakeMotorModel}
+    m_ArmMotorState{in.m_armMotor}
 {
     /* This initializes the system to an "unknown" state which must be calibrated on boot
      * using some technique or sensor.
@@ -474,14 +448,4 @@ void Intake::SimulationPeriodic() {
     m_sim_state->m_ArmMotorState.SetRotorVelocity(ssArmPhys.GetVelocity() * IntakeConstants::armGearing);
     const auto accel = (ssArmPhys.GetVelocity() - last_vel)/20_ms;
     m_sim_state->m_ArmMotorState.SetRotorAcceleration(accel);
-
-    //update intake motor
-    m_sim_state->m_wheelPhysics.SetInputVoltage(m_sim_state->m_IntakeMotorState.GetAppliedOutput()*supply_voltage);
-    m_sim_state->m_wheelPhysics.Update(20_ms);
-    m_sim_state->m_IntakeMotorState.iterate(
-        IntakeConstants::intakeGearing*units::revolutions_per_minute_t{
-            m_sim_state->m_wheelPhysics.GetAngularVelocity()}.value(),
-        supply_voltage.value(),
-        0.02
-    );
 }

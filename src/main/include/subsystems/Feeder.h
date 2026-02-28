@@ -1,3 +1,5 @@
+#pragma once
+
 #include <ctre/phoenix6/TalonFX.hpp>
 #include <rev/SparkFlex.h>
 #include <rev/SparkClosedLoopController.h>
@@ -19,7 +21,8 @@ public:
 
     enum class Type {
         Top,
-        Bottom
+        Bottom,
+        Intake
     };
 
     Feeder(Type type); //get the motor ID from constants and pass it in here
@@ -33,6 +36,7 @@ public:
 public:
 
     frc2::CommandPtr setRPM(units::turns_per_second_t speed);
+    frc2::CommandPtr setRPMEnd(units::turns_per_second_t speed);
     frc2::CommandPtr setRPMUntilThere(units::turns_per_second_t speed);
     units::turns_per_second_t getRPM();
 

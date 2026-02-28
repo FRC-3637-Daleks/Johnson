@@ -1,9 +1,12 @@
+#pragma once
+
 #include <frc2/command/CommandPtr.h>
 #include <frc2/command/Commands.h>
 #include <frc2/command/SubsystemBase.h>
 #include <frc2/command/button/Trigger.h>
 #include <frc/smartdashboard/MechanismLigament2d.h>
 #include <frc/smartdashboard/Mechanism2d.h>
+#include "Feeder.h"
 
 #include <ctre/phoenix6/TalonFX.hpp>
 
@@ -60,9 +63,6 @@ private:
     // Returns arm angle relative to horizontal
     units::angle::turn_t GetArmPos();
     
-    // positive for intake, negative for outake, 0 to stop
-    void SetIntakeSpeed(units::turns_per_second_t speed);
-
     // Applies a bit of pressure at the extents to help keep the intake secure
     void HoldExtended(); void HoldRetracted(); void HoldLift();
 
@@ -72,7 +72,7 @@ private:
 
 private:
     ctre::phoenix6::hardware::TalonFX m_armMotor;
-    rev::spark::SparkFlex m_intakeMotor;
+    Feeder m_intakeMotor;
 
     bool m_armZeroed;
     std::function<bool()> Zeroed{[this] {return m_armZeroed;}};
