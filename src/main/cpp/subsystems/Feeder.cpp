@@ -12,6 +12,7 @@
 namespace FeederConstants {
     int kTopMotorID = 23;
     int kBottomMotorID = 22;
+    constexpr int kIntakeMotorID = 10;
 
     units::turns_per_second_t kToleranceRPM = 2_tps; //only used for setVelocityUntilSpeed
 
@@ -39,6 +40,15 @@ namespace FeederConstants {
     /*double FF*/                       0.1 
     };
 
+    Perams IntakeMotor {
+    /*units::volt_t VoltComp*/          12_V,
+    /*units::ampere_t SmartCurrLim*/    40_A,
+    /*double P*/                        0.0,
+    /*double I*/                        0.0,
+    /*double D*/                        0.0,
+    /*double FF*/                       0.1 
+    };
+
     constexpr auto feederGearing = 1.0;
     constexpr auto feederMOI = 0.001_kg_sq_m;
     constexpr auto VelocityConversionFactor = 1.0/60; //RPM -> RPS
@@ -47,6 +57,7 @@ namespace FeederConstants {
     int getMotorID(Feeder::Type id) {
         if (id == Feeder::Type::Top) return kTopMotorID;
         if (id == Feeder::Type::Bottom) return kBottomMotorID;
+        if (id == Feeder::Type::Intake) return kIntakeMotorID;
         return 12345; //clear error
     }
 }
@@ -63,6 +74,7 @@ Feeder::Feeder(Type type) :
     FeederConstants::Perams peramConfig{};
     if (type == Type::Top) peramConfig = FeederConstants::TopMotor;
     else if (type == Type::Bottom) peramConfig = FeederConstants::BottomMotor;
+    else if (type == Type::Intake) peramConfig = FeederConstants::IntakeMotor;
 
     //velocty control (voltage but with some compensation)
     rev::spark::SparkMaxConfig feederConfig = rev::spark::SparkMaxConfig();
@@ -98,6 +110,10 @@ void Feeder::Periodic() {
 
 frc2::CommandPtr Feeder::setRPM(units::turns_per_second_t speed) {
     return Run([this, speed] {setVelocity(speed);});
+}
+
+frc2::CommandPtr Feeder::setRPMEnd(units::turns_per_second_t speed) {
+    return RunEnd([this, speed] {setVelocity(speed);}, [this] {setVelocity(0_tps);});
 }
 
 frc2::CommandPtr Feeder::setRPMUntilThere(units::turns_per_second_t speed) {
