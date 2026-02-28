@@ -71,6 +71,7 @@ Shooter::Shooter() :
     slot0Configs.kP = ShooterConstants::kP; 
     slot0Configs.kI = ShooterConstants::kI; 
     slot0Configs.kD = ShooterConstants::kD; 
+    slot0Configs.kA = ShooterConstants::kA.value();
 
     PIDConfig.WithSlot0(slot0Configs);
 
