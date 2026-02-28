@@ -134,7 +134,7 @@ frc2::CommandPtr Shooter::SetFlywheelSpeed(units::angular_velocity::turns_per_se
 frc2::CommandPtr Shooter::SetFlywheelSpeedAndHoodPosParallel(
     units::angular_velocity::turns_per_second_t velocity,
     double point) {
-    SetFlywheelSpeed(velocity).AlongWith(SetHoodPositionUntilThere(point));
+    return SetFlywheelSpeed(velocity).AlongWith(SetHoodPositionUntilThere(point));
 }
 
 frc2::CommandPtr Shooter::SetHoodPosition(double point) {

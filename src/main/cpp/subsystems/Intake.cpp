@@ -294,8 +294,8 @@ frc2::CommandPtr Intake::Retract() {
 
 frc2::CommandPtr Intake::Lift() {
     return 
-        (Run([this] {m_armMotor.SetControl(IntakeConstants::armLiftRequest;)})
-        ).OnlyIf(Zeroed);
+        Run([this] {m_armMotor.SetControl(IntakeConstants::armLiftRequest);})
+        .OnlyIf(Zeroed);
 }
 
 frc2::CommandPtr Intake::BlindExtend() {
