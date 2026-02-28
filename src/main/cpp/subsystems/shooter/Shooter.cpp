@@ -131,6 +131,12 @@ frc2::CommandPtr Shooter::SetFlywheelSpeed(units::angular_velocity::turns_per_se
     return Run([this, velocity] {SetFlywheelSpeedNRM(velocity);});
 }
 
+frc2::CommandPtr Shooter::SetFlywheelSpeedAndHoodPosParallel(
+    units::angular_velocity::turns_per_second_t velocity,
+    double point) {
+    SetFlywheelSpeed(velocity).AlongWith(SetHoodPositionUntilThere(point));
+}
+
 frc2::CommandPtr Shooter::SetHoodPosition(double point) {
     return m_hoodActuator.SetPosition(point);}
 

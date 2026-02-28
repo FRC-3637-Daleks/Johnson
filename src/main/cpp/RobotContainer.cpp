@@ -114,21 +114,21 @@ RobotContainer::RobotContainer()
 }
 
 void RobotContainer::ConfigureBindings() {
-  //   m_swerve.SetDefaultCommand(m_swerve.CustomSwerveCommand(
-  //     [this] { return m_oi.fwd(); }, [this] { return m_oi.strafe(); },
-  //     [this] { return m_oi.rot(); }));
+    m_swerve.SetDefaultCommand(m_swerve.CustomSwerveCommand(
+      [this] { return m_oi.fwd(); }, [this] { return m_oi.strafe(); },
+      [this] { return m_oi.rot(); }));
 
   // auto slow = m_swerve.CustomSwerveCommand(
   //     [this] { return m_oi.fwd() * OperatorConstants::kSlowModeFactor; }, 
   //     [this] { return m_oi.strafe() * OperatorConstants::kSlowModeFactor; },
   //     [this] { return m_oi.rot() * OperatorConstants::kSlowModeFactor; });
 
-  // m_oi.ZeroHeadingTrigger.OnTrue(m_swerve.RunOnce([this] {
-  //   if (IsRed())
-  //     m_swerve.ResetControlHeading(0.5_tr);
-  //   else
-  //     m_swerve.ResetControlHeading();
-  // }));
+  m_oi.ZeroHeadingTrigger.OnTrue(m_swerve.RunOnce([this] {
+    if (IsRed())
+      m_swerve.ResetControlHeading(0.5_tr);
+    else
+      m_swerve.ResetControlHeading();
+  }));
 
   // m_swerveController.Button(3).OnTrue(m_shooter.SetHoodPosition(25));
   // m_swerveController.Button(4).OnTrue(m_shooter.SetHoodPosition(70));
@@ -153,8 +153,18 @@ void RobotContainer::ConfigureBindings() {
   // } catch(...) {
   // }
 
+  //Default Command
   m_intake.SetDefaultCommand(m_intake.IntakeFuel());
   m_shooter.SetDefaultCommand(m_shooter.SetHoodPositionMin());
+
+  //Driver Controller
+  m_oi.RetractHoldArm.WhileTrue(m_intake.Retract());
+  //AutoAim
+  m_oi.HUBAim.OnTrue(m_shooter.SetFlywheelSpeedAndHoodPosParallel(1234_rad_per_s, 67)); //TODO: Change placeholders
+  m_oi.TowerAim.OnTrue(m_shooter.SetFlywheelSpeedAndHoodPosParallel(1234_rad_per_s, 67)); //TODO: Change placeholders
+  // m_feederBottom.SetRPM(Controller RT); //need std::function cmd
+  m_oi.OutTake.OnTrue(m_feederBottom.setRPM(-10).AlongWith(m_intake.OutakeFuel()));
+
   m_oi.ArmDownAndIntake.OnTrue(m_intake.IntakeFuel());
   m_oi.ArmRetract.OnTrue(m_intake.Retract());
   m_oi.ArmLifted.OnTrue(m_intake.Retract()/*TODO: Make it*/);
