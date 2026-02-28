@@ -25,6 +25,11 @@ public:
     void Periodic() override;
 
 public:
+    frc2::CommandPtr SetFlywheelSpeedAndHoodPosParallel(
+        units::angular_velocity::turns_per_second_t velocity,
+        double point
+    );
+    
     frc2::CommandPtr SetFlywheelSpeed(units::angular_velocity::turns_per_second_t velocity);
 
     //Point in mm
