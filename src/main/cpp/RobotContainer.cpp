@@ -154,8 +154,7 @@ void RobotContainer::ConfigureBindings() {
   // }
 
   m_intake.SetDefaultCommand(m_intake.IntakeFuel());
-  
-
+  m_shooter.SetDefaultCommand(m_shooter.SetHoodPositionMin());
   m_oi.ArmDownAndIntake.OnTrue(m_intake.IntakeFuel());
   m_oi.ArmRetract.OnTrue(m_intake.Retract());
   m_oi.ArmLifted.OnTrue(m_intake.Retract()/*TODO: Make it*/);

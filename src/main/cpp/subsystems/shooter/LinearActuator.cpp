@@ -6,7 +6,7 @@
 #include <frc/smartdashboard/SmartDashboard.h>
 
 namespace LinearActuatorConstants {
-    int LinearActuatorID = 15;
+    int LinearActuatorID = 0;
 
     units::time::microsecond_t max =            2.0_ms;
     units::time::microsecond_t deadbandMax =    1.9_ms;
