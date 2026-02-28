@@ -169,9 +169,22 @@ void RobotContainer::ConfigureBindings() {
   m_oi.ClimbLift.OnTrue(m_climb.LiftBot());
   m_oi.ClimbDown.OnTrue(m_climb.Retract());
 
+
+  //Co-Pilot Commands
   m_oi.ArmDownAndIntake.OnTrue(m_intake.IntakeFuel());
+  m_oi.ArmDown.OnTrue(m_intake.Extend());
   m_oi.ArmRetract.OnTrue(m_intake.Retract());
-  m_oi.ArmLifted.OnTrue(m_intake.Retract()/*TODO: Make it*/);
+  m_oi.ArmLifted.OnTrue(m_intake.Lift());
+  // m_oi.IntakeControlManual
+  m_oi.ClimbUpManual.OnTrue(m_climb.Deploy());
+  m_oi.ClimbDownManual.OnTrue(m_climb.LiftBot());
+  // make R stick control feeder+intake
+  m_oi.TopFeederInManual.OnTrue(m_feederTop.setRPM(10));
+  m_oi.TopFeederOutManual.OnTrue(m_feederTop.setRPM(-10));
+  // m_oi.HoodRaise.OnTrue(m_shooter.SetHoodPosition(+1));
+  // m_oi.HoodLower.OnTrue(m_shooter.SetHoodPosition(-1));
+  //RT + class state variable for right trigger shooter stuff
+  m_oi.PitReset.OnTrue(m_shooter.SetFlywheelSpeedAndHoodPosParallel(0_rad_per_s, 0));
 
 
 }
