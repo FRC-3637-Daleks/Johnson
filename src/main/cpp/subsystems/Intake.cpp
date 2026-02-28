@@ -290,6 +290,10 @@ frc2::CommandPtr Intake::Lift() {
         .OnlyIf(Zeroed);
 }
 
+frc2::CommandPtr Intake::ManuallyControlArm(std::function<double()> input) {
+    return Run([this, input] {m_armMotor.Set(input()*0.5/*Manual Scale*/);});
+}
+
 frc2::CommandPtr Intake::BlindExtend() {
     return 
         Run([this] {m_armMotor.SetControl(IntakeConstants::blindExtendRequest);})

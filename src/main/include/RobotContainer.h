@@ -54,7 +54,7 @@ public:
   Feeder m_feederTop{Feeder::Type::Top};
   Feeder m_feederBottom{Feeder::Type::Bottom};
   Intake m_intake; 
-  Climb m_climb;
+  // Climb m_climb;
 
   bool m_isRed;
 

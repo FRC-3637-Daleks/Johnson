@@ -49,6 +49,11 @@ public:
   units::meters_per_second_t alt_fwd();
   units::revolutions_per_minute_t rot();
 
+  std::function<double()> getLeftY{[this] {return m_swerveController.GetLeftY();}};
+  std::function<double()> getRightY{[this] {return m_swerveController.GetRightY();}};
+  std::function<double()> getRightX{[this] {return m_swerveController.GetRightX();}};
+  std::function<double()> getPilotRT{[this] {return m_swerveController.GetRightTriggerAxis();}};
+
   frc2::Trigger ZeroHeadingTrigger = m_swerveController.Start();
   frc2::Trigger RobotRelativeToggleTrigger = m_swerveController.Back();
 
@@ -59,6 +64,9 @@ public:
   frc2::Trigger HUBAim = m_swerveController.A(); //HUB
   frc2::Trigger TowerAim = m_swerveController.X(); //Ladder
   //TODO: Trigger to set speed of the bottom feeder
+  frc2::Trigger BottomFeeder{
+    [this] {return std::abs(getPilotRT()) > 0.1;}
+  };
   frc2::Trigger OutTake = m_swerveController.B();
   frc2::Trigger LiftArm = m_swerveController.LeftBumper();
   frc2::Trigger ClimbUp{
@@ -72,6 +80,13 @@ public:
   frc2::Trigger ArmRetract = m_copilotController.POVLeft();
   frc2::Trigger ArmLifted = m_copilotController.POVUp();
   //TODO: Make both intake and OI command for controlling the velocity of the arm with left stick Y
+  frc2::Trigger ArmIntakeManual{
+    [this] {return std::abs(getRightY()) > 0.1;}
+  };
+  frc2::Trigger RStickFeederAndIntake{
+    [this] {return std::abs(getRightY() +
+              getRightX()) > 0.1;} 
+  };
   frc2::Trigger ClimbUpManual = m_copilotController.A();
   frc2::Trigger ClimbDownManual = m_copilotController.B();
   //TODO: Make R stick x and y independently controll the intake and bottom feeder

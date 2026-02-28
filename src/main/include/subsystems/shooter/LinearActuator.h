@@ -25,6 +25,8 @@ public:
 
     frc2::CommandPtr SetPositionUntilThere(double point);
 
+    frc2::CommandPtr RelativePositionChange(double change);
+
     bool isLinearActuatorAtPos();
 
 private:
