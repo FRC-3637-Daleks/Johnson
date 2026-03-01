@@ -29,7 +29,11 @@
 #include <numbers>
 
 namespace OperatorConstants {
-
+  constexpr double PilotBottomFeederLimiter = 0.5;
+  constexpr double COPArmSpeedLimiter = 0.5;
+  constexpr double COPBottomFeederLimiter = 0.5;
+  constexpr double COPIntakeSpeedLimiter = 0.5;
+  
 } // namespace OperatorConstants
 
 // #pragma GCC diagnostic ignored
@@ -49,10 +53,16 @@ public:
   units::meters_per_second_t alt_fwd();
   units::revolutions_per_minute_t rot();
 
-  std::function<double()> getLeftY{[this] {return m_swerveController.GetLeftY();}};
-  std::function<double()> getRightY{[this] {return m_swerveController.GetRightY();}};
-  std::function<double()> getRightX{[this] {return m_swerveController.GetRightX();}};
-  std::function<double()> getPilotRT{[this] {return m_swerveController.GetRightTriggerAxis();}};
+  //Co-Pilot = COP
+  std::function<double()> getIntakeArmSpeedCOP{[this] 
+    {return m_copilotController.GetLeftY()*OperatorConstants::COPArmSpeedLimiter;}};
+  std::function<double()> getBottomFeederSpeedCOP{[this] 
+    {return m_copilotController.GetRightY()*OperatorConstants::COPBottomFeederLimiter;}};
+  std::function<double()> getIntakeSpeedCOP{[this] 
+    {return m_copilotController.GetRightX()*OperatorConstants::COPIntakeSpeedLimiter;}};
+  
+  std::function<double()> getBottomFeederSpeed{[this] 
+    {return m_swerveController.GetRightTriggerAxis()*OperatorConstants::PilotBottomFeederLimiter;}};
 
   frc2::Trigger ZeroHeadingTrigger = m_swerveController.Start();
   frc2::Trigger RobotRelativeToggleTrigger = m_swerveController.Back();
@@ -63,14 +73,14 @@ public:
   frc2::Trigger AutoAim = m_swerveController.Y(); //from any place
   frc2::Trigger HUBAim = m_swerveController.A(); //HUB
   frc2::Trigger TowerAim = m_swerveController.X(); //Ladder
-  //TODO: Trigger to set speed of the bottom feeder
   frc2::Trigger BottomFeeder{
-    [this] {return std::abs(getPilotRT()) > 0.1;}
+    [this] {return std::abs(getBottomFeederSpeed()) > 0.1;}
   };
   frc2::Trigger OutTake = m_swerveController.B();
   frc2::Trigger LiftArm = m_swerveController.LeftBumper();
   frc2::Trigger ClimbUp{
-    [this] {return m_swerveController.GetRightTriggerAxis() > 0.3;}
+    [this] {return m_swerveController.GetLeftTriggerAxis
+      () > 0.3;}
   };
   frc2::Trigger ClimbDown = m_swerveController.POVRight();
   frc2::Trigger ClimbLift = m_swerveController.POVDown();
@@ -79,17 +89,15 @@ public:
   frc2::Trigger ArmDown = m_copilotController.POVRight();
   frc2::Trigger ArmRetract = m_copilotController.POVLeft();
   frc2::Trigger ArmLifted = m_copilotController.POVUp();
-  //TODO: Make both intake and OI command for controlling the velocity of the arm with left stick Y
   frc2::Trigger ArmIntakeManual{
-    [this] {return std::abs(getRightY()) > 0.1;}
+    [this] {return std::abs(getIntakeArmSpeedCOP()) > 0.1;}
   };
   frc2::Trigger RStickFeederAndIntake{
-    [this] {return std::abs(getRightY() +
-              getRightX()) > 0.1;} 
+    [this] {return std::abs(getBottomFeederSpeedCOP() +
+              getIntakeSpeedCOP()) > 0.1;} 
   };
   frc2::Trigger ClimbUpManual = m_copilotController.A();
   frc2::Trigger ClimbDownManual = m_copilotController.B();
-  //TODO: Make R stick x and y independently controll the intake and bottom feeder
   frc2::Trigger TopFeederInManual = m_copilotController.RightBumper();
   frc2::Trigger TopFeederOutManual = m_copilotController.LeftBumper();
   frc2::Trigger HoodRaise = m_copilotController.Y();

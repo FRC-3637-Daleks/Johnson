@@ -159,12 +159,13 @@ void RobotContainer::ConfigureBindings() {
 
   //Driver Controller
   m_oi.RetractHoldArm.WhileTrue(m_intake.Retract());
-  //AutoAim
+  m_oi.HUBAim.OnTrue(m_shooter.SetFlywheelSpeedAndHoodPosParallel(67_rad_per_s, 67)
+                      .AlongWith(m_feederTop.setRPM(10_tps))); //TODO: Change placeholders & Make lookup table
   m_oi.HUBAim.OnTrue(m_shooter.SetFlywheelSpeedAndHoodPosParallel(67_rad_per_s, 67)
                       .AlongWith(m_feederTop.setRPM(10_tps))); //TODO: Change placeholders
   m_oi.TowerAim.OnTrue(m_shooter.SetFlywheelSpeedAndHoodPosParallel(67_rad_per_s, 67)
                       .AlongWith(m_feederTop.setRPM(10_tps))); //TODO: Change placeholders
-  m_oi.BottomFeeder.OnTrue(m_feederBottom.ManuallySetMotor(m_oi.getPilotRT));
+  m_oi.BottomFeeder.OnTrue(m_feederBottom.ManuallySetMotor(m_oi.getBottomFeederSpeed));
   m_oi.OutTake.WhileTrue(m_feederBottom.setRPM(-10_tps).AlongWith(m_intake.OutakeFuel()));
   m_oi.LiftArm.WhileTrue(m_intake.Lift());
   // m_oi.ClimbUp.OnTrue(m_climb.Deploy());
@@ -177,20 +178,18 @@ void RobotContainer::ConfigureBindings() {
   m_oi.ArmDown.OnTrue(m_intake.Extend());
   m_oi.ArmRetract.OnTrue(m_intake.Retract());
   m_oi.ArmLifted.OnTrue(m_intake.Lift());
-  m_oi.ArmIntakeManual.OnTrue(m_intake.ManuallyControlArm(m_oi.getLeftY));
+  m_oi.ArmIntakeManual.OnTrue(m_intake.ManuallyControlArm(m_oi.getIntakeArmSpeedCOP));
   // m_oi.ClimbUpManual.OnTrue(m_climb.Deploy());
   // m_oi.ClimbDownManual.WhileTrue(m_climb.LiftBot());
-  m_oi.RStickFeederAndIntake.WhileTrue(m_feederBottom.ManuallySetMotor(m_oi.getRightY).AlongWith(
+  m_oi.RStickFeederAndIntake.WhileTrue(m_feederBottom.ManuallySetMotor(m_oi.getBottomFeederSpeedCOP).AlongWith(
     frc2::cmd::Either(m_intake.BlindExtend(),
                       m_intake.BlindExtend(),
-                      [this] {return m_oi.m_swerveController.GetRightX();}
+                      [this] {return m_oi.getIntakeSpeedCOP();}
   )));
-  m_oi.TopFeederInManual.OnTrue(m_feederTop.setRPM(10_tps));
-  m_oi.TopFeederOutManual.OnTrue(m_feederTop.setRPM(-10_tps));
-  m_oi.HoodRaise.OnTrue(m_shooter.SetHoodPositionRelative(10));
-  m_oi.HoodLower.OnTrue(m_shooter.SetHoodPositionRelative(-10));
-  // m_oi.HoodRaise.OnTrue(m_shooter.SetHoodPosition(+1));
-  // m_oi.HoodLower.OnTrue(m_shooter.SetHoodPosition(-1));
+  m_oi.TopFeederInManual.WhileTrue(m_feederTop.setRPM(10_tps));
+  m_oi.TopFeederOutManual.WhileTrue(m_feederTop.setRPM(-10_tps));
+  m_oi.HoodRaise.WhileTrue(m_shooter.SetHoodPositionRelative(10));
+  m_oi.HoodLower.WhileTrue(m_shooter.SetHoodPositionRelative(-10));
   //RT + class state variable for right trigger shooter stuff
   m_oi.PitReset.OnTrue(m_shooter.SetFlywheelSpeedAndHoodPosParallel(0_rad_per_s, 0));
 
