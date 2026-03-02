@@ -30,6 +30,11 @@
 #include <rev/config/SparkFlexConfig.h>
 
 
+#include <frc/Filesystem.h>
+#include <filesystem>
+
+#include <frc/Alert.h>
+
 namespace AutoConstants {
 
 constexpr auto kMaxSpeed = 4.5_mps;
@@ -193,21 +198,36 @@ void RobotContainer::ConfigureDashboard() {
 void RobotContainer::ConfigureAuto() {
 
   m_depotauto = AutoBuilder::DepotAuto(*this);
-  m_Ltrenchauto = AutoBuilder::LTrenchAuto(*this);
-  m_Rtrenchauto = AutoBuilder::RTrenchAuto(*this);
-  m_RtrenchtoDepot = AutoBuilder::TrenchToDepotAuto(*this);
 
   m_chooser.SetDefaultOption(
-   "Default Auto: Go to the depot then score then climb", m_depotauto.get());
+   "Default Auto: Depot Auto", m_depotauto.get());
 
-  m_chooser.AddOption(
-    "Go through Left trench to fuel then score then climb", m_Ltrenchauto.get());
+  std::string folder = frc::filesystem::GetDeployDirectory()+"/choreo";
 
-  m_chooser.AddOption(
-    "Go through Right trench to fuel then score then climb", m_Rtrenchauto.get()); 
+    for (const auto& entry : std::filesystem::directory_iterator(folder)) {
+        
 
-  m_chooser.AddOption(
-    "Go from trench auto to depot auto", m_RtrenchtoDepot.get());
+        if(entry.path().extension() != ".traj"){
+          continue;
+        }
+
+        const auto entry_string = entry.path().stem().string();
+
+        auto trajectory = choreo::Choreo::LoadTrajectory<choreo::SwerveSample>(entry_string);
+        if(trajectory.has_value()){
+        auto Command = AutoBuilder::BuildAuto(*this, trajectory.value());
+        m_chooser.AddOption(
+          trajectory.value().name, Command.get()); 
+      
+          m_Autolist.push_back(std::move(Command));
+    
+        }
+        else{
+          fmt::println("FAILED TO LOAD TRAJECTORY: {}", entry_string);
+          frc::Alert alert{"FAILED TO LOAD TRAJECTORY", frc::Alert::AlertType::kError};
+          alert.Set(true);
+        }
+    }
 } 
 
 void RobotContainer::ConfigureContinuous() {

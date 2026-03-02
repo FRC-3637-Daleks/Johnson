@@ -7,7 +7,7 @@
     {"x":7.74, "y":7.28, "heading":0.0, "intervals":23, "split":false, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
     {"x":7.74, "y":4.57, "heading":0.0, "intervals":28, "split":false, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
     {"x":5.85, "y":5.55, "heading":0.0, "intervals":32, "split":false, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
-    {"x":3.62, "y":5.55, "heading":0.0, "intervals":27, "split":false, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
+    {"x":3.62, "y":5.55, "heading":3.14, "intervals":27, "split":false, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
     {"x":2.92, "y":4.75, "heading":0.0, "intervals":29, "split":true, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":1.1, "y":4.7, "heading":1.57, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
   "constraints":[

@@ -33,9 +33,18 @@ namespace AutoBuilder{
 
     inline auto RTrench_Fuel_RB_Hub_Lad =
         choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("RTrench_Fuel_RB_Hub_Lad"); 
+
+    inline auto LTrench_Fuel_LTrench =
+        choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("LTrench_Fuel_LTrench");
+
+    inline auto LTrench_Fuel_LTrench_2 =
+        choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("LTrench_Fuel_LTrench_2");
+
+    inline auto RTrench_Fuel_RTrench =
+        choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("RTrench_Fuel_RTrench");
     
-    inline auto RHub_Hub_LHub_LBDep =
-        choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("RHub_Hub_LHub_LBDep");
+    inline auto RTrench_Fuel_RTrench_2 =
+        choreo::Choreo::LoadTrajectory<choreo::SwerveSample>("RTrench_Fuel_RTrench_2");
 
 
     frc2::CommandPtr DepotAuto(RobotContainer &robot);
@@ -44,7 +53,9 @@ namespace AutoBuilder{
 
     frc2::CommandPtr RTrenchAuto(RobotContainer &robot);
 
-    frc2::CommandPtr TrenchToDepotAuto(RobotContainer &robot);
+    frc2::CommandPtr LTrenchCycleAuto(RobotContainer &robot);
+
+    frc2::CommandPtr RTrenchCycleAuto(RobotContainer &robot);
 
     frc2::CommandPtr BuildAuto(RobotContainer &robot, Trajectory_t trajectory);
 

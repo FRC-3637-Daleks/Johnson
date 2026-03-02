@@ -65,7 +65,10 @@ public:
   frc2::CommandPtr m_depotauto{frc2::cmd::None()};
   frc2::CommandPtr m_Ltrenchauto{frc2::cmd::None()};
   frc2::CommandPtr m_Rtrenchauto{frc2::cmd::None()};
-  frc2::CommandPtr m_RtrenchtoDepot{frc2::cmd::None()};
+  frc2::CommandPtr m_Ltrenchcycleauto{frc2::cmd::None()};
+  frc2::CommandPtr m_Rtrenchcycleauto{frc2::cmd::None()};
+
+  std::vector<frc2::CommandPtr> m_Autolist;
 
 public:
   void ConfigureBindings();
