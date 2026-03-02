@@ -24,6 +24,7 @@ public:
         Bottom,
         Intake
     };
+    std::vector<std::string> TypeStrs = {"Top", "Bottom", "Intake"};
 
     Feeder(Type type); //get the motor ID from constants and pass it in here
     ~Feeder();
@@ -42,7 +43,7 @@ public:
     units::turns_per_second_t getRPM();
 
 private:
-
+    void stop();
     void setVelocity(units::turns_per_second_t speed);
     bool isAtRPM(units::turns_per_second_t speed);
 
@@ -60,8 +61,7 @@ private:
 
     void SimulationPeriodic() override;
 
-    inline static int classIndex = 0; //should only be init once
-    int thisClassesIndex{};
+    std::string thisMotorStr{};
     
     frc::Mechanism2d m_mech{2, 2};
     frc::MechanismRoot2d* m_root = m_mech.GetRoot("Feeder", 1, 1);

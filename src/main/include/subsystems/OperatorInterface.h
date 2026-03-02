@@ -31,8 +31,8 @@
 namespace OperatorConstants {
   constexpr double PilotBottomFeederLimiter = 0.5;
   constexpr double COPArmSpeedLimiter = 0.5;
-  constexpr double COPBottomFeederLimiter = 0.5;
-  constexpr double COPIntakeSpeedLimiter = 0.5;
+  constexpr double COPBottomFeederLimiter = 1.0;
+  constexpr double COPIntakeSpeedLimiter = 1.0;
   
 } // namespace OperatorConstants
 

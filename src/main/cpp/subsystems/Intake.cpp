@@ -291,7 +291,14 @@ frc2::CommandPtr Intake::Lift() {
 }
 
 frc2::CommandPtr Intake::ManuallyControlArm(std::function<double()> input) {
-    return Run([this, input] {m_armMotor.Set(input());});
+    return RunEnd(
+        [this, input] {m_armMotor.Set(input());},
+        [this] {m_armMotor.StopMotor();}
+    );
+}
+
+frc2::CommandPtr Intake::ManuallyCotrolIntake(std::function<double()> input) {
+    return m_intakeMotor.ManuallySetMotor(input);
 }
 
 frc2::CommandPtr Intake::BlindExtend() {

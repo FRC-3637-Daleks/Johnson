@@ -37,6 +37,8 @@ public:
     //
     frc2::CommandPtr ManuallyControlArm(std::function<double()> input);
 
+    frc2::CommandPtr ManuallyCotrolIntake(std::function<double()> input);
+
     // Extends arm at a constant velocity for a duration that should roughly extend it fully
     frc2::CommandPtr BlindExtend();
 
