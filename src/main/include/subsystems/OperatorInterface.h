@@ -29,7 +29,7 @@
 #include <numbers>
 
 namespace OperatorConstants {
-  constexpr double PilotBottomFeederLimiter = 0.5;
+  constexpr double PilotBottomFeederLimiter = 1.0;
   constexpr double COPArmSpeedLimiter = 0.5;
   constexpr double COPBottomFeederLimiter = 1.0;
   constexpr double COPIntakeSpeedLimiter = 1.0;
@@ -56,9 +56,7 @@ public:
   //Co-Pilot = COP
   std::function<double()> getIntakeArmSpeedCOP{[this] 
     {return m_copilotController.GetLeftY()*OperatorConstants::COPArmSpeedLimiter;}};
-  std::function<double()> getBottomFeederSpeedCOP{[this] 
-    {return m_copilotController.GetRightY()*OperatorConstants::COPBottomFeederLimiter;}};
-  std::function<double()> getIntakeSpeedCOP{[this] 
+  std::function<double()> getFeederSpeedCOP{[this] 
     {return m_copilotController.GetRightX()*OperatorConstants::COPIntakeSpeedLimiter;}};
   
   std::function<double()> getBottomFeederSpeed{[this] 
@@ -92,14 +90,17 @@ public:
   frc2::Trigger ArmIntakeManual{
     [this] {return std::abs(getIntakeArmSpeedCOP()) > 0.1;}
   };
-  frc2::Trigger RStickFeederAndIntake{
-    [this] {return std::abs(getBottomFeederSpeedCOP() +
-              getIntakeSpeedCOP()) > 0.1;} 
-  };
+
   frc2::Trigger ClimbUpManual = m_copilotController.A();
   frc2::Trigger ClimbDownManual = m_copilotController.B();
-  frc2::Trigger TopFeederInManual = m_copilotController.RightBumper();
-  frc2::Trigger TopFeederOutManual = m_copilotController.LeftBumper();
+
+  frc2::Trigger ShouldRStickMove{[this] {return std::abs(getFeederSpeedCOP()) > 0.15;}};
+  frc2::Trigger MakeRStickBottomFeederAndIntake = ShouldRStickMove && m_copilotController.LeftBumper() && !m_copilotController.RightBumper();
+  frc2::Trigger MakeRStickBottomAndTopFeeder = ShouldRStickMove && !m_copilotController.LeftBumper() && m_copilotController.RightBumper();
+  frc2::Trigger MakeRStickBottomAndTopFeederOpposite = ShouldRStickMove && m_copilotController.LeftBumper() && m_copilotController.RightBumper();
+  frc2::Trigger MakeRStickIntakeOnly = ShouldRStickMove && !m_copilotController.LeftBumper() && !m_copilotController.RightBumper();
+
+
   frc2::Trigger HoodRaise = m_copilotController.Y();
   frc2::Trigger HoodLower = m_copilotController.X();
   //TODO: Make right trigger enter shooter mode

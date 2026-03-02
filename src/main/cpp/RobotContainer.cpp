@@ -158,11 +158,15 @@ void RobotContainer::ConfigureBindings() {
   m_oi.ArmIntakeManual.OnTrue(m_intake.ManuallyControlArm(m_oi.getIntakeArmSpeedCOP));
   // m_oi.ClimbUpManual.OnTrue(m_climb.Deploy());
   // m_oi.ClimbDownManual.WhileTrue(m_climb.LiftBot());
-  m_oi.RStickFeederAndIntake.WhileTrue(m_feederBottom.ManuallySetMotor(m_oi.getBottomFeederSpeedCOP)
-  .AlongWith(m_intake.ManuallyCotrolIntake(m_oi.getIntakeSpeedCOP))
-  );
-  m_oi.TopFeederInManual.WhileTrue(m_feederTop.ManuallySetMotor([] {return 1;}));
-  m_oi.TopFeederOutManual.WhileTrue(m_feederTop.ManuallySetMotor([] {return -1;}));
+  
+  m_oi.MakeRStickBottomFeederAndIntake.WhileTrue(m_feederBottom.ManuallySetMotor(m_oi.getFeederSpeedCOP)
+      .AlongWith(m_intake.ManuallyCotrolIntake(m_oi.getFeederSpeedCOP)));
+  m_oi.MakeRStickBottomAndTopFeeder.WhileTrue(m_feederBottom.ManuallySetMotor(m_oi.getFeederSpeedCOP)
+      .AlongWith(m_feederTop.ManuallySetMotor(m_oi.getFeederSpeedCOP)));
+  m_oi.MakeRStickBottomAndTopFeederOpposite.WhileTrue(m_feederBottom.ManuallySetMotor(m_oi.getFeederSpeedCOP)
+      .AlongWith(m_feederTop.ManuallySetMotor([this] {return -m_oi.getFeederSpeedCOP();})));
+  m_oi.MakeRStickIntakeOnly.WhileTrue(m_intake.ManuallyCotrolIntake(m_oi.getFeederSpeedCOP));
+
   m_oi.HoodRaise.WhileTrue(m_shooter.SetHoodPosition(0));
   m_oi.HoodLower.WhileTrue(m_shooter.SetHoodPosition(70));
   //RT + class state variable for right trigger shooter stuff
