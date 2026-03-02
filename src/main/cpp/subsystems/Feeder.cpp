@@ -19,13 +19,13 @@ namespace FeederConstants {
     struct Perams {
         units::volt_t VoltComp;
         units::ampere_t SmartCurrLim;
-        double kP, kI, kD, kFF;
+        double kP, kI, kD, kV;
     };
 
     Perams TopMotor {
     /*units::volt_t VoltComp*/          12_V,
     /*units::ampere_t SmartCurrLim*/    40_A,
-    /*double P*/                        0,
+    /*double P*/                        0.01,
     /*double I*/                        0.0,
     /*double D*/                        0.0,
     /*double FF*/                       0.1 
@@ -34,7 +34,7 @@ namespace FeederConstants {
     Perams BottomMotor {
     /*units::volt_t VoltComp*/          12_V,
     /*units::ampere_t SmartCurrLim*/    40_A,
-    /*double P*/                        0.0,
+    /*double P*/                        0.01,
     /*double I*/                        0.0,
     /*double D*/                        0.0,
     /*double FF*/                       0.1 
@@ -43,7 +43,7 @@ namespace FeederConstants {
     Perams IntakeMotor {
     /*units::volt_t VoltComp*/          12_V,
     /*units::ampere_t SmartCurrLim*/    40_A,
-    /*double P*/                        0.0,
+    /*double P*/                        0.01,
     /*double I*/                        0.0,
     /*double D*/                        0.0,
     /*double FF*/                       0.1 
@@ -53,6 +53,7 @@ namespace FeederConstants {
     constexpr auto feederMOI = 0.001_kg_sq_m;
     constexpr auto VelocityConversionFactor = 1.0/60; //RPM -> RPS
     constexpr auto feederMotor = frc::DCMotor::NeoVortex(1).WithReduction(feederGearing);
+    constexpr auto maxSpeed = feederMotor.freeSpeed;
 
     int getMotorID(Feeder::Type id) {
         if (id == Feeder::Type::Top) return kTopMotorID;
@@ -69,8 +70,7 @@ Feeder::Feeder(Type type) :
     m_pidController(m_feederMotor.GetClosedLoopController()),
     m_sim_state{create_feeder_sim(*this)}
 {
-    classIndex++;
-    thisClassesIndex = classIndex;
+    thisMotorStr = TypeStrs[static_cast<int>(type)];
     FeederConstants::Perams peramConfig{};
     if (type == Type::Top) peramConfig = FeederConstants::TopMotor;
     else if (type == Type::Bottom) peramConfig = FeederConstants::BottomMotor;
@@ -82,14 +82,12 @@ Feeder::Feeder(Type type) :
     feederConfig.VoltageCompensation(peramConfig.VoltComp.value());
     feederConfig.SmartCurrentLimit(peramConfig.SmartCurrLim.value());
 
-    constexpr auto Kv = (FeederConstants::feederMotor.Kv * 1_V);
     feederConfig.closedLoop
     .P(peramConfig.kP)
     .I(peramConfig.kI)
     .D(peramConfig.kD)
-    .feedForward.kV(
-        Kv.value());
-
+    .MinOutput(-1).MaxOutput(1)
+    .feedForward.kV(peramConfig.kV);
 
     feederConfig.encoder.VelocityConversionFactor(FeederConstants::VelocityConversionFactor);
 
@@ -108,16 +106,21 @@ void Feeder::Periodic() {
     UpdateDashboard();
 }
 
+//RunEnd
 frc2::CommandPtr Feeder::ManuallySetMotor(std::function<double()> input) {
-    return Run([this, input] {m_feederMotor.Set(input());});
+    return RunEnd([this, input] {setVelocity(input()*FeederConstants::maxSpeed);},
+                  [this] {stop();});
 }
 
 frc2::CommandPtr Feeder::setRPM(units::turns_per_second_t speed) {
     return Run([this, speed] {setVelocity(speed);});
 }
 
+#include <iostream>
 frc2::CommandPtr Feeder::setRPMEnd(units::turns_per_second_t speed) {
-    return RunEnd([this, speed] {setVelocity(speed);}, [this] {setVelocity(0_tps);});
+    return RunEnd(
+    [this, speed] {setVelocity(speed); std::cout << "Vel: " << speed.value() << std::endl;}, 
+    [this] {stop(); std::cout << "Vel: Stopped" << std::endl;});
 }
 
 frc2::CommandPtr Feeder::setRPMUntilThere(units::turns_per_second_t speed) {
@@ -132,6 +135,10 @@ units::turns_per_second_t Feeder::getRPM() {
 void Feeder::setVelocity(units::turns_per_second_t speed) {
     targetSpeed = speed;
     m_pidController.SetSetpoint(speed.value(), rev::spark::SparkFlex::ControlType::kVelocity);
+}
+
+void Feeder::stop() {
+    m_pidController.SetSetpoint(0, rev::spark::SparkFlex::ControlType::kVoltage);
 }
 
 bool Feeder::isAtRPM(units::turns_per_second_t RPM_Target) {
@@ -154,23 +161,23 @@ public:
 };
 
 void Feeder::InitializeDashboard() {
-    frc::SmartDashboard::PutData("Feeder"+ std::to_string(thisClassesIndex), &m_mech);
+    frc::SmartDashboard::PutData("Feeder"+ thisMotorStr, &m_mech);
     
     auto put_cmd = [this] (std::string_view name, frc2::CommandPtr&& cmd) {
-        frc::SmartDashboard::PutData(fmt::format("Feeder{}/{}", thisClassesIndex, name),
+        frc::SmartDashboard::PutData(fmt::format("Feeder{}/{}", thisMotorStr, name),
             std::move(cmd).WithName(name).Unwrap().release()
         );
     };
 
-    frc::SmartDashboard::PutNumber("Feeder"+ std::to_string(thisClassesIndex)+"/SetFeederSpeedTPS", 0.0);
-    put_cmd("SetFeeder"+ std::to_string(thisClassesIndex), 
+    frc::SmartDashboard::PutNumber("Feeder"+ thisMotorStr+"/SetFeederSpeedTPS", 0.0);
+    put_cmd("SetFeeder"+ thisMotorStr, 
     setRPM(frc::SmartDashboard::GetNumber(
-        "Feeder"+ std::to_string(thisClassesIndex)+"/SetFeederSpeedTPS", 0.0)*1.0_tps));
+        "Feeder"+ thisMotorStr+"/SetFeederSpeedTPS", 0.0)*1.0_tps));
 }
 
 void Feeder::UpdateDashboard() {
     if (m_sim_state) {
-        frc::SmartDashboard::PutNumber("Feeder"+std::to_string(thisClassesIndex)+"/Velocity", 
+        frc::SmartDashboard::PutNumber("Feeder"+thisMotorStr+"/Velocity", 
             FeederConstants::feederGearing*units::revolutions_per_minute_t{
             m_sim_state->m_feederPhysics.GetAngularVelocity()}.value());
 

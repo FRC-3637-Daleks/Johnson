@@ -15,13 +15,13 @@ namespace LinearActuatorConstants {
     units::time::microsecond_t Min =            1.0_ms;
 
     //mm
-    double length = 100;
+    double length = 55;
     //mm/s
     double speed = 30;
 
     // Clamps Actuator to not go beyond these points
-    double minLength = 10;
-    double maxLength = 70; //from 0
+    double minLength = 00;
+    double maxLength = 55; //from 0
 
     double tolerance = 0.01; //As a percentage of 0-1
 }
@@ -41,10 +41,13 @@ void LinearActuator::Periodic() {
     UpdateDashboard();
 }
 
+//RunEnd
 frc2::CommandPtr LinearActuator::SetPosition(double point) {
-    return RunOnce([this, point] {SetPos(point);});
+    return RunEnd([this, point] {SetPos(point);},
+                  [this] {SetPos(0);});
 }
 
+//RunOnce
 frc2::CommandPtr LinearActuator::SetPositionUntilThere(double point) {
     return RunOnce([this, point] { SetPos(point); })
            .AndThen(Run([this]{ /* Waiting */ }).Until([this] { return isLinearActuatorAtPos(); }));

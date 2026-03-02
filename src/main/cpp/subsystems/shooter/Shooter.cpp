@@ -129,13 +129,16 @@ void Shooter::Periodic() {
 }
 
 frc2::CommandPtr Shooter::SetFlywheelSpeed(units::angular_velocity::turns_per_second_t velocity) {
-    return Run([this, velocity] {SetFlywheelSpeedNRM(velocity);});
+    return RunEnd(
+        [this, velocity] {SetFlywheelSpeedNRM(velocity);},
+        [this] {m_flyWheelLeadMotor.StopMotor();});
 }
 
+//RunEnd
 frc2::CommandPtr Shooter::SetFlywheelSpeedAndHoodPosParallel(
     units::angular_velocity::turns_per_second_t velocity,
     double point) {
-    return SetFlywheelSpeed(velocity).AlongWith(SetHoodPositionUntilThere(point));
+    return SetFlywheelSpeed(velocity).AlongWith(SetHoodPosition(point));
 }
 
 frc2::CommandPtr Shooter::SetHoodPosition(double point) {
