@@ -134,7 +134,7 @@ void SwerveChassis::Periodic() {
 SwerveChassis::~SwerveChassis() {}
 
 void SwerveChassis::RobotRelativeDrive(const frc::ChassisSpeeds& cmd_vel) {
-    auto states = kDriveKinematics.ToSwerveModuleStates(cmd_vel);
+    auto states = kDriveKinematics.ToSwerveModuleStates(cmd_vel, m_centerOfRotation);
 
     // Occasionally a drive motor is commanded to go faster than its maximum
     // output can sustain. Desaturation lowers the module speeds so that no

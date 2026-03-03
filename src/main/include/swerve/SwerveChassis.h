@@ -135,6 +135,10 @@ public:
      */
     void SetMapToOdom(const frc::Transform2d& transform);
 
+    frc2::CommandPtr SetCenterOfRotation(units::meter_t xOffset) {
+        Run([this, xOffset] {m_centerOfRotation = frc::Translation2d{xOffset, 0_m};});
+    }
+
     // Display useful information on Shuffleboard.
     void InitializeDashboard();
     void UpdateDashboard();
@@ -155,6 +159,8 @@ private:
 
     // Stores controllers for each motion axis
     frc::HolonomicDriveController m_holonomicController;
+
+    frc::Translation2d m_centerOfRotation{0_m, 0_m};
 
 private:
     friend class SwerveChassisSimulation;
