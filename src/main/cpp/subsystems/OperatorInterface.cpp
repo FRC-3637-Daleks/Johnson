@@ -31,14 +31,14 @@ OperatorInterface::OperatorInterface()
 }
 
 double OperatorInterface::throttle() {
-  double input = m_swerveController.GetHID().GetRightTriggerAxis();
-  double ret = ((-input + 1));
+  // double input = m_swerveController.GetHID().GetRightTriggerAxis();
+  // double ret = ((-input + 1));
   return 1;
 }
 
 double OperatorInterface::boolean_slowdown() {
-  if (m_swerveController.GetHID().GetLeftTriggerAxis() > 0.2)
-    return 1.0; 
+  // if (m_swerveController.GetHID().GetLeftTriggerAxis() > 0.2)
+  //   return 1.0; 
   return 1.0;
 }
 
