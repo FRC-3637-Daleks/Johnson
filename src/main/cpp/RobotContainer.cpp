@@ -26,6 +26,9 @@
 #include <iostream>
 
 #include <choreo/Choreo.h>
+#include <rev/SparkFlex.h>
+#include <rev/config/SparkFlexConfig.h>
+
 
 namespace AutoConstants {
 
@@ -46,6 +49,7 @@ namespace OperatorConstants {
 
 constexpr int kCopilotControllerPort = 1;
 constexpr int kSwerveControllerPort = 0;
+constexpr int kBottomFeederFollowerID = 26;
 
 constexpr double kStrafeDeadband = 0.08;
 constexpr double kRotDeadband = .16;
@@ -67,7 +71,13 @@ constexpr auto mid_line = field_length / 2;
 } // namespace FieldConstants
 
 RobotContainer::RobotContainer()
-  : m_swerveController(OperatorConstants::kSwerveControllerPort) {
+  : m_swerveController(OperatorConstants::kSwerveControllerPort),
+    m_followerFeederBottom(OperatorConstants::kBottomFeederFollowerID, rev::spark::SparkFlex::MotorType::kBrushless) {
+  //Config follower/reverse
+  rev::spark::SparkFlexConfig bottomFeederFollowerConfig;
+  bottomFeederFollowerConfig.Follow(m_feederBottom.getMotorIDforFollower());
+  bottomFeederFollowerConfig.Inverted(true);
+  m_followerFeederBottom.Configure(bottomFeederFollowerConfig, rev::ResetMode::kNoResetSafeParameters, rev::PersistMode::kPersistParameters);
 
   fmt::println("made it to robot container");
   // Initialize all of your commands and subsystems here

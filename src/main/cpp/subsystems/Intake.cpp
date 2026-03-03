@@ -20,6 +20,7 @@ namespace IntakeConstants {
     // Ports
     constexpr auto kCanBus = ctre::phoenix6::CANBus{"Drivebase"};
     constexpr int kArmMotorID = 11;
+    constexpr int kFollowerIntakeMotorID = 27;
 
     // Arm
     // Physical constants
@@ -186,6 +187,7 @@ public:
 Intake::Intake() :
     m_armMotor{IntakeConstants::kArmMotorID, IntakeConstants::kCanBus},
     m_intakeMotor{Feeder::Type::Intake},
+    m_feederIntakeFollower{m_intakeMotor.getMotorIDforFollower(), rev::spark::SparkFlex::MotorType::kBrushless},
     m_armZeroed{false},
     m_arm{m_root->Append<frc::MechanismLigament2d>(
         "intake", 1, 90_deg, 20, frc::Color8Bit{frc::Color::kBlue})},
@@ -193,6 +195,12 @@ Intake::Intake() :
         "wheel", 0.1, 90_deg, 6, frc::Color8Bit{frc::Color::kPurple})},
     m_sim_state{new IntakeSim{*this}}
 {
+    //Config follower/reverse
+    rev::spark::SparkFlexConfig intakeFollowerConfig;
+    intakeFollowerConfig.Follow(m_intakeMotor.getMotorIDforFollower());
+    intakeFollowerConfig.Inverted(true);
+    m_feederIntakeFollower.Configure(intakeFollowerConfig, rev::ResetMode::kNoResetSafeParameters, rev::PersistMode::kPersistParameters);
+
     auto put_cmd = [this] (std::string_view name, frc2::CommandPtr&& cmd) {
         frc::SmartDashboard::PutData(fmt::format("Intake/{}", name),
             std::move(cmd).WithName(name).Unwrap().release());

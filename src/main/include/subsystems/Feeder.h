@@ -36,11 +36,12 @@ public:
 
 public:
 
+    int getMotorIDforFollower();
     frc2::CommandPtr ManuallySetMotor(std::function<double()> point);
     frc2::CommandPtr setRPM(units::turns_per_second_t speed);
     frc2::CommandPtr setRPMEnd(units::turns_per_second_t speed);
     frc2::CommandPtr setRPMUntilThere(units::turns_per_second_t speed);
-    units::turns_per_second_t getRPM();
+    units::turns_per_second_t getRPM();    
 
 private:
     void stop();

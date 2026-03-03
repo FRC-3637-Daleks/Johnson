@@ -53,6 +53,7 @@ public:
   Shooter m_shooter;
   Feeder m_feederTop{Feeder::Type::Top};
   Feeder m_feederBottom{Feeder::Type::Bottom};
+  rev::spark::SparkFlex m_followerFeederBottom;
   Intake m_intake; 
   // Climb m_climb;
 
