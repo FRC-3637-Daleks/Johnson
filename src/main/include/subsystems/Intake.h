@@ -77,6 +77,7 @@ private:
 private:
     ctre::phoenix6::hardware::TalonFX m_armMotor;
     Feeder m_intakeMotor;
+    rev::spark::SparkFlex m_feederIntakeFollower;
 
     bool m_armZeroed;
     std::function<bool()> Zeroed{[this] {return m_armZeroed;}};

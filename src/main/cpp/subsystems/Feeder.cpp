@@ -106,6 +106,8 @@ void Feeder::Periodic() {
     UpdateDashboard();
 }
 
+int Feeder::getMotorIDforFollower() {return m_feederMotor.GetDeviceId();}
+
 //RunEnd
 frc2::CommandPtr Feeder::ManuallySetMotor(std::function<double()> input) {
     return RunEnd([this, input] {setVelocity(input()*FeederConstants::maxSpeed);},
@@ -116,11 +118,10 @@ frc2::CommandPtr Feeder::setRPM(units::turns_per_second_t speed) {
     return Run([this, speed] {setVelocity(speed);});
 }
 
-#include <iostream>
 frc2::CommandPtr Feeder::setRPMEnd(units::turns_per_second_t speed) {
     return RunEnd(
-    [this, speed] {setVelocity(speed); std::cout << "Vel: " << speed.value() << std::endl;}, 
-    [this] {stop(); std::cout << "Vel: Stopped" << std::endl;});
+    [this, speed] {setVelocity(speed);}, 
+    [this] {stop();});
 }
 
 frc2::CommandPtr Feeder::setRPMUntilThere(units::turns_per_second_t speed) {
