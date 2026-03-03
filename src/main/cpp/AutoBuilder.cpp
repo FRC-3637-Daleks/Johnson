@@ -3,24 +3,23 @@
 
 namespace AutoBuilder{
 
-
    namespace util{
         frc2::CommandPtr AutoClimb(RobotContainer &robot){
-            return frc2::cmd::Print("***********Climbing***********").WithTimeout(2_s);
+            return frc2::cmd::Print("***********Climbing***********").AlongWith(robot.m_climb.Deploy())
+                                                                     .AndThen(robot.m_climb.LiftBot());
         }
 
         frc2::CommandPtr AutoIntake(RobotContainer &robot){
-            return
-                frc2::cmd::StartEnd([]{
-                    fmt::println("STARTING INTAKE");
-                },[]{
-                    fmt::println("ENDING INTAKE");
-                });
-            
+            return frc2::cmd::Print("STARTING INTAKE").AlongWith(robot.m_intake.IntakeFuel())
+                                                      .FinallyDo([]{fmt::println("ENDING INTAKE");});
+
+                
         }
 
         frc2::CommandPtr AutoShoot(RobotContainer &robot){
-             return  frc2::cmd::Print("***********Shooting***********").WithTimeout(3_s);
+             return  frc2::cmd::Print("***********Shooting***********")
+                                .AlongWith(robot.m_shooter.SetFlywheelSpeedAndHoodPosParallel(50_tps, 0.0));
+                
             
         }
     }  

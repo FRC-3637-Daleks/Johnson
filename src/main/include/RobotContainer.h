@@ -56,7 +56,7 @@ public:
   Feeder m_feederBottom{Feeder::Type::Bottom};
   rev::spark::SparkFlex m_followerFeederBottom;
   Intake m_intake; 
-  // Climb m_climb;
+  Climb m_climb;
 
   bool m_isRed;
 
