@@ -12,7 +12,10 @@
 
 void Robot::RobotInit() {}
 
-void Robot::DriverStationConnected() {}
+void Robot::DriverStationConnected() {
+  // ensures we swap our color if needed
+  m_container.ReloadAuto();
+}
 
 /**
  * This function is called every 20 ms, no matter the mode. Use

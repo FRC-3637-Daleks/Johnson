@@ -191,43 +191,56 @@ void RobotContainer::ConfigureBindings() {
 
 void RobotContainer::ConfigureDashboard() {
   frc::SmartDashboard::PutData("Drivebase", &m_swerve);
-  frc::SmartDashboard::PutData(&m_chooser);
+  frc::SmartDashboard::PutData("Auton", &m_chooser);
 }
 
 void RobotContainer::ConfigureAuto() {
-
-  m_depotauto = AutoBuilder::DepotAuto(*this);
-
+  // sentinel trajectory indicates we run a simple auto not dependent on sensors
   m_chooser.SetDefaultOption(
-   "Default Auto: Depot Auto", m_depotauto.get());
+   "Default Auto: Depot Auto", AutoBuilder::Trajectory_t{});
 
   std::string folder = frc::filesystem::GetDeployDirectory()+"/choreo";
 
-    for (const auto& entry : std::filesystem::directory_iterator(folder)) {
-        
-
-        if(entry.path().extension() != ".traj"){
-          continue;
-        }
-
-        const auto entry_string = entry.path().stem().string();
-
-        auto trajectory = choreo::Choreo::LoadTrajectory<choreo::SwerveSample>(entry_string);
-        if(trajectory.has_value()){
-        auto Command = AutoBuilder::BuildAuto(*this, trajectory.value());
-        m_chooser.AddOption(
-          trajectory.value().name, Command.get()); 
-      
-          m_Autolist.push_back(std::move(Command));
-    
-        }
-        else{
-          fmt::println("FAILED TO LOAD TRAJECTORY: {}", entry_string);
-          frc::Alert alert{"FAILED TO LOAD TRAJECTORY", frc::Alert::AlertType::kError};
-          alert.Set(true);
-        }
+  for (const auto& entry : std::filesystem::directory_iterator(folder)) {
+    if(entry.path().extension() != ".traj"){
+      continue;
     }
-} 
+    
+    const auto entry_string = entry.path().stem().string();
+    
+    auto trajectory = choreo::Choreo::LoadTrajectory<choreo::SwerveSample>(entry_string);
+    if(trajectory.has_value()){
+      m_chooser.AddOption(
+        trajectory.value().name, trajectory.value());
+    }
+    else{
+      fmt::println("FAILED TO LOAD TRAJECTORY: {}", entry_string);
+      frc::Alert alert{"FAILED TO LOAD TRAJECTORY", frc::Alert::AlertType::kError};
+      alert.Set(true);
+    }
+  }
+
+  // when user selects an auto, lets preview it so they know what theyre picking
+  m_chooser.OnChange([this] (const AutoBuilder::Trajectory_t& t) {
+    ReloadAuto();
+  });
+}
+
+void RobotContainer::ReloadAuto() {
+  const auto t = IsRed()? m_chooser.GetSelected().Flipped():m_chooser.GetSelected();
+
+  if (t.GetPoses().size() == 0) {
+    // default auto selected
+    m_swerve.GetField().GetObject("preview")->SetPoses({});
+    m_swerve.GetField().GetObject("auton start")->SetPose(frc::Pose2d{-1000_m, -1000_m, 0_rad});
+    m_loaded_auto = AutoBuilder::DepotAuto(*this);
+  } else {
+    m_swerve.GetField().GetObject("preview")->SetPoses(t.GetPoses());
+    m_swerve.GetField().GetObject("auton start")->SetPose(t.GetInitialPose().value());
+    m_loaded_auto = AutoBuilder::BuildAuto(*this, t);
+  }
+
+}
 
 void RobotContainer::ConfigureContinuous() {
   // These commands are for transmitting data across subsystems
@@ -269,7 +282,8 @@ void RobotContainer::ConfigureContinuous() {
 }
 
 frc2::Command* RobotContainer::GetAutonomousCommand() {
-  return m_chooser.GetSelected();
+  m_swerve.GetField().GetObject("preview")->SetPoses({});
+  return m_loaded_auto.get();
 }
 
 frc2::CommandPtr RobotContainer::GetDisabledCommand() {

@@ -60,20 +60,16 @@ public:
 
   bool m_isRed;
 
-  frc::SendableChooser<frc2::Command *> m_chooser;
+  frc::SendableChooser<AutoBuilder::Trajectory_t> m_chooser;
 
-  frc2::CommandPtr m_depotauto{frc2::cmd::None()};
-  frc2::CommandPtr m_Ltrenchauto{frc2::cmd::None()};
-  frc2::CommandPtr m_Rtrenchauto{frc2::cmd::None()};
-  frc2::CommandPtr m_Ltrenchcycleauto{frc2::cmd::None()};
-  frc2::CommandPtr m_Rtrenchcycleauto{frc2::cmd::None()};
-
-  std::vector<frc2::CommandPtr> m_Autolist;
+  // load depot auto by default
+  frc2::CommandPtr m_loaded_auto{AutoBuilder::DepotAuto(*this)};
 
 public:
   void ConfigureBindings();
   void ConfigureDashboard();
   void ConfigureAuto();
+  void ReloadAuto();
   void ConfigureContinuous();
 
 public:
