@@ -187,7 +187,6 @@ void RobotContainer::ConfigureBindings() {
   //RT + class state variable for right trigger shooter stuff
   m_oi.PitReset.OnTrue(m_shooter.SetFlywheelSpeedAndHoodPosParallel(0_rad_per_s, 0));
 
-
 }
 
 void RobotContainer::ConfigureDashboard() {
