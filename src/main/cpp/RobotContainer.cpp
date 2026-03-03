@@ -155,9 +155,9 @@ void RobotContainer::ConfigureBindings() {
   m_oi.BottomFeeder.WhileTrue(m_feederBottom.ManuallySetMotor(m_oi.getBottomFeederSpeed));
   m_oi.OutTake.WhileTrue(m_feederBottom.setRPM(-10_tps).AlongWith(m_intake.OutakeFuel()));
   m_oi.LiftArm.WhileTrue(m_intake.Lift());
-  // m_oi.ClimbUp.OnTrue(m_climb.Deploy());
-  // m_oi.ClimbLift.OnTrue(m_climb.LiftBot());
-  // m_oi.ClimbDown.OnTrue(m_climb.Retract());
+  m_oi.ClimbUp.OnTrue(m_climb.Deploy());
+  m_oi.ClimbLift.OnTrue(m_climb.LiftBot());
+  m_oi.ClimbDown.OnTrue(m_climb.Retract());
 
 
   //Co-Pilot Commands
@@ -166,8 +166,8 @@ void RobotContainer::ConfigureBindings() {
   // m_oi.ArmRetract.OnTrue(m_intake.Retract());
   // m_oi.ArmLifted.OnTrue(m_intake.Lift());
   m_oi.ArmIntakeManual.OnTrue(m_intake.ManuallyControlArm(m_oi.getIntakeArmSpeedCOP));
-  // m_oi.ClimbUpManual.OnTrue(m_climb.Deploy());
-  // m_oi.ClimbDownManual.WhileTrue(m_climb.LiftBot());
+  m_oi.ClimbUpManual.OnTrue(m_climb.Deploy());
+  m_oi.ClimbDownManual.WhileTrue(m_climb.LiftBot());
   
   m_oi.MakeRStickBottomFeederAndIntake.WhileTrue(m_feederBottom.ManuallySetMotor(m_oi.getFeederSpeedCOP)
       .AlongWith(m_intake.ManuallyCotrolIntake(m_oi.getFeederSpeedCOP)));
