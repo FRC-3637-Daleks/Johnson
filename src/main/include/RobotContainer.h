@@ -73,5 +73,6 @@ public:
   void ConfigureContinuous();
 
 public:
-  bool IsRed();
+  bool IsRed() {return m_isRed;}
+  void CheckAlliance();
 };

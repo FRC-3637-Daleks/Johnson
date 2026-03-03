@@ -1,9 +1,4 @@
 {
-  "System Joysticks": {
-    "window": {
-      "enabled": false
-    }
-  },
   "keyboardJoysticks": [
     {
       "axisConfig": [
@@ -28,15 +23,7 @@
         90,
         88,
         67,
-        86,
-        -1,
-        -1,
-        -1,
-        -1,
-        -1,
-        -1,
-        -1,
-        66
+        86
       ],
       "povConfig": [
         {
@@ -100,16 +87,6 @@
       "axisCount": 0,
       "buttonCount": 0,
       "povCount": 0
-    }
-  ],
-  "robotJoysticks": [
-    {
-      "guid": "78696e70757401000000000000000000",
-      "useGamepad": true
-    },
-    {
-      "guid": "78696e70757401000000000000000000",
-      "useGamepad": true
     }
   ]
 }

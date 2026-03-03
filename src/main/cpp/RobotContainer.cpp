@@ -290,9 +290,10 @@ frc2::CommandPtr RobotContainer::GetDisabledCommand() {
   return frc2::cmd::None();
 }
 
-bool RobotContainer::IsRed() {
+void RobotContainer::CheckAlliance() {
+  bool wasRed = m_isRed;
   m_isRed = (frc::DriverStation::GetAlliance() ==
     frc::DriverStation::Alliance::kRed);
 
-  return m_isRed;
+  if (wasRed != m_isRed) ReloadAuto();
 }
