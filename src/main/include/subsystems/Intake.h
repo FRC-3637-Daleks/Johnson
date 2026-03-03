@@ -66,7 +66,6 @@ public:
 private:
     // Returns arm angle relative to horizontal
     units::angle::turn_t GetArmPos();
-    
     // Applies a bit of pressure at the extents to help keep the intake secure
     void HoldExtended(); void HoldRetracted(); void HoldLift();
 
