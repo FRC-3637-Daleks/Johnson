@@ -19,10 +19,23 @@ namespace AutoBuilder{
         frc2::CommandPtr AutoShoot(RobotContainer &robot){
              return  frc2::cmd::Print("***********Shooting***********")
                                 .AlongWith(robot.m_shooter.SetFlywheelSpeedAndHoodPosParallel(50_tps, 0.0));
-                
-            
         }
-    }  
+
+        // If robot thinks its nowhere NEAR start pose, reset it to start pose
+        frc2::CommandPtr ResetStart(Drivetrain& swerve, const Trajectory_t &t) {
+            const auto expected_pose = t.GetInitialPose();
+            return frc2::cmd::RunOnce([&swerve, expected_pose] {
+                if (expected_pose) {
+                    const auto current_pose = swerve.GetPose();
+                    const auto error = current_pose - expected_pose.value();
+                    if (error.Translation().Norm() > 2_m
+                        || units::math::abs(error.Rotation().Degrees()) > 30_deg) {
+                        swerve.ResetPose(expected_pose.value());
+                    }
+                }
+            });
+        }
+    }
 
 
     frc2::CommandPtr DepotAuto(RobotContainer &robot){
@@ -58,6 +71,7 @@ namespace AutoBuilder{
     frc2::CommandPtr BuildAuto(RobotContainer &robot, Trajectory_t trajectory){
         auto& swerve = robot.m_swerve;
           return frc2::cmd::Sequence(
+            util::ResetStart(swerve, trajectory),
             util::AutoIntake(robot).RaceWith(swerve.FollowPathCommand(trajectory.GetSplit(0).value())),
             util::AutoShoot(robot),
             swerve.FollowPathCommand(trajectory.GetSplit(1).value()) 
