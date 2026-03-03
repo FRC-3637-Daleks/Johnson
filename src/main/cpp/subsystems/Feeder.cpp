@@ -1,5 +1,5 @@
 #include "subsystems/Feeder.h"
-#include <rev/config/SparkMaxConfig.h>
+#include <rev/config/SparkFlexConfig.h>
 #include <rev/sim/SparkFlexSim.h>
 #include <frc/simulation/FlywheelSim.h>
 #include <frc/system/plant/LinearSystemId.h>
@@ -77,7 +77,7 @@ Feeder::Feeder(Type type) :
     else if (type == Type::Intake) peramConfig = FeederConstants::IntakeMotor;
 
     //velocty control (voltage but with some compensation)
-    rev::spark::SparkMaxConfig feederConfig = rev::spark::SparkMaxConfig();
+    rev::spark::SparkFlexConfig feederConfig = rev::spark::SparkFlexConfig();
 
     feederConfig.VoltageCompensation(peramConfig.VoltComp.value());
     feederConfig.SmartCurrentLimit(peramConfig.SmartCurrLim.value());
