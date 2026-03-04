@@ -75,8 +75,7 @@ RobotContainer::RobotContainer()
     m_followerFeederBottom(OperatorConstants::kBottomFeederFollowerID, rev::spark::SparkFlex::MotorType::kBrushless) {
   //Config follower/reverse
   rev::spark::SparkFlexConfig bottomFeederFollowerConfig;
-  bottomFeederFollowerConfig.Follow(m_feederBottom.getMotorIDforFollower());
-  bottomFeederFollowerConfig.Inverted(true);
+  bottomFeederFollowerConfig.Follow(m_feederBottom.getMotorIDforFollower(), true/*inverted*/);
   m_followerFeederBottom.Configure(bottomFeederFollowerConfig, rev::ResetMode::kNoResetSafeParameters, rev::PersistMode::kPersistParameters);
 
   fmt::println("made it to robot container");
