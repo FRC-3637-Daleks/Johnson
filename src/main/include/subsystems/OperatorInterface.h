@@ -28,13 +28,6 @@
 
 #include <numbers>
 
-namespace OperatorConstants {
-  constexpr double PilotBottomFeederLimiter = 1.0;
-  constexpr double COPArmSpeedLimiter = 0.5;
-  constexpr double COPBottomFeederLimiter = 1.0;
-  constexpr double COPIntakeSpeedLimiter = 1.0;
-  
-} // namespace OperatorConstants
 
 // #pragma GCC diagnostic ignored
 //  DO NOT DO THIS, this is a quick comopetition fix
@@ -55,12 +48,12 @@ public:
 
   //Co-Pilot = COP
   std::function<double()> getIntakeArmSpeedCOP{[this] 
-    {return m_copilotController.GetLeftY()*OperatorConstants::COPArmSpeedLimiter;}};
+    {return m_copilotController.GetLeftY();}};
   std::function<double()> getFeederSpeedCOP{[this] 
-    {return m_copilotController.GetRightX()*OperatorConstants::COPIntakeSpeedLimiter;}};
+    {return m_copilotController.GetRightX();}};
   
-  std::function<double()> getBottomFeederSpeed{[this] 
-    {return m_swerveController.GetRightTriggerAxis()*OperatorConstants::PilotBottomFeederLimiter;}};
+  std::function<double()> getBottomFeederSpeed{[this]
+    {return m_swerveController.GetRightTriggerAxis();}};
 
   frc2::Trigger ZeroHeadingTrigger = m_swerveController.Start();
   frc2::Trigger RobotRelativeToggleTrigger = m_swerveController.Back();

@@ -111,8 +111,8 @@ void Feeder::Periodic() {
 int Feeder::getMotorIDforFollower() {return m_feederMotor.GetDeviceId();}
 
 //RunEnd
-frc2::CommandPtr Feeder::ManuallySetMotor(std::function<double()> input) {
-    return RunEnd([this, input] {setVelocity(input()*FeederConstants::maxSpeed);},
+frc2::CommandPtr Feeder::ManuallySetMotor(std::function<double()> input, double scaler) {
+    return RunEnd([this, input, scaler] {setVelocity(units::angular_velocity::turns_per_second_t(input()*scaler));},
                   [this] {stop();});
 }
 

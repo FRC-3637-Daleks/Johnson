@@ -304,8 +304,8 @@ frc2::CommandPtr Intake::ManuallyControlArm(std::function<double()> input) {
     );
 }
 
-frc2::CommandPtr Intake::ManuallyCotrolIntake(std::function<double()> input) {
-    return m_intakeMotor.ManuallySetMotor(input);
+frc2::CommandPtr Intake::ManuallyCotrolIntake(std::function<double()> input, double scaler) {
+    return m_intakeMotor.ManuallySetMotor(input, scaler);
 }
 
 frc2::CommandPtr Intake::BlindExtend() {

@@ -65,6 +65,10 @@ constexpr auto kMaxTeleopSpeed = 15.7_fps;
 constexpr auto kMaxTeleopTurnSpeed = 2.5 * std::numbers::pi * 1_rad_per_s;
 
 constexpr double kSlowModeFactor = 0.3;
+
+constexpr double BottomFeederScaler = 15;
+constexpr double TopFeederScaler = 30;
+constexpr double IntakeFeederScaler = 30;
 } // namespace OperatorConstants
 
 namespace FieldConstants {
@@ -149,13 +153,13 @@ void RobotContainer::ConfigureBindings() {
   //Driver Controller
   m_oi.RetractHoldArm.WhileTrue(m_intake.Retract());
   m_oi.AutoAim.WhileTrue(m_shooter.SetFlywheelSpeedAndHoodPosParallel(67_tps, 0)
-                      .AlongWith(m_feederTop.setRPMEnd(50_tps))); //TODO: Change placeholders & Make lookup table
+                      .AlongWith(m_feederTop.setRPMEnd(30_tps))); //TODO: Change placeholders & Make lookup table
   m_oi.HUBAim.WhileTrue(m_shooter.SetFlywheelSpeedAndHoodPosParallel(67_tps, 0)
-                      .AlongWith(m_feederTop.setRPMEnd(50_tps))); //TODO: Change placeholders
+                      .AlongWith(m_feederTop.setRPMEnd(30_tps))); //TODO: Change placeholders
   m_oi.TowerAim.WhileTrue(m_shooter.SetFlywheelSpeedAndHoodPosParallel(67_tps, 50)
-                      .AlongWith(m_feederTop.setRPMEnd(50_tps))); //TODO: Change placeholders
-  m_oi.BottomFeeder.WhileTrue(m_feederBottom.ManuallySetMotor(m_oi.getBottomFeederSpeed));
-  m_oi.OutTake.WhileTrue(m_feederBottom.setRPM(-10_tps).AlongWith(m_intake.OutakeFuel()));
+                      .AlongWith(m_feederTop.setRPMEnd(30_tps))); //TODO: Change placeholders
+  m_oi.BottomFeeder.WhileTrue(m_feederBottom.ManuallySetMotor(m_oi.getBottomFeederSpeed, OperatorConstants::BottomFeederScaler));
+  m_oi.OutTake.WhileTrue(m_feederBottom.setRPM(-15_tps).AlongWith(m_intake.OutakeFuel()));
   m_oi.LiftArm.WhileTrue(m_intake.Lift());
   m_oi.ClimbUp.OnTrue(m_climb.Deploy());
   m_oi.ClimbLift.OnTrue(m_climb.LiftBot());
@@ -171,13 +175,13 @@ void RobotContainer::ConfigureBindings() {
   m_oi.ClimbUpManual.OnTrue(m_climb.Deploy());
   m_oi.ClimbDownManual.WhileTrue(m_climb.LiftBot());
   
-  m_oi.MakeRStickBottomFeederAndIntake.WhileTrue(m_feederBottom.ManuallySetMotor(m_oi.getFeederSpeedCOP)
-      .AlongWith(m_intake.ManuallyCotrolIntake(m_oi.getFeederSpeedCOP)));
-  m_oi.MakeRStickBottomAndTopFeeder.WhileTrue(m_feederBottom.ManuallySetMotor(m_oi.getFeederSpeedCOP)
-      .AlongWith(m_feederTop.ManuallySetMotor(m_oi.getFeederSpeedCOP)));
-  m_oi.MakeRStickBottomAndTopFeederOpposite.WhileTrue(m_feederBottom.ManuallySetMotor(m_oi.getFeederSpeedCOP)
-      .AlongWith(m_feederTop.ManuallySetMotor([this] {return -m_oi.getFeederSpeedCOP();})));
-  m_oi.MakeRStickIntakeOnly.WhileTrue(m_intake.ManuallyCotrolIntake(m_oi.getFeederSpeedCOP));
+  m_oi.MakeRStickBottomFeederAndIntake.WhileTrue(m_feederBottom.ManuallySetMotor(m_oi.getFeederSpeedCOP, OperatorConstants::BottomFeederScaler)
+      .AlongWith(m_intake.ManuallyCotrolIntake(m_oi.getFeederSpeedCOP, OperatorConstants::IntakeFeederScaler)));
+  m_oi.MakeRStickBottomAndTopFeeder.WhileTrue(m_feederBottom.ManuallySetMotor(m_oi.getFeederSpeedCOP, OperatorConstants::BottomFeederScaler)
+      .AlongWith(m_feederTop.ManuallySetMotor(m_oi.getFeederSpeedCOP, OperatorConstants::TopFeederScaler)));
+  m_oi.MakeRStickBottomAndTopFeederOpposite.WhileTrue(m_feederBottom.ManuallySetMotor(m_oi.getFeederSpeedCOP, OperatorConstants::BottomFeederScaler)
+      .AlongWith(m_feederTop.ManuallySetMotor([this] {return -m_oi.getFeederSpeedCOP();} ,OperatorConstants::TopFeederScaler)));
+  m_oi.MakeRStickIntakeOnly.WhileTrue(m_intake.ManuallyCotrolIntake(m_oi.getFeederSpeedCOP, OperatorConstants::IntakeFeederScaler));
 
   m_oi.HoodRaise.WhileTrue(m_shooter.SetHoodPosition(0));
   m_oi.HoodLower.WhileTrue(m_shooter.SetHoodPosition(70));

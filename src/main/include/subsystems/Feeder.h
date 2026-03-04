@@ -37,7 +37,8 @@ public:
 public:
 
     int getMotorIDforFollower();
-    frc2::CommandPtr ManuallySetMotor(std::function<double()> point);
+    //input is in TPS
+    frc2::CommandPtr ManuallySetMotor(std::function<double()> input, double scaler);
     frc2::CommandPtr setRPM(units::turns_per_second_t speed);
     frc2::CommandPtr setRPMEnd(units::turns_per_second_t speed);
     frc2::CommandPtr setRPMUntilThere(units::turns_per_second_t speed);

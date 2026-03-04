@@ -133,7 +133,7 @@ void SwerveChassis::Periodic() {
 
 SwerveChassis::~SwerveChassis() {}
 
-void SwerveChassis::RobotRelativeDrive(const frc::ChassisSpeeds& cmd_vel, std::function<bool()> shouldHaveOffset = [] {return false;}) {
+void SwerveChassis::RobotRelativeDrive(const frc::ChassisSpeeds& cmd_vel, std::function<bool()> shouldHaveOffset) {
     frc::Translation2d centerOfRotOffset{};
     if (shouldHaveOffset()) {
         centerOfRotOffset = {6_in, 0_in};
