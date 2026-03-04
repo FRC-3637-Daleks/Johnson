@@ -89,7 +89,9 @@ Feeder::Feeder(Type type) :
     .MinOutput(-1).MaxOutput(1)
     .feedForward.kV(peramConfig.kV);
 
-    feederConfig.encoder.VelocityConversionFactor(FeederConstants::VelocityConversionFactor);
+    feederConfig.encoder.VelocityConversionFactor(FeederConstants::VelocityConversionFactor)
+                        .UvwMeasurementPeriod(10 /* ms */)
+                        .UvwAverageDepth(2);
 
     m_feederMotor.Configure(feederConfig, 
                 rev::ResetMode::kNoResetSafeParameters, 
