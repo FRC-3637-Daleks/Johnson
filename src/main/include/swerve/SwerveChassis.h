@@ -136,7 +136,7 @@ public:
     void SetMapToOdom(const frc::Transform2d& transform);
 
     frc2::CommandPtr SetCenterOfRotation(units::meter_t xOffset) {
-        Run([this, xOffset] {m_centerOfRotation = frc::Translation2d{xOffset, 0_m};});
+        return Run([this, xOffset] {m_centerOfRotation = frc::Translation2d{xOffset, 0_m};});
     }
 
     // Display useful information on Shuffleboard.
