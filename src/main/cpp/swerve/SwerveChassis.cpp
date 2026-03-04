@@ -133,8 +133,12 @@ void SwerveChassis::Periodic() {
 
 SwerveChassis::~SwerveChassis() {}
 
-void SwerveChassis::RobotRelativeDrive(const frc::ChassisSpeeds& cmd_vel) {
-    auto states = kDriveKinematics.ToSwerveModuleStates(cmd_vel, m_centerOfRotation);
+void SwerveChassis::RobotRelativeDrive(const frc::ChassisSpeeds& cmd_vel, std::function<bool()> shouldHaveOffset = [] {return false;}) {
+    frc::Translation2d centerOfRotOffset{};
+    if (shouldHaveOffset()) {
+        centerOfRotOffset = {6_in, 0_in};
+    }
+    auto states = kDriveKinematics.ToSwerveModuleStates(cmd_vel, centerOfRotOffset);
 
     // Occasionally a drive motor is commanded to go faster than its maximum
     // output can sustain. Desaturation lowers the module speeds so that no
@@ -151,6 +155,11 @@ void SwerveChassis::RobotRelativeDrive(const frc::ChassisSpeeds& cmd_vel) {
 void SwerveChassis::Drive(const frc::ChassisSpeeds& cmd_vel) {
     RobotRelativeDrive(
         frc::ChassisSpeeds::FromFieldRelativeSpeeds(cmd_vel, m_heading_offset + GetHeading()));
+}
+
+void SwerveChassis::Drive(const frc::ChassisSpeeds& cmd_vel, std::function<bool()> shouldHaveOffset) {
+    RobotRelativeDrive(
+        frc::ChassisSpeeds::FromFieldRelativeSpeeds(cmd_vel, m_heading_offset + GetHeading()), shouldHaveOffset);
 }
 
 void SwerveChassis::SetModuleStates(

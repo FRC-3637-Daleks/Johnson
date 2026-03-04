@@ -67,11 +67,12 @@ public:
     // Executes given command velocity (x, y, omega)
     // Motion is relative to the robot's frame
     // This is useful when a driver is looking through a camera
-    void RobotRelativeDrive(const frc::ChassisSpeeds& cmd_vel);
+    void RobotRelativeDrive(const frc::ChassisSpeeds& cmd_vel, std::function<bool()> shouldHaveOffset = [] {return false;});
 
     // Executes given command velocity (x, y, omega)
     // X and Y velocities are relative to the field coordinates.
     void Drive(const frc::ChassisSpeeds& cmd_vel);
+    void Drive(const frc::ChassisSpeeds& cmd_vel, std::function<bool()> shouldHaveOffset);
 
     // Sets the state of each swerve module.
     void SetModuleStates(const module_states_t& desiredStates);
@@ -135,10 +136,6 @@ public:
      */
     void SetMapToOdom(const frc::Transform2d& transform);
 
-    frc2::CommandPtr SetCenterOfRotation(units::meter_t xOffset) {
-        return Run([this, xOffset] {m_centerOfRotation = frc::Translation2d{xOffset, 0_m};});
-    }
-
     // Display useful information on Shuffleboard.
     void InitializeDashboard();
     void UpdateDashboard();
@@ -159,8 +156,6 @@ private:
 
     // Stores controllers for each motion axis
     frc::HolonomicDriveController m_holonomicController;
-
-    frc::Translation2d m_centerOfRotation{0_m, 0_m};
 
 private:
     friend class SwerveChassisSimulation;

@@ -112,6 +112,11 @@ Drivetrain::BasicSwerveCommand(chassis_speed_supplier_t cmd_vel) {
   return this->Run([=, this] { Drive(cmd_vel()); });
 }
 
+frc2::CommandPtr
+Drivetrain::BasicSwerveCommand(chassis_speed_supplier_t cmd_vel, std::function<bool()> shouldHaveOffset) {
+  return this->Run([=, this] { Drive(cmd_vel(), shouldHaveOffset); });
+}
+
 frc2::CommandPtr Drivetrain::CoastModeCommand(bool coast) {
   return this->StartEnd([this] { this->CoastMode(true); },
     [this] { this->CoastMode(false); });

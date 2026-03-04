@@ -128,19 +128,12 @@ RobotContainer::RobotContainer()
 }
 
 void RobotContainer::ConfigureBindings() {
-  // frc2::Trigger isIntakeOut{[this] {return m_intake.IsArmOut();}};
-  // isIntakeOut.OnTrue(m_swerve.SetCenterOfRotation(6_in)); //Done before default cmd so it gets overwritten
-  // isIntakeOut.OnFalse(m_swerve.SetCenterOfRotation(0_in));
 
-    m_swerve.SetDefaultCommand(m_swerve.CustomSwerveCommand(
-      [this] { return m_oi.fwd(); }, [this] { return m_oi.strafe(); },
-      [this] { return m_oi.rot(); }));
-
-
-  // auto slow = m_swerve.CustomSwerveCommand(
-  //     [this] { return m_oi.fwd() * OperatorConstants::kSlowModeFactor; }, 
-  //     [this] { return m_oi.strafe() * OperatorConstants::kSlowModeFactor; },
-  //     [this] { return m_oi.rot() * OperatorConstants::kSlowModeFactor; });
+  m_swerve.SetDefaultCommand(m_swerve.CustomSwerveCommand(
+    [this] { return m_oi.fwd(); }, 
+    [this] { return m_oi.strafe(); },
+    [this] { return m_oi.rot(); },
+    [this] { return m_intake.IsArmOut(); }));
 
   m_oi.ZeroHeadingTrigger.OnTrue(m_swerve.RunOnce([this] {
     if (IsRed())

@@ -58,6 +58,7 @@ public:
 
   // Drive the robot with field-relative swerve controls.
   frc2::CommandPtr BasicSwerveCommand(chassis_speed_supplier_t cmd_vel);
+  frc2::CommandPtr BasicSwerveCommand(chassis_speed_supplier_t cmd_vel, std::function<bool()> shouldHaveOffset);
 
   frc2::CommandPtr DynamicOdomReset();
 
@@ -143,6 +144,17 @@ public:
       rot = theta_speed(std::forward<ThetaCmd>(theta_cmd))] {
         return frc::ChassisSpeeds{forward(), strafe(), rot()};
       });
+  }
+
+  template <LinearCmd XCmd, LinearCmd YCmd, RotationCmd ThetaCmd>
+  frc2::CommandPtr CustomSwerveCommand(XCmd&& x_cmd, YCmd&& y_cmd,
+    ThetaCmd&& theta_cmd, std::function<bool()> shouldHaveOffset) {
+    return BasicSwerveCommand(
+      [forward = x_speed(std::forward<XCmd>(x_cmd)),
+      strafe = y_speed(std::forward<YCmd>(y_cmd)),
+      rot = theta_speed(std::forward<ThetaCmd>(theta_cmd))] {
+        return frc::ChassisSpeeds{forward(), strafe(), rot()};
+      }, shouldHaveOffset);
   }
 
   /* @see CustomSwerveCommand
