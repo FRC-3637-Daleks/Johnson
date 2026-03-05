@@ -8,8 +8,27 @@
 #include <frc2/command/Subsystem.h>
 #include <wpi/sendable/SendableBuilder.h>
 
+#include <wpi/interpolating_map.h>
+#include <frc/EigenCore.h>
+
 #include "subsystems/shooter/LinearActuator.h"
 
+struct ShooterSetpoint: frc::Vectord<2> {
+    using shooter_velocity_t = units::turns_per_second_t;
+    using hood_t = units::millimeter_t;
+
+    ShooterSetpoint(shooter_velocity_t vel, hood_t hood):
+        frc::Vectord<2>{vel.value(), hood.value()} 
+    {}
+
+    shooter_velocity_t Velocity() const {
+        return shooter_velocity_t{(*this)[0]};
+    }
+    
+    hood_t Hood() const {
+        return hood_t{(*this)[1]};
+    }
+};
 
 class ShooterSim;
 
@@ -25,9 +44,22 @@ public:
     void Periodic() override;
 
 public:
+    frc2::CommandPtr AimFromHUB();
+    frc2::CommandPtr AimFromTrench();
+    frc2::CommandPtr AimFromTower();
+
+    // Spins up to the lowest setpoint to save time
+    frc2::CommandPtr SpinUp();
+
+    // Cuts power to motor to save energy
+    frc2::CommandPtr SpinDown();
+
+    // Retracts hood to allow passing under bump
+    frc2::CommandPtr RetractHood() {return SetHoodPositionMin();};
+
+public:
     frc2::CommandPtr SetFlywheelSpeedAndHoodPosParallel(
-        units::angular_velocity::turns_per_second_t velocity,
-        double point
+        const ShooterSetpoint &setpoint
     );
     
     frc2::CommandPtr SetFlywheelSpeed(units::angular_velocity::turns_per_second_t velocity);

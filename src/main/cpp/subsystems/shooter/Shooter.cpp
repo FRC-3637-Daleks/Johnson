@@ -50,6 +50,10 @@ namespace ShooterConstants {
     constexpr auto kMotionMagicAcc = 50_tr_per_s_sq;
 
     constexpr ctre::phoenix6::CANBus canBus{"Drivebase"};
+
+    inline const ShooterSetpoint hub_shot{30_tps, 5_mm};
+    inline const ShooterSetpoint trench_shot{60_tps, 50_mm};
+    inline const ShooterSetpoint tower_shot{50_tps, 40_mm};
 }
 
 std::unique_ptr<ShooterSim> create_shooter_sim(Shooter& shooter);
@@ -128,6 +132,33 @@ void Shooter::Periodic() {
     UpdateDashboard();
 }
 
+frc2::CommandPtr Shooter::AimFromHUB() {
+    return SetFlywheelSpeedAndHoodPosParallel(
+        ShooterConstants::hub_shot
+    );
+}
+
+frc2::CommandPtr Shooter::AimFromTrench() {
+    return SetFlywheelSpeedAndHoodPosParallel(
+        ShooterConstants::trench_shot
+    );
+}
+
+frc2::CommandPtr Shooter::AimFromTower() {
+    return SetFlywheelSpeedAndHoodPosParallel(
+        ShooterConstants::tower_shot
+    );
+}
+
+frc2::CommandPtr Shooter::SpinUp() {
+    return RunOnce([this] {SetFlywheelSpeedNRM(ShooterConstants::hub_shot.Velocity());});
+}
+
+frc2::CommandPtr Shooter::SpinDown() {
+    // allow it to coast
+    return RunOnce([this] {m_flyWheelLeadMotor.StopMotor();});
+}
+
 frc2::CommandPtr Shooter::SetFlywheelSpeed(units::angular_velocity::turns_per_second_t velocity) {
     return RunEnd(
         [this, velocity] {SetFlywheelSpeedNRM(velocity);},
@@ -136,9 +167,8 @@ frc2::CommandPtr Shooter::SetFlywheelSpeed(units::angular_velocity::turns_per_se
 
 //RunEnd
 frc2::CommandPtr Shooter::SetFlywheelSpeedAndHoodPosParallel(
-    units::angular_velocity::turns_per_second_t velocity,
-    double point) {
-    return SetFlywheelSpeed(velocity).AlongWith(SetHoodPosition(point));
+    const ShooterSetpoint &setpoint) {
+    return SetFlywheelSpeed(setpoint.Velocity()).AlongWith(SetHoodPosition(setpoint.Hood().value()));
 }
 
 frc2::CommandPtr Shooter::SetHoodPosition(double point) {

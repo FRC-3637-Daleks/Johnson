@@ -18,7 +18,7 @@ namespace AutoBuilder{
 
         frc2::CommandPtr AutoShoot(RobotContainer &robot){
              return  frc2::cmd::Print("***********Shooting***********")
-                                .AlongWith(robot.m_shooter.SetFlywheelSpeedAndHoodPosParallel(50_tps, 0.0));
+                                .AlongWith(robot.m_shooter.AimFromHUB());
         }
 
         // If robot thinks its nowhere NEAR start pose, reset it to start pose
