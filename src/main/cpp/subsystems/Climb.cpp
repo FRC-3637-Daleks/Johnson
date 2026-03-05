@@ -25,7 +25,7 @@ namespace ClimbConstants{
 
     constexpr auto kMassEffective = 21.0_kg;
 
-    constexpr ctre::phoenix6::CANBus kBus{"Drivebase"};
+    constexpr auto kBus = ctre::phoenix6::CANBus::RoboRIO();
 }
 
 class ClimbSim{

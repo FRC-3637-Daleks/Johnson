@@ -50,7 +50,7 @@ namespace ShooterConstants {
         1.68*launcherMOI/launcherMotor.Kt/1_tr;
     constexpr auto kMotionMagicAcc = 50_tr_per_s_sq;
 
-    constexpr ctre::phoenix6::CANBus canBus{"Drivebase"};
+    constexpr auto canBus = ctre::phoenix6::CANBus::RoboRIO();
 
     inline const ShooterSetpoint hub_shot{30_tps, 5_mm};
     inline const ShooterSetpoint trench_shot{60_tps, 50_mm};
