@@ -29,6 +29,9 @@ public:
     frc2::CommandPtr LiftBot();
     frc2::CommandPtr Retract();
 
+    frc2::CommandPtr BlindUp();
+    frc2::CommandPtr BlindDown();
+
 public:
     void InitVisualization(frc::MechanismRoot2d* climb_base);
 

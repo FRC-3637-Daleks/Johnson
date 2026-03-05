@@ -66,7 +66,7 @@ constexpr auto kMaxTeleopTurnSpeed = 2.5 * std::numbers::pi * 1_rad_per_s;
 
 constexpr double kSlowModeFactor = 0.3;
 
-constexpr double BottomFeederScaler = 15;
+constexpr double BottomFeederScaler = 25;
 constexpr double TopFeederScaler = 30;
 constexpr double IntakeFeederScaler = 30;
 } // namespace OperatorConstants
@@ -173,8 +173,8 @@ void RobotContainer::ConfigureBindings() {
   m_oi.ArmRetract.OnTrue(m_intake.Retract());
   m_oi.ArmLifted.OnTrue(m_intake.Lift());
   m_oi.ArmIntakeManual.OnTrue(m_intake.ManuallyControlArm(m_oi.getIntakeArmSpeedCOP));
-  m_oi.ClimbUpManual.OnTrue(m_climb.Deploy());
-  m_oi.ClimbDownManual.WhileTrue(m_climb.LiftBot());
+  m_oi.ClimbUpManual.WhileTrue(m_climb.BlindUp());
+  m_oi.ClimbDownManual.WhileTrue(m_climb.BlindDown());
   
   m_oi.MakeRStickBottomFeederAndIntake.WhileTrue(m_feederBottom.ManuallySetMotor(m_oi.getFeederSpeedCOP, OperatorConstants::BottomFeederScaler)
       .AlongWith(m_intake.ManuallyCotrolIntake(m_oi.getFeederSpeedCOP, OperatorConstants::IntakeFeederScaler)));

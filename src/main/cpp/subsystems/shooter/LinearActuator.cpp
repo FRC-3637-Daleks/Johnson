@@ -31,7 +31,7 @@ LinearActuator::LinearActuator() :
 {
     actuator.SetBounds(LinearActuatorConstants::max, LinearActuatorConstants::deadbandMax, 
         LinearActuatorConstants::center, LinearActuatorConstants::deadbandMin, LinearActuatorConstants::Min);
-    actuator.Set(LinearActuatorConstants::minLength);
+    SetPos(LinearActuatorConstants::minLength);
     InitializeDashboard();
 }
 

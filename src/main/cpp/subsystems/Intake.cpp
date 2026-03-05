@@ -40,9 +40,9 @@ namespace IntakeConstants {
     constexpr auto fuelTorque = maxFuelMass*units::standard_gravity_t{1.0}*armLength/2;
     
     // Configurations
-    constexpr auto tolerance = 0.005_tr;
-    constexpr auto armOutPos = 0.25_tr;
-    constexpr auto armLiftPos = 0.1_tr;
+    constexpr auto tolerance = 0.01_tr;
+    constexpr auto armOutPos = 0.21_tr;
+    constexpr auto armLiftPos = 0.05_tr;
     constexpr auto armInPos = 0.0_tr;
     constexpr auto armRange = units::math::abs(armOutPos - armInPos);
     constexpr auto extendTime = 1_s;
@@ -85,6 +85,7 @@ namespace IntakeConstants {
 
     constexpr auto mmConfig = ctre::phoenix6::configs::MotionMagicConfigs{}
         .WithMotionMagicAcceleration(extendVel/accelTime)
+        .WithMotionMagicCruiseVelocity(2*extendVel)
         .WithMotionMagicExpo_kV(1.0/armMotor.Kv)
         .WithMotionMagicExpo_kA(kA_profile)
     ;
@@ -145,7 +146,7 @@ namespace IntakeConstants {
     ;
 
     constexpr auto holdExtendRequest = 
-        ctre::phoenix6::controls::TorqueCurrentFOC{gravityTorqueCurrent}
+        ctre::phoenix6::controls::TorqueCurrentFOC{gravityTorqueCurrent/10}
         .WithIgnoreSoftwareLimits(true)
     ;
 

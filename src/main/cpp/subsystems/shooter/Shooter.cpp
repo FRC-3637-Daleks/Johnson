@@ -52,9 +52,9 @@ namespace ShooterConstants {
 
     constexpr auto canBus = ctre::phoenix6::CANBus::RoboRIO();
 
-    inline const ShooterSetpoint hub_shot{30_tps, 5_mm};
-    inline const ShooterSetpoint trench_shot{60_tps, 50_mm};
-    inline const ShooterSetpoint tower_shot{50_tps, 40_mm};
+    inline const ShooterSetpoint hub_shot{60_tps, 5_mm};
+    inline const ShooterSetpoint trench_shot{80_tps, 50_mm};
+    inline const ShooterSetpoint tower_shot{80_tps, 40_mm};
 }
 
 std::unique_ptr<ShooterSim> create_shooter_sim(Shooter& shooter);

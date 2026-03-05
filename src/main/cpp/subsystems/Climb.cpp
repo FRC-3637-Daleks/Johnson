@@ -58,9 +58,11 @@ Climb::Climb()
   config.Feedback.SensorToMechanismRatio = 1.0;
 
   //needed for sim, dont know the effect on sim
-  config.MotorOutput.Inverted = ctre::phoenix6::signals::InvertedValue::Clockwise_Positive;
+  config.MotorOutput.Inverted = ctre::phoenix6::signals::InvertedValue::CounterClockwise_Positive;
   
   m_climbMotor.GetConfigurator().Apply(config);
+
+  m_climbMotor.SetPosition(0_tr);
 }
 
 Climb::~Climb(){}
@@ -158,6 +160,20 @@ frc2::CommandPtr Climb::LiftBot(){
 
 frc2::CommandPtr Climb::Retract(){
   return GoToHeight(Height::Bottom);
+}
+
+frc2::CommandPtr Climb::BlindUp() {
+  return RunEnd(
+    [this] {m_climbMotor.Set(0.5);},
+    [this] {m_climbMotor.StopMotor();}
+  );
+}
+
+frc2::CommandPtr Climb::BlindDown() {
+  return RunEnd(
+    [this] {m_climbMotor.Set(-0.5);},
+    [this] {m_climbMotor.StopMotor();}
+  );
 }
 
 
