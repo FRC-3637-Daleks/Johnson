@@ -80,8 +80,7 @@ constexpr auto mid_line = field_length / 2;
 } // namespace FieldConstants
 
 RobotContainer::RobotContainer()
-  : m_swerveController(OperatorConstants::kSwerveControllerPort),
-    m_followerFeederBottom(OperatorConstants::kBottomFeederFollowerID, rev::spark::SparkFlex::MotorType::kBrushless) {
+  : m_followerFeederBottom(OperatorConstants::kBottomFeederFollowerID, rev::spark::SparkFlex::MotorType::kBrushless) {
   //Config follower/reverse
   rev::spark::SparkFlexConfig bottomFeederFollowerConfig;
   bottomFeederFollowerConfig.Follow(m_feederBottom.getMotorIDforFollower(), true/*inverted*/);

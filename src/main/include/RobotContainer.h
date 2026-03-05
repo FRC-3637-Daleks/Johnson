@@ -42,12 +42,7 @@ public:
   frc2::Command* GetAutonomousCommand();
 
 public:
-  // Replace with CommandPS4Controller or CommandJoystick if needed
-
-  frc2::CommandJoystick m_swerveController;
-
   // The robot's subsystems are defined here...
-
   Drivetrain m_swerve;
   ROSBridge m_ros;
   OperatorInterface m_oi;
