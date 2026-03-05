@@ -9,6 +9,8 @@
 #include <frc/geometry/Pose2d.h>
 #include <frc/geometry/Pose3d.h>
 #include <frc/trajectory/TrapezoidProfile.h>
+#include <frc/smartdashboard/Mechanism2d.h>
+#include <frc/smartdashboard/MechanismRoot2d.h>
 #include <frc2/command/Command.h>
 #include <frc2/command/CommandPtr.h>
 #include <frc2/command/button/CommandJoystick.h>
@@ -53,9 +55,12 @@ public:
   Intake m_intake; 
   Climb m_climb;
 
+  // other state
   bool m_isRed;
-
   frc::SendableChooser<AutoBuilder::Trajectory_t> m_chooser;
+
+  // visualization objects, units in approximate feet
+  frc::Mechanism2d m_visualization;
 
   // load depot auto by default
   frc2::CommandPtr m_loaded_auto{AutoBuilder::DepotAuto(*this)};
@@ -63,6 +68,7 @@ public:
 public:
   void ConfigureBindings();
   void ConfigureDashboard();
+  void ConfigureVisualization();
   void ConfigureAuto();
   void ReloadAuto();
   void ConfigureContinuous();

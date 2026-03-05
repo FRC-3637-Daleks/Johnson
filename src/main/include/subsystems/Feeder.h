@@ -32,6 +32,7 @@ public:
 public:
     void InitializeDashboard();
     void UpdateDashboard();
+    void InitVisualization(frc::MechanismLigament2d* axle);
     void Periodic() override;
 
 public:
@@ -65,9 +66,6 @@ private:
 
     std::string thisMotorStr{};
     
-    frc::Mechanism2d m_mech{2, 2};
-    frc::MechanismRoot2d* m_root = m_mech.GetRoot("Feeder", 1, 1);
-    frc::MechanismLigament2d* m_MotorLine =
-        m_root->Append<frc::MechanismLigament2d>("Angle", 1, 0_deg);
+    frc::MechanismLigament2d* m_wheelLine;
     units::degree_t motorDegState = 0_deg;
 };

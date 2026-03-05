@@ -80,7 +80,9 @@ constexpr auto mid_line = field_length / 2;
 } // namespace FieldConstants
 
 RobotContainer::RobotContainer()
-  : m_followerFeederBottom(OperatorConstants::kBottomFeederFollowerID, rev::spark::SparkFlex::MotorType::kBrushless) {
+  : m_followerFeederBottom(OperatorConstants::kBottomFeederFollowerID, rev::spark::SparkFlex::MotorType::kBrushless),
+    m_visualization{4, 3}
+{
   //Config follower/reverse
   rev::spark::SparkFlexConfig bottomFeederFollowerConfig;
   bottomFeederFollowerConfig.Follow(m_feederBottom.getMotorIDforFollower(), true/*inverted*/);
@@ -195,8 +197,19 @@ void RobotContainer::ConfigureBindings() {
 }
 
 void RobotContainer::ConfigureDashboard() {
+  ConfigureVisualization();
   frc::SmartDashboard::PutData("Drivebase", &m_swerve);
   frc::SmartDashboard::PutData("Auton", &m_chooser);
+  frc::SmartDashboard::PutData("State Visualization", &m_visualization);
+}
+
+void RobotContainer::ConfigureVisualization() {
+  m_intake.InitVisualization(m_visualization.GetRoot("intake_pivot", 2.5, 0.5));
+  m_shooter.InitVisualization(m_visualization.GetRoot("launcher_pivot", 2, 1.6));
+  m_feederBottom.InitVisualization(m_visualization.GetRoot("bottom_feeder", 1.85, 0.9)
+    ->Append<frc::MechanismLigament2d>("bottom_feeder_axle", 0, 0_deg, 0, frc::Color::kBlack));
+  m_feederTop.InitVisualization(m_visualization.GetRoot("top_feeder", 2, 1.1)
+    ->Append<frc::MechanismLigament2d>("top_feeder_axle", 0, 0_deg, 0, frc::Color::kBlack));
 }
 
 void RobotContainer::ConfigureAuto() {

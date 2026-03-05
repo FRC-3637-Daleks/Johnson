@@ -154,23 +154,7 @@ bool Feeder::isAtRPM(units::turns_per_second_t RPM_Target) {
             RPM_Target + FeederConstants::kToleranceRPM > getRPM();
 }
 
-
-
-// ************************* Sim/Dashboard ************************* //
-
-class FeederSim {
-public:
-    FeederSim(Feeder &feeder);
-
-public:
-    frc::DCMotor m_feederMotor;
-    rev::spark::SparkFlexSim m_feederState;
-    frc::sim::FlywheelSim m_feederPhysics;
-};
-
-void Feeder::InitializeDashboard() {
-    frc::SmartDashboard::PutData("Feeder"+ thisMotorStr, &m_mech);
-    
+void Feeder::InitializeDashboard() {    
     auto put_cmd = [this] (std::string_view name, frc2::CommandPtr&& cmd) {
         frc::SmartDashboard::PutData(fmt::format("Feeder{}/{}", thisMotorStr, name),
             std::move(cmd).WithName(name).Unwrap().release()
@@ -184,14 +168,39 @@ void Feeder::InitializeDashboard() {
 }
 
 void Feeder::UpdateDashboard() {
-    if (m_sim_state) {
-        frc::SmartDashboard::PutNumber("Feeder"+thisMotorStr+"/Velocity", 
-            FeederConstants::feederGearing*units::revolutions_per_minute_t{
-            m_sim_state->m_feederPhysics.GetAngularVelocity()}.value());
+    frc::SmartDashboard::PutNumber("Feeder"+thisMotorStr+"/Velocity (TPS)",
+        units::turns_per_second_t{getRPM()}.value());
 
-        m_MotorLine->SetAngle(motorDegState);
+    if (!m_wheelLine) return;
+
+    m_wheelLine->SetAngle(m_wheelLine->GetAngle()*1_deg 
+        + (getRPM()*20_ms)/10); // scale down speed to make it visible
+    
+    if (getRPM() >= -1_rpm) {
+        m_wheelLine->SetColor(frc::Color::kGreen);
+    } else {
+        m_wheelLine->SetColor(frc::Color::kRed);
     }
 }
+
+void Feeder::InitVisualization(frc::MechanismLigament2d *axle) {
+    m_wheelLine = axle->Append<frc::MechanismLigament2d>(
+        fmt::format("FeederWheel_{}", thisMotorStr),
+        0.1, 90_deg, 15, frc::Color8Bit{frc::Color::kGreen});
+}
+
+
+// ************************* Sim/Dashboard ************************* //
+
+class FeederSim {
+public:
+    FeederSim(Feeder &feeder);
+
+public:
+    frc::DCMotor m_feederMotor;
+    rev::spark::SparkFlexSim m_feederState;
+    frc::sim::FlywheelSim m_feederPhysics;
+};
 
 std::unique_ptr<FeederSim> create_feeder_sim(Feeder &feeder) {
     if constexpr (frc::RobotBase::IsSimulation()) {
@@ -234,7 +243,4 @@ void Feeder::SimulationPeriodic() {
             supply_voltage.value(),
             0.02
         );
-
-    //only for visualizatoin
-    motorDegState += units::degree_t(phys.GetAngularVelocity() *0.02_s /*20ms*/ * 57.3 /*to deg*/); 
 }

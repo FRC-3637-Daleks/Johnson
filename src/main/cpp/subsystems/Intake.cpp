@@ -77,6 +77,7 @@ namespace IntakeConstants {
         .WithSupplyCurrentLimit(40_A)  // never allow over this amount
         .WithSupplyCurrentLowerLimit(10_A)  // limit to this if over for 100_ms
         .WithSupplyCurrentLowerTime(100_ms)
+        .WithStatorCurrentLimit(units::math::max(IntakeConstants::peakForwardCurrent, IntakeConstants::peakReverseCurrent))
     ;
 
     constexpr auto mmConfig = ctre::phoenix6::configs::MotionMagicConfigs{}
@@ -189,10 +190,6 @@ Intake::Intake() :
     m_intakeMotor{Feeder::Type::Intake},
     m_feederIntakeFollower{IntakeConstants::kFollowerIntakeMotorID, rev::spark::SparkFlex::MotorType::kBrushless},
     m_armZeroed{false},
-    m_arm{m_root->Append<frc::MechanismLigament2d>(
-        "intake", 1, 90_deg, 20, frc::Color8Bit{frc::Color::kBlue})},
-    m_wheel{m_arm->Append<frc::MechanismLigament2d>(
-        "wheel", 0.1, 90_deg, 6, frc::Color8Bit{frc::Color::kPurple})},
     m_sim_state{new IntakeSim{*this}}
 {
     //Config follower/reverse
@@ -205,7 +202,6 @@ Intake::Intake() :
             std::move(cmd).WithName(name).Unwrap().release());
     };
 
-    frc::SmartDashboard::PutData("Mechanisms", &m_mechIntake);
     put_cmd("Extend", Extend());
     put_cmd("Retract", Retract());
     put_cmd("BlindExtend", BlindExtend());
@@ -418,7 +414,19 @@ void Intake::UpdateDashboard() {
 }
 
 void Intake::UpdateVisualization() {
-    m_arm->SetAngle(0.25_tr - GetArmPos());
+    if (m_arm) {
+        if (m_armZeroed)
+            m_arm->SetAngle(0.25_tr - GetArmPos());
+        else
+            m_arm->SetAngle(0.25_tr);
+    }
+}
+
+void Intake::InitVisualization(frc::MechanismRoot2d* intake_pivot) {
+    m_arm = intake_pivot->Append<frc::MechanismLigament2d>(
+        "intake", 1.5, 90_deg, 15, frc::Color8Bit{frc::Color::kWhite});
+    
+    m_intakeMotor.InitVisualization(m_arm);
 }
 
 //**************************** Simulation ****************************/

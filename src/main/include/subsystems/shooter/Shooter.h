@@ -8,6 +8,9 @@
 #include <frc2/command/Subsystem.h>
 #include <wpi/sendable/SendableBuilder.h>
 
+#include <frc/smartdashboard/MechanismRoot2d.h>
+#include <frc/smartdashboard/MechanismLigament2d.h>
+
 #include <wpi/interpolating_map.h>
 #include <frc/EigenCore.h>
 
@@ -40,6 +43,7 @@ public:
 public:
     void InitializeDashboard();
     void UpdateDashboard();
+    void InitVisualization(frc::MechanismRoot2d* shooter_base);
 
     void Periodic() override;
 
@@ -89,7 +93,8 @@ private:
 
     frc::DigitalInput m_feederBreakBeam;
 
-
+private: // visualization
+    frc::MechanismLigament2d *m_wheel, *m_hood;
 
 // simulation
 private:

@@ -28,6 +28,7 @@ public:
     frc2::CommandPtr RelativePositionChange(double change);
 
     bool isLinearActuatorAtPos();
+    double GetEstimatedPosition() {return positionEstimate;}
 
 private:
     int ClampPoint(double point);

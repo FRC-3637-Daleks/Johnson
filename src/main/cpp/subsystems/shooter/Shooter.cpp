@@ -9,6 +9,7 @@
 #include <frc2/command/ProxyCommand.h>
 
 #include <frc/smartdashboard/SmartDashboard.h>
+#include <frc/smartdashboard/MechanismLigament2d.h>
 
 #include <ctre/phoenix6/CANBus.hpp>
 #include <ctre/phoenix6/configs/Slot0Configs.hpp>
@@ -118,6 +119,13 @@ void Shooter::InitializeDashboard() {
     }));
 }
 
+void Shooter::InitVisualization(frc::MechanismRoot2d* shooter_pivot) {
+    m_wheel = shooter_pivot->Append<frc::MechanismLigament2d>("launcher_wheel", 
+        0.15, 45_deg, 30, frc::Color8Bit{frc::Color::kBlue});
+    m_hood = shooter_pivot->Append<frc::MechanismLigament2d>("hood",
+        0.7, 180_deg, 10, frc::Color8Bit{frc::Color::kWhite});
+}
+
 void Shooter::UpdateDashboard() {
     frc::SmartDashboard::PutNumber("Shooter/LauncherRPM",
         units::revolutions_per_minute_t{GetCurrentFlywheelSpeed()}.value()
@@ -126,6 +134,26 @@ void Shooter::UpdateDashboard() {
     frc::SmartDashboard::PutBoolean("Shooter/SpunUp",
         isAtCorrectSpeed()
     );
+
+    if (m_wheel) {
+        m_wheel->SetAngle(m_wheel->GetAngle()*1_deg
+            + -GetCurrentFlywheelSpeed()*20_ms/10);  // scale down speed to make visible
+
+        if (isAtCorrectSpeed()) {
+            m_wheel->SetColor(frc::Color::kTurquoise);
+        } else {
+            m_wheel->SetColor(frc::Color::kBlue);
+        }
+    }
+
+    if (m_hood) {
+        m_hood->SetAngle(180_deg - (m_hoodActuator.GetEstimatedPosition()-5)/50*35_deg);
+        if (m_hoodActuator.isLinearActuatorAtPos()) {
+            m_hood->SetColor(frc::Color::kWhite);
+        } else {
+            m_hood->SetColor(frc::Color::kPurple);
+        }
+    }
 }
 
 void Shooter::Periodic() {

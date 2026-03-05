@@ -23,6 +23,7 @@ public:
 
 public:
     void Periodic() override;
+    void InitVisualization(frc::MechanismRoot2d* intake_pivot);
 
 public:
     // Smoothly extends arm to the extended position using closed loop control on rotor position
@@ -64,7 +65,7 @@ public:
     std::function<bool()> ArmIn{[this] {return IsArmIn();}};
     
 private:
-    // Returns arm angle relative to horizontal
+    // Returns arm angle with 0 being fully retracted and 0.25 being fully extended
     units::angle::turn_t GetArmPos();
     // Applies a bit of pressure at the extents to help keep the intake secure
     void HoldExtended(); void HoldRetracted(); void HoldLift();
@@ -82,13 +83,10 @@ private:
     std::function<bool()> Zeroed{[this] {return m_armZeroed;}};
 
 private:
+    frc::MechanismLigament2d *m_arm{};
+
+private:
     friend class IntakeSim;
     void SimulationPeriodic() override;
-
-    frc::Mechanism2d m_mechIntake{3, 3};
-    frc::MechanismRoot2d* m_root = m_mechIntake.GetRoot("intake", 2, 0);
-
-    frc::MechanismLigament2d *m_arm{}, *m_wheel{};
     std::unique_ptr<IntakeSim> m_sim_state;
-
 };
