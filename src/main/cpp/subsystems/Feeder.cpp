@@ -20,6 +20,7 @@ namespace FeederConstants {
         units::volt_t VoltComp;
         units::ampere_t SmartCurrLim;
         double kP, kI, kD, kV;
+        bool invert{false};
     };
 
     Perams TopMotor {
@@ -28,7 +29,8 @@ namespace FeederConstants {
     /*double P*/                        0.01,
     /*double I*/                        0.0,
     /*double D*/                        0.0,
-    /*double FF*/                       0.1 
+    /*double FF*/                       0.1,
+    /*bool invert*/                     true
     };
 
     Perams BottomMotor {
@@ -37,7 +39,8 @@ namespace FeederConstants {
     /*double P*/                        0.01,
     /*double I*/                        0.0,
     /*double D*/                        0.0,
-    /*double FF*/                       0.1 
+    /*double FF*/                       0.1,
+    /*bool invert*/                     true
     };
 
     Perams IntakeMotor {
@@ -46,7 +49,8 @@ namespace FeederConstants {
     /*double P*/                        0.01,
     /*double I*/                        0.0,
     /*double D*/                        0.0,
-    /*double FF*/                       0.1 
+    /*double FF*/                       0.1,
+    /*bool invert*/                     true
     };
 
     constexpr auto feederGearing = 1.0;
@@ -81,6 +85,7 @@ Feeder::Feeder(Type type) :
 
     feederConfig.VoltageCompensation(peramConfig.VoltComp.value());
     feederConfig.SmartCurrentLimit(peramConfig.SmartCurrLim.value());
+    feederConfig.Inverted(peramConfig.invert);
 
     feederConfig.closedLoop
     .P(peramConfig.kP)
