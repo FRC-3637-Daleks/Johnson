@@ -6,6 +6,9 @@
 #include <units/base.h>
 #include <ctre/phoenix6/controls/PositionDutyCycle.hpp>
 
+#include <frc/smartdashboard/MechanismRoot2d.h>
+#include <frc/smartdashboard/MechanismLigament2d.h>
+
 class ClimbSim;
 
 class Climb : public frc2::SubsystemBase {
@@ -26,6 +29,9 @@ public:
     frc2::CommandPtr LiftBot();
     frc2::CommandPtr Retract();
 
+public:
+    void InitVisualization(frc::MechanismRoot2d* climb_base);
+
 private:
     ctre::phoenix6::hardware::TalonFX m_climbMotor;
     Height m_targetHeight{Height::Bottom};
@@ -41,7 +47,10 @@ private:
     units::angle::turn_t HeightToRotorTurns(const units::centimeter_t height) const;
     units::centimeter_t RotorTurnsToHeight(const units::angle::turn_t turns) const;
 
+private:  // visualization
+    frc::MechanismLigament2d *m_hook;
 
+private:  // simulation
     friend class ClimbSim;
     std::unique_ptr<ClimbSim> m_sim_state;
     void SimulationPeriodic() override;

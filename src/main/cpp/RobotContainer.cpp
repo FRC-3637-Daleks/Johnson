@@ -210,6 +210,7 @@ void RobotContainer::ConfigureVisualization() {
     ->Append<frc::MechanismLigament2d>("bottom_feeder_axle", 0, 0_deg, 0, frc::Color::kBlack));
   m_feederTop.InitVisualization(m_visualization.GetRoot("top_feeder", 2, 1.1)
     ->Append<frc::MechanismLigament2d>("top_feeder_axle", 0, 0_deg, 0, frc::Color::kBlack));
+  m_climb.InitVisualization(m_visualization.GetRoot("climb_root", 0.2, 0.33));
 }
 
 void RobotContainer::ConfigureAuto() {

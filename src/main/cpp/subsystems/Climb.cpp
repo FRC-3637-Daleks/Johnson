@@ -67,7 +67,22 @@ Climb::~Climb(){}
 
 void Climb::Periodic(){UpdateDashboard();}
 
+void Climb::InitVisualization(frc::MechanismRoot2d *climb_base) {
+  m_hook = climb_base
+    ->Append<frc::MechanismLigament2d>("climb_base",
+      units::foot_t{ClimbConstants::kMinHeight - 4_in}.value(), 90_deg, 40, frc::Color::kGray)
+    ->Append<frc::MechanismLigament2d>("extender",
+      0, 0_deg, 30, frc::Color::kSilver);
+  
+  m_hook->Append<frc::MechanismLigament2d>("hook",
+    0.2, 90_deg, 15, frc::Color::kTeal);
+}
+
 void Climb::UpdateDashboard(){
+  if (m_hook) {
+    m_hook->SetLength(units::foot_t{GetPosition() - ClimbConstants::kMinHeight}.value());
+  }
+
   frc::SmartDashboard::PutNumber("Climb/Height (in)",
                                  units::inch_t{GetPosition()}.value());
   frc::SmartDashboard::PutNumber(
