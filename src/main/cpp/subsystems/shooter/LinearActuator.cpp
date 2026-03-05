@@ -31,6 +31,7 @@ LinearActuator::LinearActuator() :
 {
     actuator.SetBounds(LinearActuatorConstants::max, LinearActuatorConstants::deadbandMax, 
         LinearActuatorConstants::center, LinearActuatorConstants::deadbandMin, LinearActuatorConstants::Min);
+    actuator.Set(LinearActuatorConstants::minLength);
     InitializeDashboard();
 }
 
@@ -44,7 +45,7 @@ void LinearActuator::Periodic() {
 //RunEnd
 frc2::CommandPtr LinearActuator::SetPosition(double point) {
     return RunEnd([this, point] {SetPos(point);},
-                  [this] {SetPos(0);});
+                  [this] {SetPos(LinearActuatorConstants::minLength);});
 }
 
 //RunOnce

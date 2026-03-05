@@ -124,7 +124,7 @@ RobotContainer::RobotContainer()
   ConfigureDashboard();
 
   // Configure Auton.
-  ConfigureAuto();
+  //ConfigureAuto();
 
   // Configure routines which one periodically and indefinitely
   ConfigureContinuous();
