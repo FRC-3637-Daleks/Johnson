@@ -15,7 +15,7 @@ public:
 
     void Periodic() override;
 
-    enum class Height : int{Bottom = 0, Top};
+    enum class Height : int{Bottom = 0, Climbed, Top};
 
     bool IsAtHeight(Height height);
 

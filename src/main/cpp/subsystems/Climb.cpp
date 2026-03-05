@@ -8,19 +8,18 @@
 namespace ClimbConstants{
 
     int kMotorID = 14;
-    
-    constexpr auto kSprocketTeeth = 22;
-    constexpr auto kDistancePerChainLink = 0.25_in; 
-    constexpr auto kSprocketCircum = kSprocketTeeth * kDistancePerChainLink;
-    constexpr auto kGearReduction = 62.0 / 10.0 * 30.0 / 22.0;
 
-    constexpr auto kMinHeight = 0_in;
-    constexpr auto kMaxHeight = 10_in;
+    constexpr auto kSprocketCircum = 2*std::numbers::pi*1_in;
+    constexpr auto kGearReduction = 3*4*5;
+
+    constexpr auto kMinHeight = 22_in;
+    constexpr auto kMaxHeight = 30_in;
+    constexpr auto kClimbHeight = 26_in;
     constexpr auto kFirstStageLength =
-    (kMaxHeight - kMinHeight);
+      (kMaxHeight - kMinHeight);
   
-    constexpr units::length::centimeter_t goal_heights[] = {kMinHeight, kMaxHeight};
-    constexpr std::string_view goal_names[] = {"Bottom", "Top"};
+    constexpr units::length::centimeter_t goal_heights[] = {kMinHeight, kClimbHeight, kMaxHeight};
+    constexpr std::string_view goal_names[] = {"Bottom", "Climbed", "Top"};
 
     constexpr units::length::centimeter_t kTolerance = 1_in;
 
@@ -139,7 +138,7 @@ frc2::CommandPtr Climb::Deploy(){
 }
 
 frc2::CommandPtr Climb::LiftBot(){
-  return GoToHeight(Height::Bottom);
+  return GoToHeight(Height::Climbed);
 }
 
 frc2::CommandPtr Climb::Retract(){
@@ -151,7 +150,7 @@ frc2::CommandPtr Climb::Retract(){
 
 ClimbSim::ClimbSim(Climb &climb):
       m_climbModel{
-        frc::DCMotor::KrakenX60FOC(2),
+        frc::DCMotor::KrakenX60FOC(1),
         ClimbConstants::kGearReduction,
         ClimbConstants::kMassEffective,
         ClimbConstants::kSprocketCircum/(2*std::numbers::pi),  // drum radius
