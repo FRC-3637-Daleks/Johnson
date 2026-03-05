@@ -20,19 +20,19 @@ namespace IntakeConstants {
     // Ports
     constexpr auto kCanBus = ctre::phoenix6::CANBus{"Drivebase"};
     constexpr int kArmMotorID = 11;
-    constexpr int kFollowerIntakeMotorID = 27;
+    constexpr int kFollowerIntakeMotorID = 11;
 
     // Arm
     // Physical constants
     constexpr auto armGearing = 120.0;
     
-    constexpr auto armLength = 16_in;
-    constexpr auto armMass = 15_lb;
+    constexpr auto armLength = 18_in;
+    constexpr auto armMass = 12_lb;
     // 1/3*m*r^2
     constexpr auto armMOI = 1.0/3.0 * armMass * armLength * armLength;
     constexpr auto armWeight = armMass * units::standard_gravity_t{1.0};
     // center of mass halfway up arm
-    constexpr units::newton_meter_t gravityTorque = armWeight*armLength/2;
+    constexpr units::newton_meter_t gravityTorque = armWeight*armLength;
 
     constexpr auto fuelMass = 0.2_kg;
     constexpr auto maxFuelOnIntake = 30;
@@ -62,11 +62,14 @@ namespace IntakeConstants {
     
     // These constants seem to need vibe-tuning
     constexpr ctre::unit::amperes_per_turn_per_second_squared_t kA = 
-        0.75*armGearing*armMOI/armMotor.Kt/1_tr;
+        0.5*armGearing*armMOI/armMotor.Kt/1_tr;
     
     // Higher results in slower acceleration
-    constexpr ctre::unit::volts_per_turn_per_second_squared_t kA_profile{7.5};
+    constexpr ctre::unit::volts_per_turn_per_second_squared_t kA_profile{20};
     
+    // motion magic cruise velocity 0.3
+
+
     // Scaled relative to the weight of the intake
     constexpr auto peakExtendTorque = 4*gravityTorque;
     constexpr auto peakForwardCurrent = armMotor.Current(peakExtendTorque);
@@ -92,7 +95,7 @@ namespace IntakeConstants {
         .WithGravityType(ctre::phoenix6::signals::GravityTypeValue::Arm_Cosine)
         .WithGravityArmPositionOffset(armOutPos)
         .WithKA(kA.value())
-        .WithKP(10*(kG/units::turn_t{armRange}).value())
+        .WithKP(20*(kG/units::turn_t{armRange}).value())
         .WithKD(5*(kG/units::turn_t{armRange}).value())
     ;
 
