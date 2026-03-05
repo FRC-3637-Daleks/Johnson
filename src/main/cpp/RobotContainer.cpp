@@ -265,7 +265,7 @@ void RobotContainer::ReloadAuto() {
   } else {
     m_swerve.GetField().GetObject("preview")->SetPoses(t.GetPoses());
     m_swerve.GetField().GetObject("auton start")->SetPose(t.GetInitialPose().value());
-    m_loaded_auto = AutoBuilder::BuildAuto(*this, t);
+    m_loaded_auto = AutoBuilder::BuildRepeatedAuto(*this, t);
   }
 
 }

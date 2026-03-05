@@ -12,8 +12,6 @@ namespace AutoBuilder{
         frc2::CommandPtr AutoIntake(RobotContainer &robot){
             return frc2::cmd::Print("STARTING INTAKE").AlongWith(robot.m_intake.IntakeFuel())
                                                       .FinallyDo([]{fmt::println("ENDING INTAKE");});
-
-                
         }
 
         frc2::CommandPtr AutoAim(RobotContainer &robot) {
@@ -36,12 +34,12 @@ namespace AutoBuilder{
                     robot.m_shooter.AimFromTrench()
                     .AlongWith(robot.TopFeederShooting())
                     .AlongWith(AutoAim(robot))
-                ).DeadlineWith(frc2::cmd::WaitUntil(
+                ).WithDeadline(frc2::cmd::WaitUntil(
                         [&robot] {return robot.m_shooter.readyToFire();}
                     ).WithTimeout(2_s)
                     .AndThen(
                         robot.m_feederBottom.setRPMEnd(20_tps)
-                        .AlongWith(robot.m_intake.ScoreFuel(1_s).Repeatedly().WithTimeout(10_s))
+                        .RaceWith(robot.m_intake.ScoreFuel(1_s).Repeatedly().WithTimeout(2_s))
                     )
                 );
         }
@@ -65,43 +63,45 @@ namespace AutoBuilder{
 
     frc2::CommandPtr DepotAuto(RobotContainer &robot){
         auto trajectory = LBDep_Dep_Hub_Lad.value();
-        return BuildAuto(robot, trajectory);
+        return BuildSingleAuto(robot, trajectory);
     }
     
-    frc2::CommandPtr LTrenchAuto(RobotContainer &robot){
-        auto trajectory = LTrench_Fuel_LB_Hub_Lad.value();
-        return BuildAuto(robot, trajectory);
-    }
-
-    frc2::CommandPtr RTrenchAuto(RobotContainer &robot){
-        auto trajectory = RTrench_Fuel_RB_Hub_Lad.value();
-        return BuildAuto(robot, trajectory);
-    } 
-
-    frc2::CommandPtr LTrenchCycleAuto(RobotContainer &robot){
-        auto trajectory = LTrench_Fuel_LTrench.value();
-        auto trajectory2 = LTrench_Fuel_LTrench_2.value();
-      
-        return BuildAuto(robot, trajectory2).AndThen(BuildAuto(robot,trajectory))
-                                            .AndThen(BuildAuto(robot,trajectory)); 
-    }
-
-    frc2::CommandPtr RTrenchCycleAuto(RobotContainer &robot){
-        auto trajectory = RTrench_Fuel_RTrench.value();
-        auto trajectory2 = RTrench_Fuel_RTrench_2.value();
-
-        return BuildAuto(robot, trajectory2);
-    } 
-
-    frc2::CommandPtr BuildAuto(RobotContainer &robot, Trajectory_t trajectory){
+    frc2::CommandPtr BuildAuto(RobotContainer &robot, Trajectory_t trajectory) {
         auto& swerve = robot.m_swerve;
-          return frc2::cmd::Sequence(
-            util::ResetStart(swerve, trajectory),
-            robot.m_intake.Extend(),
-            util::AutoIntake(robot).RaceWith(swerve.FollowPathCommand(trajectory.GetSplit(0).value())),
-            util::AutoShoot(robot),
-            swerve.FollowPathCommand(trajectory.GetSplit(1).value()) 
-        );
+        if (trajectory.splits.size() == 3) {
+            return frc2::cmd::Sequence(
+                BuildAuto(robot, trajectory.GetSplit(0).value()),
+                BuildAuto(robot, trajectory.GetSplit(1).value()),
+                swerve.FollowPathCommand(trajectory.GetSplit(2).value())
+            );
+        } else if (trajectory.splits.size() == 2) {
+            return frc2::cmd::Sequence(
+                BuildAuto(robot, trajectory.GetSplit(0).value()),
+                swerve.FollowPathCommand(trajectory.GetSplit(1).value())
+            );
+        } else {  // 1 or fewer splits
+            return frc2::cmd::Sequence(
+                robot.m_intake.Extend(),
+                util::AutoIntake(robot).RaceWith(swerve.FollowPathCommand(trajectory)),
+                util::AutoShoot(robot)
+            );
+        }
+    }
+
+    frc2::CommandPtr BuildSingleAuto(RobotContainer &robot, Trajectory_t trajectory) {
+        return util::ResetStart(robot.m_swerve, trajectory)
+            .AndThen(BuildAuto(robot, trajectory));
+    }
+
+    frc2::CommandPtr BuildRepeatedAuto(RobotContainer &robot, Trajectory_t trajectory) {
+        // path must self-cycle to be willing to repeat
+        if(trajectory.GetFinalPose() == trajectory.GetInitialPose()) {
+            return util::ResetStart(robot.m_swerve, trajectory)
+                .AndThen(BuildAuto(robot, trajectory).Repeatedly());
+        } else {
+            return util::ResetStart(robot.m_swerve, trajectory)
+                .AndThen(BuildAuto(robot, trajectory));
+        }
     }
 
 };
