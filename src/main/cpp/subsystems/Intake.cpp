@@ -415,16 +415,19 @@ void Intake::UpdateDashboard() {
 
 void Intake::UpdateVisualization() {
     if (m_arm) {
-        if (m_armZeroed)
+        if (m_armZeroed) {
             m_arm->SetAngle(0.25_tr - GetArmPos());
-        else
+            m_arm->SetColor(frc::Color::kWhite);
+        } else {
             m_arm->SetAngle(0.25_tr);
+            m_arm->SetColor(frc::Color::kDimGray);
+        }
     }
 }
 
 void Intake::InitVisualization(frc::MechanismRoot2d* intake_pivot) {
     m_arm = intake_pivot->Append<frc::MechanismLigament2d>(
-        "intake", 1.5, 90_deg, 15, frc::Color8Bit{frc::Color::kWhite});
+        "intake", 1.5, 90_deg, 15, frc::Color8Bit{frc::Color::kDimGray});
     
     m_intakeMotor.InitVisualization(m_arm);
 }
