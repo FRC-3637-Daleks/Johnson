@@ -160,7 +160,7 @@ void RobotContainer::ConfigureBindings() {
   m_oi.TowerAim.WhileTrue(m_shooter.AimFromTower()
                       .AlongWith(m_feederTop.setRPMEnd(30_tps))); //TODO: Change placeholders
   m_oi.BottomFeeder.WhileTrue(m_feederBottom.ManuallySetMotor(m_oi.getBottomFeederSpeed, OperatorConstants::BottomFeederScaler));
-  m_oi.OutTake.WhileTrue(m_feederBottom.setRPM(-15_tps).AlongWith(m_intake.OutakeFuel()));
+  m_oi.OutTake.WhileTrue(m_feederBottom.setRPMEnd(-15_tps).AlongWith(m_intake.OutakeFuel()));
   m_oi.LiftArm.WhileTrue(m_intake.Lift());
   m_oi.ClimbUp.OnTrue(m_climb.Deploy());
   m_oi.ClimbLift.OnTrue(m_climb.LiftBot());
