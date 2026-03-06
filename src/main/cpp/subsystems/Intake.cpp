@@ -119,25 +119,30 @@ namespace IntakeConstants {
     constexpr auto armInRequest = 
         ctre::phoenix6::controls::MotionMagicExpoTorqueCurrentFOC{armInPos}
         .WithSlot(0)
+        .WithOverrideCoastDurNeutral(true)
     ;
     constexpr auto armLiftRequest = 
         ctre::phoenix6::controls::MotionMagicExpoTorqueCurrentFOC{armLiftPos}
         .WithSlot(0)
+        .WithOverrideCoastDurNeutral(true)
     ;
     constexpr auto armOutRequest = 
         ctre::phoenix6::controls::MotionMagicExpoTorqueCurrentFOC{armOutPos}
         .WithSlot(0)
+        .WithOverrideCoastDurNeutral(true)
     ;
 
     constexpr auto blindExtendRequest = 
         ctre::phoenix6::controls::MotionMagicVelocityTorqueCurrentFOC{extendVel}
         .WithSlot(2)
         .WithIgnoreSoftwareLimits(true)
+        .WithOverrideCoastDurNeutral(true)
     ;
     constexpr auto blindRetractRequest =
         ctre::phoenix6::controls::MotionMagicVelocityTorqueCurrentFOC{retractVel}
         .WithSlot(2)
         .WithIgnoreSoftwareLimits(true)
+        .WithOverrideCoastDurNeutral(true)
     ;
 
     constexpr auto homeArmRequest =
@@ -159,7 +164,13 @@ namespace IntakeConstants {
         ctre::phoenix6::controls::MotionMagicVelocityTorqueCurrentFOC{slowRetractVel}
         .WithSlot(1)
         .WithIgnoreSoftwareLimits(true)
+        .WithOverrideCoastDurNeutral(true)
         .WithFeedForward(-armMotor.Current(fuelTorque))
+    ;
+
+    constexpr auto manualArmRequest =
+        ctre::phoenix6::controls::DutyCycleOut{0.0}
+        .WithOverrideBrakeDurNeutral(true)
     ;
 
     // Intake Rollers
@@ -221,7 +232,7 @@ Intake::Intake() :
     configs::TalonFXConfiguration armConfig;
 
     armConfig.WithMotorOutput(configs::MotorOutputConfigs{}
-        .WithNeutralMode(signals::NeutralModeValue::Brake)
+        .WithNeutralMode(signals::NeutralModeValue::Coast)
         .WithInverted(signals::InvertedValue::Clockwise_Positive)
     );
 
@@ -301,8 +312,10 @@ frc2::CommandPtr Intake::Lift() {
 
 frc2::CommandPtr Intake::ManuallyControlArm(std::function<double()> input) {
     return RunEnd(
-        [this, input] {m_armMotor.Set(input());},
-        [this] {m_armMotor.StopMotor();}
+        [this, input] {
+            auto req = IntakeConstants::manualArmRequest;
+            m_armMotor.SetControl(req.WithOutput(input()));},
+        [this] {m_armMotor.SetControl(IntakeConstants::manualArmRequest);}
     );
 }
 
