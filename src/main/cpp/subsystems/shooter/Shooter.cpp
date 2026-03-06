@@ -52,9 +52,9 @@ namespace ShooterConstants {
 
     constexpr auto canBus = ctre::phoenix6::CANBus::RoboRIO();
 
-    inline const ShooterSetpoint hub_shot{60_tps, 5_mm};
-    inline const ShooterSetpoint trench_shot{80_tps, 50_mm};
-    inline const ShooterSetpoint tower_shot{80_tps, 40_mm};
+    inline const ShooterSetpoint hub_shot{56.7_tps, 5_mm};
+    inline const ShooterSetpoint trench_shot{71_tps, 45_mm};
+    inline const ShooterSetpoint tower_shot{69_tps, 40_mm};
 }
 
 std::unique_ptr<ShooterSim> create_shooter_sim(Shooter& shooter);
@@ -98,6 +98,8 @@ Shooter::Shooter() :
     m_flyWheelLeadMotor.GetConfigurator().Apply(TorqueConfig);
 
     InitializeDashboard();
+
+    m_hoodActuator.SetDefaultCommand(RetractHood());
 }
 
 Shooter::~Shooter() {
@@ -111,11 +113,11 @@ void Shooter::InitializeDashboard() {
         );
     };
 
-    frc::SmartDashboard::PutNumber("Shooter/SetLauncherRPM", 0.0);
+    frc::SmartDashboard::PutNumber("Shooter/SetLauncherRPS", 0.0);
     put_cmd("SetLauncher", Run([this] {
-        const auto dashboard_rpm = 
-            frc::SmartDashboard::GetNumber("Shooter/SetLauncherRPM", 0.0)*1.0_rpm;
-        SetFlywheelSpeedNRM(dashboard_rpm);
+        const auto dashboard_rps = 
+            frc::SmartDashboard::GetNumber("Shooter/SetLauncherRPS", 0.0)*1.0_tps;
+        SetFlywheelSpeedNRM(dashboard_rps);
     }));
 }
 

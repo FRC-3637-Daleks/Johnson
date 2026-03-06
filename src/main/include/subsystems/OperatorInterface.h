@@ -65,7 +65,7 @@ public:
   frc2::Trigger HUBAim = m_swerveController.A(); //HUB
   frc2::Trigger TowerAim = m_swerveController.X(); //Ladder
   frc2::Trigger BottomFeeder{
-    [this] {return std::abs(getBottomFeederSpeed()) > 0.1;}
+    [this] {return std::abs(getBottomFeederSpeed()) > 0.25;}
   };
   frc2::Trigger OutTake = m_swerveController.B();
   frc2::Trigger LiftArm = m_swerveController.LeftBumper();
@@ -81,13 +81,14 @@ public:
   frc2::Trigger ArmRetract = m_copilotController.POVLeft();
   frc2::Trigger ArmLifted = m_copilotController.POVUp();
   frc2::Trigger ArmIntakeManual{
-    [this] {return std::abs(getIntakeArmSpeedCOP()) > 0.1;}
+    [this] {return std::abs(getIntakeArmSpeedCOP()) > 0.25;}
   };
+  frc2::Trigger ArmUnzero = m_copilotController.Back();
 
   frc2::Trigger ClimbUpManual = m_copilotController.A();
   frc2::Trigger ClimbDownManual = m_copilotController.B();
 
-  frc2::Trigger ShouldRStickMove{[this] {return std::abs(getFeederSpeedCOP()) > 0.15;}};
+  frc2::Trigger ShouldRStickMove{[this] {return std::abs(getFeederSpeedCOP()) > 0.25;}};
   frc2::Trigger MakeRStickBottomFeederAndIntake = ShouldRStickMove && m_copilotController.LeftBumper() && !m_copilotController.RightBumper();
   frc2::Trigger MakeRStickBottomAndTopFeeder = ShouldRStickMove && !m_copilotController.LeftBumper() && m_copilotController.RightBumper();
   frc2::Trigger MakeRStickBottomAndTopFeederOpposite = ShouldRStickMove && m_copilotController.LeftBumper() && m_copilotController.RightBumper();

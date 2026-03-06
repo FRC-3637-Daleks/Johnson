@@ -4,6 +4,8 @@
 
 #pragma once
 
+#define NOCLIMB
+
 #include <frc/MathUtil.h>
 #include <frc/XboxController.h>
 #include <frc/geometry/Pose2d.h>
@@ -53,7 +55,10 @@ public:
   Feeder m_feederBottom{Feeder::Type::Bottom};
   rev::spark::SparkFlex m_followerFeederBottom;
   Intake m_intake; 
+
+#ifndef NOCLIMB
   Climb m_climb;
+#endif
 
   // other state
   bool m_isRed;
@@ -72,6 +77,9 @@ public:
   void ConfigureAuto();
   void ReloadAuto();
   void ConfigureContinuous();
+
+public:
+  frc2::CommandPtr TopFeederShooting();
 
 public:
   bool IsRed() {return m_isRed;}

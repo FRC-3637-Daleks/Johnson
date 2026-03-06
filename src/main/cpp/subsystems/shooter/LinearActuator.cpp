@@ -5,6 +5,8 @@
 #include <frc/smartdashboard/Mechanism2d.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 
+#include <units/length.h>
+
 namespace LinearActuatorConstants {
     int LinearActuatorID = 0;
 
@@ -101,6 +103,19 @@ namespace { //anonomous namespace accessable only in .cpp, dont make multip
 }
 
 void LinearActuator::InitializeDashboard() {
+    auto put_cmd = [this] (std::string_view name, frc2::CommandPtr&& cmd) {
+        frc::SmartDashboard::PutData(fmt::format("Shooter/Hood/{}", name),
+            std::move(cmd).WithName(name).Unwrap().release()
+        );
+    };
+
+    frc::SmartDashboard::PutNumber("Shooter/Hood/SetHoodAngle", 0.0);
+    put_cmd("SetHood", Run([this] {
+        const units::millimeter_t dashboard_angle{
+            frc::SmartDashboard::GetNumber("Shooter/Hood/SetHoodAngle", 0.0)};
+        SetPos(dashboard_angle.value());
+    }));
+
     frc::SmartDashboard::PutData("Shooter/LinearActuator", &m_mech);
     frc::SmartDashboard::PutNumber
     ("Shooter/LinearActuator/PosEstimate", -1);

@@ -75,13 +75,14 @@ public:
     frc2::CommandPtr SetHoodPositionMin();
     frc2::CommandPtr SetHoodPositionRelative(double change);
     bool isHoodAtPos();
+    bool isAtCorrectSpeed();
+    bool readyToFire() {return isHoodAtPos() && isAtCorrectSpeed();}
 
 private:
 
     void SetFlywheelSpeedNRM(units::angular_velocity::turns_per_second_t velocity);
     units::angular_velocity::turns_per_second_t targetVelocity{}; //read only
     units::angular_velocity::turns_per_second_t GetCurrentFlywheelSpeed();
-    bool isAtCorrectSpeed();
 
     bool IsBBBroken(); 
 

@@ -173,6 +173,8 @@ namespace IntakeConstants {
     constexpr auto outakingSurfaceSpeed = 1_mps;
     constexpr auto outakingWheelVelocity = 1_tr*outakingSurfaceSpeed/intakeWheelCircum;
 
+    constexpr auto scoreWheelVelocity = 5_tps;
+
     constexpr auto wheelMOI = 0.001_kg_sq_m;
 }
 
@@ -328,7 +330,7 @@ frc2::CommandPtr Intake::HomeArm() {
     // detects when current spikes and motor isnt moving for a 10th of a second
     auto hard_stopped = frc2::Trigger{[this] {
         return frc::IsNear(0_tps, m_armMotor.GetVelocity().GetValue(), 1_tps)
-            && m_armMotor.GetStatorCurrent().GetValue() > 10_A;
+            && m_armMotor.GetStatorCurrent().GetValue() > 15_A;
     }}.Debounce(0.1_s);
 
     return
@@ -377,12 +379,10 @@ frc2::CommandPtr Intake::ScoreFuel(units::second_t duration) {
     auto req = IntakeConstants::scoreArmRequest;
     req.WithVelocity(-IntakeConstants::armRange/duration);
     return
-        Extend()
-        .AndThen(
-            Run([this, req] {m_armMotor.SetControl(req);})
-                .WithTimeout(duration)
-        )
-        .AndThen(Retract())
+        m_intakeMotor.setRPMEnd(IntakeConstants::intakingWheelVelocity).RaceWith(
+                Run([this, req] {m_armMotor.SetControl(req);}).WithTimeout(duration)
+                .AndThen(BlindExtend().WithTimeout(duration))
+            ).WithTimeout(duration*3)
     ;
 }
 
@@ -393,11 +393,11 @@ units::angle::turn_t Intake::GetArmPos() {
 }
 
 bool Intake::IsArmOut() {
-    return m_armZeroed && frc::IsNear(IntakeConstants::armOutPos, GetArmPos(), IntakeConstants::tolerance);
+    return m_armZeroed && GetArmPos() > IntakeConstants::armOutPos - IntakeConstants::tolerance;
 }
 
 bool Intake::IsArmIn() {
-    return m_armZeroed && frc::IsNear(IntakeConstants::armInPos, GetArmPos(), IntakeConstants::tolerance);
+    return m_armZeroed && GetArmPos() < IntakeConstants::armInPos + IntakeConstants::tolerance;
 }
 
 void Intake::HoldExtended() {

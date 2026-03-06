@@ -153,7 +153,8 @@ private:
 
     // Field widget for Shuffleboard.
     frc::Field2d m_field;
-
+    
+protected:
     // Stores controllers for each motion axis
     frc::HolonomicDriveController m_holonomicController;
 

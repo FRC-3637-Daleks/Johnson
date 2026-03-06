@@ -124,7 +124,7 @@ RobotContainer::RobotContainer()
   ConfigureDashboard();
 
   // Configure Auton.
-  //ConfigureAuto();
+  ConfigureAuto();
 
   // Configure routines which one periodically and indefinitely
   ConfigureContinuous();
@@ -149,23 +149,25 @@ void RobotContainer::ConfigureBindings() {
 
   //Default Command
   //m_intake.SetDefaultCommand(m_intake.IntakeFuel());
-  //m_shooter.SetDefaultCommand(m_shooter.SetHoodPositionMin());
 
   //Driver Controller
   m_oi.RetractHoldArm.WhileTrue(m_intake.Retract());
-  m_oi.AutoAim.WhileTrue(m_shooter.AimFromHUB()
-                      .AlongWith(m_feederTop.setRPMEnd(30_tps))); //TODO: Change placeholders & Make lookup table
+  m_oi.AutoAim.WhileTrue(m_shooter.AimFromTrench()
+                      .AlongWith(TopFeederShooting()));
   m_oi.HUBAim.WhileTrue(m_shooter.AimFromHUB()
-                      .AlongWith(m_feederTop.setRPMEnd(30_tps))); //TODO: Change placeholders
+                      .AlongWith(TopFeederShooting())); 
   m_oi.TowerAim.WhileTrue(m_shooter.AimFromTower()
-                      .AlongWith(m_feederTop.setRPMEnd(30_tps))); //TODO: Change placeholders
+                      .AlongWith(TopFeederShooting())); 
   m_oi.BottomFeeder.WhileTrue(m_feederBottom.ManuallySetMotor(m_oi.getBottomFeederSpeed, OperatorConstants::BottomFeederScaler));
+  m_oi.BottomFeeder.WhileTrue(m_intake.ScoreFuel(1_s).Repeatedly());
+  m_oi.BottomFeeder.OnFalse(m_intake.Extend());
   m_oi.OutTake.WhileTrue(m_feederBottom.setRPMEnd(-15_tps).AlongWith(m_intake.OutakeFuel()));
   m_oi.LiftArm.WhileTrue(m_intake.Lift());
+#ifndef NOCLIMB
   m_oi.ClimbUp.OnTrue(m_climb.Deploy());
   m_oi.ClimbLift.OnTrue(m_climb.LiftBot());
   m_oi.ClimbDown.OnTrue(m_climb.Retract());
-
+#endif
 
   //Co-Pilot Commands
   m_oi.ArmDownAndIntake.OnTrue(m_intake.IntakeFuel());
@@ -173,9 +175,11 @@ void RobotContainer::ConfigureBindings() {
   m_oi.ArmRetract.OnTrue(m_intake.Retract());
   m_oi.ArmLifted.OnTrue(m_intake.Lift());
   m_oi.ArmIntakeManual.OnTrue(m_intake.ManuallyControlArm(m_oi.getIntakeArmSpeedCOP));
+  m_oi.ArmUnzero.OnTrue(m_intake.Unzero());
+#ifndef NOCLIMB
   m_oi.ClimbUpManual.WhileTrue(m_climb.BlindUp());
   m_oi.ClimbDownManual.WhileTrue(m_climb.BlindDown());
-  
+#endif
   m_oi.MakeRStickBottomFeederAndIntake.WhileTrue(m_feederBottom.ManuallySetMotor(m_oi.getFeederSpeedCOP, OperatorConstants::BottomFeederScaler)
       .AlongWith(m_intake.ManuallyCotrolIntake(m_oi.getFeederSpeedCOP, OperatorConstants::IntakeFeederScaler)));
   m_oi.MakeRStickBottomAndTopFeeder.WhileTrue(m_feederBottom.ManuallySetMotor(m_oi.getFeederSpeedCOP, OperatorConstants::BottomFeederScaler)
@@ -190,7 +194,9 @@ void RobotContainer::ConfigureBindings() {
   m_oi.PitReset.OnTrue(
     m_shooter.SpinDown()
       .AlongWith(m_shooter.RetractHood())
+#ifndef NOCLIMB
       .AlongWith(m_climb.Retract())
+#endif
       .AlongWith(m_intake.Retract())
   );
 
@@ -210,7 +216,9 @@ void RobotContainer::ConfigureVisualization() {
     ->Append<frc::MechanismLigament2d>("bottom_feeder_axle", 0, 0_deg, 0, frc::Color::kBlack));
   m_feederTop.InitVisualization(m_visualization.GetRoot("top_feeder", 2, 1.1)
     ->Append<frc::MechanismLigament2d>("top_feeder_axle", 0, 0_deg, 0, frc::Color::kBlack));
+#ifndef NOCLIMB
   m_climb.InitVisualization(m_visualization.GetRoot("climb_root", 0.2, 0.33));
+#endif
 }
 
 void RobotContainer::ConfigureAuto() {
@@ -219,6 +227,7 @@ void RobotContainer::ConfigureAuto() {
    "Default Auto: Depot Auto", AutoBuilder::Trajectory_t{});
 
   std::string folder = frc::filesystem::GetDeployDirectory()+"/choreo";
+  fmt::println("Loading autos from the deploy directoyr: {}", folder);
 
   for (const auto& entry : std::filesystem::directory_iterator(folder)) {
     if(entry.path().extension() != ".traj"){
@@ -303,6 +312,10 @@ void RobotContainer::ConfigureContinuous() {
 frc2::Command* RobotContainer::GetAutonomousCommand() {
   m_swerve.GetField().GetObject("preview")->SetPoses({});
   return m_loaded_auto.get();
+}
+
+frc2::CommandPtr RobotContainer::TopFeederShooting() {
+  return m_feederTop.setRPMEnd(40_tps);
 }
 
 frc2::CommandPtr RobotContainer::GetDisabledCommand() {

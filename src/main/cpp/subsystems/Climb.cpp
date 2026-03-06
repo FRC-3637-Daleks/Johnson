@@ -26,6 +26,9 @@ namespace ClimbConstants{
     constexpr auto kMassEffective = 21.0_kg;
 
     constexpr auto kBus = ctre::phoenix6::CANBus::RoboRIO();
+
+    constexpr auto kStatorCurrentLimit = 40_A;
+    constexpr auto kSupplyCurrentLimit = 30_A;
 }
 
 class ClimbSim{
@@ -57,8 +60,12 @@ Climb::Climb()
   
   config.Feedback.SensorToMechanismRatio = 1.0;
 
+  config.CurrentLimits.StatorCurrentLimitEnable = true;
+  config.CurrentLimits.StatorCurrentLimit = ClimbConstants::kStatorCurrentLimit;
+  config.CurrentLimits.SupplyCurrentLimit = ClimbConstants::kSupplyCurrentLimit;
+
   //needed for sim, dont know the effect on sim
-  config.MotorOutput.Inverted = ctre::phoenix6::signals::InvertedValue::CounterClockwise_Positive;
+  config.MotorOutput.Inverted = ctre::phoenix6::signals::InvertedValue::Clockwise_Positive;
   
   m_climbMotor.GetConfigurator().Apply(config);
 

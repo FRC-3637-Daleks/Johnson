@@ -1,14 +1,14 @@
 #include "AutoBuilder.h"
 #include "RobotContainer.h"
 
+namespace AutoConstants {
+    constexpr auto kHubBlue = frc::Translation2d{4.65_m, 4.06_m};
+    constexpr auto kHubRed = frc::Translation2d{11.95_m, 4.06_m};
+}
+
 namespace AutoBuilder{
 
    namespace util{
-        frc2::CommandPtr AutoClimb(RobotContainer &robot){
-            return frc2::cmd::Print("***********Climbing***********").AlongWith(robot.m_climb.Deploy())
-                                                                     .AndThen(robot.m_climb.LiftBot());
-        }
-
         frc2::CommandPtr AutoIntake(RobotContainer &robot){
             return frc2::cmd::Print("STARTING INTAKE").AlongWith(robot.m_intake.IntakeFuel())
                                                       .FinallyDo([]{fmt::println("ENDING INTAKE");});
@@ -16,9 +16,34 @@ namespace AutoBuilder{
                 
         }
 
+        frc2::CommandPtr AutoAim(RobotContainer &robot) {
+            return robot.m_swerve.ZTargetCommand(
+                [] {return 0_mps;},
+                [] {return 0_mps;},
+                [&robot] {
+                    if (robot.IsRed()) {
+                        return frc::Pose2d{AutoConstants::kHubRed, 0_deg};
+                    } else {
+                        return frc::Pose2d{AutoConstants::kHubBlue, 0_deg};
+                    }
+                }
+            );
+        }
+
         frc2::CommandPtr AutoShoot(RobotContainer &robot){
-             return  frc2::cmd::Print("***********Shooting***********")
-                                .AlongWith(robot.m_shooter.AimFromHUB());
+            return  frc2::cmd::Print("***********Shooting***********")
+                .AlongWith(
+                    robot.m_shooter.AimFromTrench()
+                    .AlongWith(robot.TopFeederShooting())
+                    .AlongWith(AutoAim(robot))
+                ).DeadlineWith(frc2::cmd::WaitUntil(
+                        [&robot] {return robot.m_shooter.readyToFire();}
+                    ).WithTimeout(2_s)
+                    .AndThen(
+                        robot.m_feederBottom.setRPMEnd(20_tps)
+                        .AlongWith(robot.m_intake.ScoreFuel(1_s).Repeatedly().WithTimeout(10_s))
+                    )
+                );
         }
 
         // If robot thinks its nowhere NEAR start pose, reset it to start pose
@@ -72,6 +97,7 @@ namespace AutoBuilder{
         auto& swerve = robot.m_swerve;
           return frc2::cmd::Sequence(
             util::ResetStart(swerve, trajectory),
+            robot.m_intake.Extend(),
             util::AutoIntake(robot).RaceWith(swerve.FollowPathCommand(trajectory.GetSplit(0).value())),
             util::AutoShoot(robot),
             swerve.FollowPathCommand(trajectory.GetSplit(1).value()) 
