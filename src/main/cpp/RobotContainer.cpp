@@ -160,9 +160,9 @@ void RobotContainer::ConfigureBindings() {
                       .AlongWith(TopFeederShooting())); 
   m_oi.BottomFeeder.WhileTrue(m_feederBottom.ManuallySetMotor(m_oi.getBottomFeederSpeed, OperatorConstants::BottomFeederScaler));
   m_oi.BottomFeeder.WhileTrue(m_intake.ScoreFuel(1_s).Repeatedly());
-  m_oi.BottomFeeder.OnFalse(m_intake.Extend());
   m_oi.OutTake.WhileTrue(m_feederBottom.setRPMEnd(-15_tps).AlongWith(m_intake.OutakeFuel()));
   m_oi.LiftArm.WhileTrue(m_intake.Lift());
+  m_oi.LiftArm.OnFalse(m_intake.IntakeFuel());
 #ifndef NOCLIMB
   m_oi.ClimbUp.OnTrue(m_climb.Deploy());
   m_oi.ClimbLift.OnTrue(m_climb.LiftBot());
