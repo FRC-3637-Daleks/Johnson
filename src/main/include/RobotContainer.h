@@ -30,6 +30,7 @@
 #include "subsystems/Intake.h"
 #include "subsystems/Climb.h"
 #include "AutoBuilder.h"
+#include "subsystems/LEDSubsystem.h"
 
 /**
  * This class is where the bulk of the robot should be declared.  Since
@@ -55,6 +56,7 @@ public:
   Feeder m_feederBottom{Feeder::Type::Bottom};
   rev::spark::SparkFlex m_followerFeederBottom;
   Intake m_intake; 
+  LEDSubsystem m_ledSubsystem;
 
 #ifndef NOCLIMB
   Climb m_climb;

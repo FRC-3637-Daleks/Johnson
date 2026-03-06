@@ -106,7 +106,9 @@ void Robot::AutonomousInit() {
 
 void Robot::AutonomousPeriodic() {}
 
-void Robot::TeleopInit() { }
+void Robot::TeleopInit() {
+  m_container.m_ledSubsystem.TeleopInit();
+}
 
 /**
  * This function is called periodically during operator control.
