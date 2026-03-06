@@ -66,6 +66,14 @@ Climb::Climb()
 
   //needed for sim, dont know the effect on sim
   config.MotorOutput.Inverted = ctre::phoenix6::signals::InvertedValue::Clockwise_Positive;
+
+  config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+  config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = HeightToRotorTurns(ClimbConstants::goal_heights[static_cast<int>(Height::Top)]);
+  config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+  config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0_tr;
+
+  config.MotorOutput.NeutralMode = ctre::phoenix6::signals::NeutralModeValue::Brake;
+  config.MotorOutput.DutyCycleNeutralDeadband = 0.05;
   
   m_climbMotor.GetConfigurator().Apply(config);
 
