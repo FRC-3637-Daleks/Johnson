@@ -80,7 +80,7 @@ namespace IntakeConstants {
         .WithSupplyCurrentLimit(40_A)  // never allow over this amount
         .WithSupplyCurrentLowerLimit(10_A)  // limit to this if over for 100_ms
         .WithSupplyCurrentLowerTime(100_ms)
-        .WithStatorCurrentLimit(units::math::max(IntakeConstants::peakForwardCurrent, IntakeConstants::peakReverseCurrent))
+        .WithStatorCurrentLimit(units::math::max(IntakeConstants::peakForwardCurrent, -IntakeConstants::peakReverseCurrent))
     ;
 
     constexpr auto mmConfig = ctre::phoenix6::configs::MotionMagicConfigs{}
@@ -146,7 +146,7 @@ namespace IntakeConstants {
     ;
 
     constexpr auto homeArmRequest =
-        ctre::phoenix6::controls::DutyCycleOut{-0.1}
+        ctre::phoenix6::controls::DutyCycleOut{-0.4}
         .WithIgnoreSoftwareLimits(true)
     ;
 
@@ -179,7 +179,7 @@ namespace IntakeConstants {
     constexpr auto intakeWheelCircum = intakeWheelDiameter * std::numbers::pi;
 
     // Has to be moving faster than the robot lest we push away the balls
-    constexpr auto intakingSurfaceSpeed = 3_mps;
+    constexpr auto intakingSurfaceSpeed = 4_mps;
     constexpr auto intakingWheelVelocity = units::turns_per_second_t{
         1_tr*intakingSurfaceSpeed/intakeWheelCircum
     };

@@ -9,12 +9,12 @@ namespace ClimbConstants{
 
     int kMotorID = 14;
 
-    constexpr auto kSprocketCircum = 2*std::numbers::pi*1_in;
+    constexpr auto kSprocketCircum = std::numbers::pi*1_in;
     constexpr auto kGearReduction = 3*4*4;
 
     constexpr auto kMinHeight = 22_in;
-    constexpr auto kMaxHeight = 32_in;
-    constexpr auto kClimbHeight = 26_in;
+    constexpr auto kMaxHeight = 29_in;
+    constexpr auto kClimbHeight = 24_in;
     constexpr auto kFirstStageLength =
       (kMaxHeight - kMinHeight);
   
@@ -55,7 +55,7 @@ Climb::Climb()
   config.Slot0.kI = 0.0;
   config.Slot0.kD = 0.1;
   
-  config.Slot0.kG = 0.3;  
+  //config.Slot0.kG = 0.3;  
   config.Slot0.GravityType = ctre::phoenix6::signals::GravityTypeValue::Elevator_Static;
   
   config.Feedback.SensorToMechanismRatio = 1.0;
@@ -69,7 +69,7 @@ Climb::Climb()
 
   config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
   config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = HeightToRotorTurns(ClimbConstants::goal_heights[static_cast<int>(Height::Top)]);
-  config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+  config.SoftwareLimitSwitch.ReverseSoftLimitEnable = false;
   config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0_tr;
 
   config.MotorOutput.NeutralMode = ctre::phoenix6::signals::NeutralModeValue::Brake;

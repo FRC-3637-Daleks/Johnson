@@ -39,9 +39,9 @@ namespace AutoBuilder{
                     ).WithTimeout(2_s)
                     .AndThen(
                         robot.m_feederBottom.setRPMEnd(20_tps)
-                        .RaceWith(robot.m_intake.ScoreFuel(0.5_s).Repeatedly().WithTimeout(3_s))
+                        .RaceWith(robot.m_intake.ScoreFuel(1_s).Repeatedly().WithTimeout(2_s))
                     )
-                ).AndThen(robot.m_shooter.RetractHood());
+                );
         }
 
         // If robot thinks its nowhere NEAR start pose, reset it to start pose
@@ -81,7 +81,7 @@ namespace AutoBuilder{
             );
         } else {  // 1 or fewer splits
             return frc2::cmd::Sequence(
-                robot.m_intake.Extend().WithTimeout(0.3_s),
+                robot.m_intake.Extend().WithTimeout(0.5_s),
                 util::AutoIntake(robot).RaceWith(swerve.FollowPathCommand(trajectory)),
                 util::AutoShoot(robot)
             );
@@ -90,18 +90,19 @@ namespace AutoBuilder{
 
     frc2::CommandPtr BuildSingleAuto(RobotContainer &robot, Trajectory_t trajectory) {
         return util::ResetStart(robot.m_swerve, trajectory)
+            .AndThen(robot.m_intake.HomeArm().WithTimeout(0.5_s))
             .AndThen(BuildAuto(robot, trajectory));
     }
 
     frc2::CommandPtr BuildRepeatedAuto(RobotContainer &robot, Trajectory_t trajectory) {
         // path must self-cycle to be willing to repeat
-        const auto init_loc = trajectory.GetInitialPose().value().Translation();
-        const auto final_loc = trajectory.GetFinalPose().value().Translation();
-        if((init_loc - final_loc).Norm() < 2_m) {
+        if(trajectory.GetFinalPose() == trajectory.GetInitialPose()) {
             return util::ResetStart(robot.m_swerve, trajectory)
+                .AndThen(robot.m_intake.HomeArm().WithTimeout(0.5_s))
                 .AndThen(BuildAuto(robot, trajectory).Repeatedly());
         } else {
             return util::ResetStart(robot.m_swerve, trajectory)
+                .AndThen(robot.m_intake.HomeArm().WithTimeout(0.5_s))
                 .AndThen(BuildAuto(robot, trajectory));
         }
     }
