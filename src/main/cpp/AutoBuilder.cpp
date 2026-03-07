@@ -39,7 +39,7 @@ namespace AutoBuilder{
                     ).WithTimeout(2_s)
                     .AndThen(
                         robot.m_feederBottom.setRPMEnd(20_tps)
-                        .RaceWith(robot.m_intake.ScoreFuel(1_s).Repeatedly().WithTimeout(2_s))
+                        .RaceWith(robot.m_intake.ScoreFuel(0.5_s).Repeatedly().WithTimeout(3_s))
                     )
                 ).AndThen(robot.m_shooter.RetractHood());
         }
@@ -81,7 +81,7 @@ namespace AutoBuilder{
             );
         } else {  // 1 or fewer splits
             return frc2::cmd::Sequence(
-                robot.m_intake.Extend(),
+                robot.m_intake.Extend().WithTimeout(0.3_s),
                 util::AutoIntake(robot).RaceWith(swerve.FollowPathCommand(trajectory)),
                 util::AutoShoot(robot)
             );
@@ -97,7 +97,7 @@ namespace AutoBuilder{
         // path must self-cycle to be willing to repeat
         const auto init_loc = trajectory.GetInitialPose().value().Translation();
         const auto final_loc = trajectory.GetFinalPose().value().Translation();
-        if((init_loc - final_loc).Norm() < 0.1_m) {
+        if((init_loc - final_loc).Norm() < 2_m) {
             return util::ResetStart(robot.m_swerve, trajectory)
                 .AndThen(BuildAuto(robot, trajectory).Repeatedly());
         } else {

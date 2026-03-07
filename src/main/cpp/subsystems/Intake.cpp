@@ -45,9 +45,9 @@ namespace IntakeConstants {
     constexpr auto armLiftPos = 0.05_tr;
     constexpr auto armInPos = 0.0_tr;
     constexpr auto armRange = units::math::abs(armOutPos - armInPos);
-    constexpr auto extendTime = 1_s;
-    constexpr auto retractTime = 1_s;
-    constexpr auto accelTime = 0.2_s;
+    constexpr auto extendTime = 0.75_s;
+    constexpr auto retractTime = 0.75_s;
+    constexpr auto accelTime = 0.1_s;
     constexpr auto slowRetractTime = 3_s;
     constexpr auto extendVel = (armOutPos - armInPos)/extendTime;
     constexpr auto retractVel = (armInPos - armOutPos)/retractTime;
@@ -394,7 +394,7 @@ frc2::CommandPtr Intake::ScoreFuel(units::second_t duration) {
     return
         m_intakeMotor.setRPMEnd(IntakeConstants::intakingWheelVelocity).RaceWith(
                 Run([this, req] {m_armMotor.SetControl(req);}).WithTimeout(duration)
-                .AndThen(BlindExtend().WithTimeout(duration))
+                .AndThen(Extend().WithTimeout(duration))
             ).WithTimeout(duration*3)
     ;
 }
