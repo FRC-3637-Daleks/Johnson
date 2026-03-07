@@ -23,12 +23,12 @@
  },
  "params":{
   "waypoints":[
-    {"x":{"exp":"LTrench.x", "val":4.39}, "y":{"exp":"LTrench.y", "val":7.28}, "heading":{"exp":"LTrench.heading", "val":0.0}, "intervals":36, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"LTrench.x", "val":4.39}, "y":{"exp":"LTrench.y", "val":7.6}, "heading":{"exp":"LTrench.heading", "val":-1.5707963267948966}, "intervals":36, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"7.74 m", "val":7.74}, "y":{"exp":"7.28 m", "val":7.28}, "heading":{"exp":"0 deg", "val":0.0}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
     {"x":{"exp":"7.74 m", "val":7.74}, "y":{"exp":"4.57 m", "val":4.57}, "heading":{"exp":"0 deg", "val":0.0}, "intervals":32, "split":false, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
     {"x":{"exp":"6 m", "val":6.0}, "y":{"exp":"7.28 m", "val":7.28}, "heading":{"exp":"0 deg", "val":0.0}, "intervals":29, "split":false, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
     {"x":{"exp":"3.42 m", "val":3.42}, "y":{"exp":"7.45 m", "val":7.45}, "heading":{"exp":"0 mrad", "val":0.0}, "intervals":14, "split":true, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
-    {"x":{"exp":"LTrench.x", "val":4.39}, "y":{"exp":"LTrench.y", "val":7.28}, "heading":{"exp":"LTrench.heading", "val":0.0}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
+    {"x":{"exp":"LTrench.x", "val":4.39}, "y":{"exp":"LTrench.y", "val":7.6}, "heading":{"exp":"LTrench.heading", "val":-1.5707963267948966}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
   "constraints":[
     {"from":"first", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
     {"from":"last", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
