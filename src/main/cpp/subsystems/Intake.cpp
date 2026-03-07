@@ -316,7 +316,7 @@ frc2::CommandPtr Intake::ManuallyControlArm(std::function<double()> input) {
     return RunEnd(
         [this, input] {
             auto req = IntakeConstants::manualArmRequest;
-            m_armMotor.SetControl(req.WithOutput(input()));},
+            m_armMotor.SetControl(req.WithOutput(input()*0.5));},
         [this] {m_armMotor.SetControl(IntakeConstants::manualArmRequest);}
     );
 }
