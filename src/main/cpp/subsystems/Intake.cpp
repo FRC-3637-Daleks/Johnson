@@ -180,7 +180,9 @@ namespace IntakeConstants {
 
     // Has to be moving faster than the robot lest we push away the balls
     constexpr auto intakingSurfaceSpeed = 3_mps;
-    constexpr auto intakingWheelVelocity = 1_tr*intakingSurfaceSpeed/intakeWheelCircum;
+    constexpr auto intakingWheelVelocity = units::turns_per_second_t{
+        1_tr*intakingSurfaceSpeed/intakeWheelCircum
+    };
     constexpr auto outakingSurfaceSpeed = 1_mps;
     constexpr auto outakingWheelVelocity = 1_tr*outakingSurfaceSpeed/intakeWheelCircum;
 
