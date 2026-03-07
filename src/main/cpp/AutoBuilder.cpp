@@ -34,14 +34,16 @@ namespace AutoBuilder{
                     robot.m_shooter.AimFromTrench()
                     .AlongWith(robot.TopFeederShooting())
                     .AlongWith(AutoAim(robot))
-                ).WithDeadline(frc2::cmd::WaitUntil(
+                ).WithDeadline(frc2::cmd::Wait(0.5_s)
+                    .AndThen(frc2::cmd::WaitUntil(
                         [&robot] {return robot.m_shooter.readyToFire();}
-                    ).WithTimeout(2_s)
+                    )).WithTimeout(2_s)
                     .AndThen(
                         robot.m_feederBottom.setRPMEnd(20_tps)
-                        .RaceWith(robot.m_intake.ScoreFuel(1_s).Repeatedly().WithTimeout(2_s))
+                        .RaceWith(robot.m_intake.ScoreFuel(1_s).Repeatedly().WithTimeout(3_s))
                     )
-                );
+                ).AndThen(robot.m_shooter.RetractHood())
+            ;
         }
 
         // If robot thinks its nowhere NEAR start pose, reset it to start pose
@@ -68,16 +70,10 @@ namespace AutoBuilder{
     
     frc2::CommandPtr BuildAuto(RobotContainer &robot, Trajectory_t trajectory) {
         auto& swerve = robot.m_swerve;
-        if (trajectory.splits.size() == 3) {
+        if (trajectory.splits.size() == 2) {
             return frc2::cmd::Sequence(
                 BuildAuto(robot, trajectory.GetSplit(0).value()),
-                BuildAuto(robot, trajectory.GetSplit(1).value()),
-                swerve.FollowPathCommand(trajectory.GetSplit(2).value())
-            );
-        } else if (trajectory.splits.size() == 2) {
-            return frc2::cmd::Sequence(
-                BuildAuto(robot, trajectory.GetSplit(0).value()),
-                swerve.FollowPathCommand(trajectory.GetSplit(1).value())
+                BuildAuto(robot, trajectory.GetSplit(1).value())
             );
         } else {  // 1 or fewer splits
             return frc2::cmd::Sequence(
@@ -96,15 +92,9 @@ namespace AutoBuilder{
 
     frc2::CommandPtr BuildRepeatedAuto(RobotContainer &robot, Trajectory_t trajectory) {
         // path must self-cycle to be willing to repeat
-        if(trajectory.GetFinalPose() == trajectory.GetInitialPose()) {
-            return util::ResetStart(robot.m_swerve, trajectory)
-                .AndThen(robot.m_intake.HomeArm().WithTimeout(0.5_s))
-                .AndThen(BuildAuto(robot, trajectory).Repeatedly());
-        } else {
-            return util::ResetStart(robot.m_swerve, trajectory)
-                .AndThen(robot.m_intake.HomeArm().WithTimeout(0.5_s))
-                .AndThen(BuildAuto(robot, trajectory));
-        }
+        return util::ResetStart(robot.m_swerve, trajectory)
+            .AndThen(robot.m_intake.HomeArm().WithTimeout(0.5_s))
+            .AndThen(BuildAuto(robot, trajectory).Repeatedly());
     }
 
 };

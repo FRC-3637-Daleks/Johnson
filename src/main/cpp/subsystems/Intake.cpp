@@ -35,7 +35,7 @@ namespace IntakeConstants {
     constexpr units::newton_meter_t gravityTorque = armWeight*armLength;
 
     constexpr auto fuelMass = 0.2_kg;
-    constexpr auto maxFuelOnIntake = 30;
+    constexpr auto maxFuelOnIntake = 40;
     constexpr auto maxFuelMass = fuelMass*maxFuelOnIntake;
     constexpr auto fuelTorque = maxFuelMass*units::standard_gravity_t{1.0}*armLength/2;
     

@@ -174,7 +174,7 @@ frc2::CommandPtr Climb::LiftBot(){
 }
 
 frc2::CommandPtr Climb::Retract(){
-  return GoToHeight(Height::Bottom);
+  return BlindDown().Until([this] {return units::math::abs(m_climbMotor.GetVelocity().GetValue()) < 5_tps;});
 }
 
 frc2::CommandPtr Climb::BlindUp() {
