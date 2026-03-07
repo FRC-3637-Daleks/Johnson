@@ -42,7 +42,7 @@ namespace IntakeConstants {
     // Configurations
     constexpr auto tolerance = 0.01_tr;
     constexpr auto armOutPos = 0.21_tr;
-    constexpr auto armLiftPos = 0.05_tr;
+    constexpr auto armLiftPos = 0.15_tr;
     constexpr auto armInPos = 0.0_tr;
     constexpr auto armRange = units::math::abs(armOutPos - armInPos);
     constexpr auto extendTime = 0.75_s;

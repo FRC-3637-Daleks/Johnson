@@ -60,7 +60,7 @@ public:
 
   frc2::CommandPtr RumbleController(units::second_t time, double intensity);
 
-  frc2::Trigger RetractHoldArm = m_swerveController.RightBumper();
+  frc2::Trigger RetractHoldArm = m_swerveController.LeftBumper();
   frc2::Trigger AutoAim = m_swerveController.Y(); //from any place
   frc2::Trigger HUBAim = m_swerveController.A(); //HUB
   frc2::Trigger TowerAim = m_swerveController.X(); //Ladder
@@ -68,7 +68,7 @@ public:
     [this] {return std::abs(getBottomFeederSpeed()) > 0.25;}
   };
   frc2::Trigger OutTake = m_swerveController.B();
-  frc2::Trigger LiftArm = m_swerveController.LeftBumper();
+  frc2::Trigger LiftArm = m_swerveController.RightBumper();
   frc2::Trigger ClimbUp{
     [this] {return m_swerveController.GetLeftTriggerAxis
       () > 0.3;}

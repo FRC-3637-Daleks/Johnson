@@ -152,6 +152,7 @@ void RobotContainer::ConfigureBindings() {
 
   //Driver Controller
   m_oi.RetractHoldArm.WhileTrue(m_intake.Retract());
+  m_oi.RetractHoldArm.OnFalse(m_intake.IntakeFuel());
   m_oi.AutoAim.WhileTrue(m_shooter.AimFromTrench()
                       .AlongWith(TopFeederShooting()));
   m_oi.HUBAim.WhileTrue(m_shooter.AimFromHUB()
