@@ -149,6 +149,7 @@ void RobotContainer::ConfigureBindings() {
 
   //Default Command
   //m_intake.SetDefaultCommand(m_intake.IntakeFuel());
+  m_shooter.SetDefaultCommand(m_shooter.SpinUp());
 
   //Driver Controller
   m_oi.RetractHoldArm.OnTrue(m_intake.Retract());
@@ -159,7 +160,7 @@ void RobotContainer::ConfigureBindings() {
   m_oi.TowerAim.WhileTrue(m_shooter.AimFromTower()
                       .AlongWith(TopFeederShooting())); 
   m_oi.BottomFeeder.WhileTrue(m_feederBottom.ManuallySetMotor(m_oi.getBottomFeederSpeed, OperatorConstants::BottomFeederScaler));
-  m_oi.BottomFeeder.WhileTrue(m_intake.ScoreFuel(1_s).Repeatedly());
+  //m_oi.BottomFeeder.WhileTrue(m_intake.ScoreFuel(1_s).Repeatedly());
   m_oi.OutTake.WhileTrue(m_feederBottom.setRPMEnd(-15_tps).AlongWith(m_intake.OutakeFuel()));
   m_oi.LiftArm.WhileTrue(m_intake.Lift());
   m_oi.LiftArm.OnFalse(m_intake.IntakeFuel());
