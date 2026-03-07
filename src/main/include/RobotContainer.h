@@ -4,7 +4,7 @@
 
 #pragma once
 
-#define NOCLIMB
+//#define NOCLIMB
 
 #include <frc/MathUtil.h>
 #include <frc/XboxController.h>
@@ -57,7 +57,7 @@ public:
   rev::spark::SparkFlex m_followerFeederBottom;
   Intake m_intake; 
   LEDSubsystem m_ledSubsystem;
-
+ 
 #ifndef NOCLIMB
   Climb m_climb;
 #endif

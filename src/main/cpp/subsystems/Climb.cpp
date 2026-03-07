@@ -10,10 +10,10 @@ namespace ClimbConstants{
     int kMotorID = 14;
 
     constexpr auto kSprocketCircum = 2*std::numbers::pi*1_in;
-    constexpr auto kGearReduction = 3*4*5;
+    constexpr auto kGearReduction = 3*4*4;
 
     constexpr auto kMinHeight = 22_in;
-    constexpr auto kMaxHeight = 30_in;
+    constexpr auto kMaxHeight = 32_in;
     constexpr auto kClimbHeight = 26_in;
     constexpr auto kFirstStageLength =
       (kMaxHeight - kMinHeight);
