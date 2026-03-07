@@ -234,7 +234,7 @@ Intake::Intake() :
     configs::TalonFXConfiguration armConfig;
 
     armConfig.WithMotorOutput(configs::MotorOutputConfigs{}
-        .WithNeutralMode(signals::NeutralModeValue::Coast)
+        .WithNeutralMode(signals::NeutralModeValue::Brake)
         .WithInverted(signals::InvertedValue::Clockwise_Positive)
     );
 
