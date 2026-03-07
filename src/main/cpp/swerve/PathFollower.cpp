@@ -44,5 +44,6 @@ bool PathFollower::IsFinished() {
   auto finalPose = m_trajectory.GetFinalPose();
   return finalPose.has_value()
     && m_swerve.AtPose(finalPose.value())
-    && m_swerve.IsStopped();
+    && m_swerve.IsStopped()
+  ;
 }

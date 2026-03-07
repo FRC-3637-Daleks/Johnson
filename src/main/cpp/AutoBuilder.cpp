@@ -41,7 +41,7 @@ namespace AutoBuilder{
                         robot.m_feederBottom.setRPMEnd(20_tps)
                         .RaceWith(robot.m_intake.ScoreFuel(1_s).Repeatedly().WithTimeout(2_s))
                     )
-                );
+                ).AndThen(robot.m_shooter.RetractHood());
         }
 
         // If robot thinks its nowhere NEAR start pose, reset it to start pose
@@ -95,7 +95,9 @@ namespace AutoBuilder{
 
     frc2::CommandPtr BuildRepeatedAuto(RobotContainer &robot, Trajectory_t trajectory) {
         // path must self-cycle to be willing to repeat
-        if(trajectory.GetFinalPose() == trajectory.GetInitialPose()) {
+        const auto init_loc = trajectory.GetInitialPose().value().Translation();
+        const auto final_loc = trajectory.GetFinalPose().value().Translation();
+        if((init_loc - final_loc).Norm() < 0.1_m) {
             return util::ResetStart(robot.m_swerve, trajectory)
                 .AndThen(BuildAuto(robot, trajectory).Repeatedly());
         } else {
