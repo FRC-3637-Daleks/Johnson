@@ -77,7 +77,7 @@ namespace AutoBuilder{
             );
         } else {  // 1 or fewer splits
             return frc2::cmd::Sequence(
-                robot.m_intake.Extend().WithTimeout(0.5_s),
+                robot.m_intake.Extend().WithTimeout(0.7_s),
                 util::AutoIntake(robot).RaceWith(swerve.FollowPathCommand(trajectory)),
                 util::AutoShoot(robot)
             );
@@ -86,14 +86,14 @@ namespace AutoBuilder{
 
     frc2::CommandPtr BuildSingleAuto(RobotContainer &robot, Trajectory_t trajectory) {
         return util::ResetStart(robot.m_swerve, trajectory)
-            .AndThen(robot.m_intake.HomeArm().WithTimeout(0.5_s))
+            .AndThen(robot.m_intake.SeedArm())
             .AndThen(BuildAuto(robot, trajectory));
     }
 
     frc2::CommandPtr BuildRepeatedAuto(RobotContainer &robot, Trajectory_t trajectory) {
         // path must self-cycle to be willing to repeat
         return util::ResetStart(robot.m_swerve, trajectory)
-            .AndThen(robot.m_intake.HomeArm().WithTimeout(0.5_s))
+            .AndThen(robot.m_intake.SeedArm())
             .AndThen(BuildAuto(robot, trajectory).Repeatedly());
     }
 

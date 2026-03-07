@@ -49,6 +49,9 @@ public:
     // Drives arm slowly but firmly in until it senses resistance and re-zeroes the arm at that position.
     frc2::CommandPtr HomeArm();
 
+    // Seeds the intake position if its at a known location
+    frc2::CommandPtr SeedArm(units::turn_t pos = 0_tr);
+
     // Intakes fuel indefinitely
     frc2::CommandPtr IntakeFuel();
     
