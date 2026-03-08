@@ -77,7 +77,7 @@ namespace AutoBuilder{
             );
         } else {  // 1 or fewer splits
             return frc2::cmd::Sequence(
-                robot.m_intake.Extend().WithTimeout(0.7_s),
+                robot.m_intake.Extend().WithTimeout(0.6_s),
                 util::AutoIntake(robot).RaceWith(swerve.FollowPathCommand(trajectory)),
                 util::AutoShoot(robot)
             );
