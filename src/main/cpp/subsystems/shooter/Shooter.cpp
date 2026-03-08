@@ -55,6 +55,7 @@ namespace ShooterConstants {
     inline const ShooterSetpoint hub_shot{56.7_tps, 5_mm};
     inline const ShooterSetpoint trench_shot{71_tps, 45_mm};
     inline const ShooterSetpoint tower_shot{69_tps, 40_mm};
+    inline const ShooterSetpoint hopper_shot{30_tps, 5_mm};
 }
 
 std::unique_ptr<ShooterSim> create_shooter_sim(Shooter& shooter);
@@ -196,6 +197,12 @@ frc2::CommandPtr Shooter::SetFlywheelSpeed(units::angular_velocity::turns_per_se
     return RunEnd(
         [this, velocity] {SetFlywheelSpeedNRM(velocity);},
         [this] {m_flyWheelLeadMotor.StopMotor();});
+}
+
+frc2::CommandPtr Shooter::CycleHopper() {
+    return SetFlywheelSpeedAndHoodPosParallel(
+        ShooterConstants::hopper_shot
+    );
 }
 
 //RunEnd

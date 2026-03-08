@@ -61,6 +61,8 @@ public:
     // Retracts hood to allow passing under bump
     frc2::CommandPtr RetractHood() {return SetHoodPositionMin();};
 
+    frc2::CommandPtr CycleHopper();
+
 public:
     frc2::CommandPtr SetFlywheelSpeedAndHoodPosParallel(
         const ShooterSetpoint &setpoint
