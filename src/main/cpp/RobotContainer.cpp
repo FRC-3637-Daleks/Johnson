@@ -156,9 +156,16 @@ void RobotContainer::ConfigureBindings() {
   m_oi.AutoAim.OnTrue(m_shooter.AimFromTrench()
                       .AlongWith(TopFeederShooting()));
   m_oi.HUBAim.OnTrue(m_shooter.AimFromHUB()
-                      .AlongWith(TopFeederShooting())); 
+                      .AlongWith(TopFeederShooting()));
   m_oi.TowerAim.OnTrue(m_shooter.AimFromTower()
                       .AlongWith(TopFeederShooting()));
+  
+  (m_oi.HUBAim || m_oi.TowerAim).WhileTrue(m_swerve.CustomSwerveCommand(
+    [this] { return m_oi.fwd(); },
+    [this] { return m_oi.strafe(); },
+    [this] { return IsRed()? 180_deg:0_deg; }
+  ).WithTimeout(2_s));
+  
   (!m_oi.TowerAim && !m_oi.HUBAim && !m_oi.AutoAim).Debounce(1_s).OnTrue(m_shooter.RetractHood());
   m_oi.BottomFeeder.WhileTrue(m_feederBottom.ManuallySetMotor(m_oi.getBottomFeederSpeed, OperatorConstants::BottomFeederScaler));
   //m_oi.BottomFeeder.WhileTrue(m_intake.ScoreFuel(1_s).Repeatedly());
