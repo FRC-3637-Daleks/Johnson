@@ -160,6 +160,10 @@ void RobotContainer::ConfigureBindings() {
   m_oi.TowerAim.OnTrue(m_shooter.AimFromTower()
                       .AlongWith(TopFeederShooting()));
   
+  (m_oi.AutoAim || m_oi.HUBAim || m_oi.TowerAim).OnTrue(
+    m_feederBottom.setRPMEnd(-25_tps).WithTimeout(0.5_s)
+  );
+  
   (m_oi.HUBAim || m_oi.TowerAim).WhileTrue(m_swerve.CustomSwerveCommand(
     [this] { return m_oi.fwd(); },
     [this] { return m_oi.strafe(); },

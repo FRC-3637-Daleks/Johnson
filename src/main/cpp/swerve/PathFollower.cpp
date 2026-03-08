@@ -48,7 +48,8 @@ bool PathFollower::IsFinished() {
     return m_timer.Get() >= m_trajectory.GetTotalTime();
   else
     return finalPose.has_value()
-      && m_swerve.AtPose(finalPose.value())
+      && m_swerve.AtPose(finalPose.value(), {0.03_m, 0.03_m, 2_deg})
+      && m_timer.Get() > m_trajectory.GetTotalTime()/2
       && (m_end_type == EndConditionType::NEAR_DEST || m_swerve.IsStopped())
     ;
 }

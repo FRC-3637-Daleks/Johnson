@@ -35,9 +35,11 @@ namespace AutoBuilder{
                     .AlongWith(robot.TopFeederShooting())
                     .AlongWith(AutoAim(robot))
                 ).WithDeadline(frc2::cmd::Wait(0.5_s)
-                    .AndThen(frc2::cmd::WaitUntil(
-                        [&robot] {return robot.m_shooter.readyToFire();}
-                    )).WithTimeout(2_s)
+                    .AndThen(
+                        frc2::cmd::WaitUntil(
+                            [&robot] {return robot.m_shooter.readyToFire();}
+                        ).AlongWith(robot.m_feederBottom.setRPMEnd(-25_tps).WithTimeout(0.5_s))
+                    ).WithTimeout(2_s)
                     .AndThen(
                         robot.m_feederBottom.setRPMEnd(20_tps)
                         .RaceWith(robot.m_intake.ScoreFuel(1_s).Repeatedly().WithTimeout(3_s))

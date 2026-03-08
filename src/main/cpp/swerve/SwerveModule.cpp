@@ -291,10 +291,10 @@ void SwerveModule::UpdateDashboard() {
   frc::SmartDashboard::PutNumber(fmt::format("Swerve/{}/speed (mps)", m_name),
     state.speed.convert<units::mps>().value());
   
-  frc::SmartDashboard::PutNumber(fmt::format("Swerve/{}/drive supply current (amps)", m_name),
-    m_driveMotor.GetSupplyCurrent().GetValue().value());
-  frc::SmartDashboard::PutNumber(fmt::format("Swerve/{}/steer supply current (amps)", m_name),
-    m_steerMotor.GetSupplyCurrent().GetValue().value());
+  // frc::SmartDashboard::PutNumber(fmt::format("Swerve/{}/drive supply current (amps)", m_name),
+  //   m_driveMotor.GetSupplyCurrent().GetValue().value());
+  // frc::SmartDashboard::PutNumber(fmt::format("Swerve/{}/steer supply current (amps)", m_name),
+  //   m_steerMotor.GetSupplyCurrent().GetValue().value());
 }
 
 units::radian_t SwerveModule::GetAbsoluteEncoderPosition() {
