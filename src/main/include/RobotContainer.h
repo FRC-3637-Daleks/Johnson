@@ -22,6 +22,8 @@
 
 #include <numbers>
 
+#include <frc/PowerDistribution.h>
+
 #include "subsystems/Drivetrain.h"
 #include "subsystems/shooter/Shooter.h"
 #include "subsystems/Feeder.h"
@@ -57,6 +59,8 @@ public:
   rev::spark::SparkFlex m_followerFeederBottom;
   Intake m_intake; 
   LEDSubsystem m_ledSubsystem;
+
+  frc::PowerDistribution m_pdh{1, frc::PowerDistribution::ModuleType::kRev};
  
 #ifndef NOCLIMB
   Climb m_climb;

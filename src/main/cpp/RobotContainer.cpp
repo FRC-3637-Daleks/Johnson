@@ -209,6 +209,7 @@ void RobotContainer::ConfigureDashboard() {
   frc::SmartDashboard::PutData("Drivebase", &m_swerve);
   frc::SmartDashboard::PutData("Auton", &m_chooser);
   frc::SmartDashboard::PutData("State Visualization", &m_visualization);
+  frc::SmartDashboard::PutData("PDH", &m_pdh);
 }
 
 void RobotContainer::ConfigureVisualization() {

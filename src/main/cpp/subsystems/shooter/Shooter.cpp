@@ -137,6 +137,9 @@ void Shooter::UpdateDashboard() {
         isAtCorrectSpeed()
     );
 
+    frc::SmartDashboard::PutNumber("Shooter/LauncherCurrent (A)",
+        m_flyWheelLeadMotor.GetSupplyCurrent().GetValue().value());
+
     if (m_wheel) {
         m_wheel->SetAngle(m_wheel->GetAngle()*1_deg
             + -GetCurrentFlywheelSpeed()*20_ms/10);  // scale down speed to make visible
