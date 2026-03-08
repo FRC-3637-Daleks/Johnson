@@ -11,9 +11,11 @@
 #include <numbers>
 #include <random>
 
-PathFollower::PathFollower(trajectory_t trajectory, SwerveChassis& swerve)
+PathFollower::PathFollower(trajectory_t trajectory, SwerveChassis& swerve,
+  EndConditionType end_type)
   : m_trajectory{std::move(trajectory)}
-  , m_swerve{swerve} {
+  , m_swerve{swerve}
+  , m_end_type{end_type} {
   AddRequirements(&m_swerve);
 }
 
@@ -42,8 +44,11 @@ void PathFollower::End(bool interrupted) {
 
 bool PathFollower::IsFinished() {
   auto finalPose = m_trajectory.GetFinalPose();
-  return finalPose.has_value()
-    && m_swerve.AtPose(finalPose.value())
-    && m_swerve.IsStopped()
-  ;
+  if (m_end_type == EndConditionType::TIMER)
+    return m_timer.Get() >= m_trajectory.GetTotalTime();
+  else
+    return finalPose.has_value()
+      && m_swerve.AtPose(finalPose.value())
+      && (m_end_type == EndConditionType::NEAR_DEST || m_swerve.IsStopped())
+    ;
 }

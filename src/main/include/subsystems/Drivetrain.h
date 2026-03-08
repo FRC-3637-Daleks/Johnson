@@ -20,6 +20,7 @@
 
 #include "DrivetrainInterfaceHelper.h"
 #include "swerve/SwerveChassis.h"
+#include "swerve/PathFollower.h"
 
 // Forward Declaration
 class DrivetrainSimulation;
@@ -110,7 +111,8 @@ public:
   }
 
   frc2::CommandPtr
-    FollowPathCommand(choreo::Trajectory<choreo::SwerveSample> trajectory);
+    FollowPathCommand(choreo::Trajectory<choreo::SwerveSample> trajectory,
+                      PathFollower::EndConditionType end_type = PathFollower::EndConditionType::STOP_AT_DEST);
 
   /* Constructs a swerve control command from 3 independent controls
    * Each 'cmd' can be one of the following:

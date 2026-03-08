@@ -123,6 +123,7 @@ frc2::CommandPtr Drivetrain::CoastModeCommand(bool coast) {
 }
 
 frc2::CommandPtr Drivetrain::FollowPathCommand(
-  choreo::Trajectory<choreo::SwerveSample> trajectory) {
-  return PathFollower{std::move(trajectory), *this}.ToPtr();
+  choreo::Trajectory<choreo::SwerveSample> trajectory,
+  PathFollower::EndConditionType end_type) {
+  return PathFollower{std::move(trajectory), *this, end_type}.ToPtr();
 }

@@ -15,6 +15,9 @@
 
 class PathFollower: public frc2::CommandHelper<frc2::Command, PathFollower> {
 public:
+    enum class EndConditionType {STOP_AT_DEST, NEAR_DEST, TIMER};
+
+public:
     using pose_supplier_t = std::function<frc::Pose2d()>;
 
     using swerve_state_modifier_t =
@@ -29,7 +32,8 @@ public:
      * @param desiredPoseSupplier A function that returns the desired pose
      * @param subsystem The subsystem used by this command.
      */
-    PathFollower(trajectory_t trajectory, SwerveChassis& subsystem);
+    PathFollower(trajectory_t trajectory, SwerveChassis& subsystem,
+        EndConditionType end_type = EndConditionType::STOP_AT_DEST);
 
     void Initialize() override;
 
@@ -43,4 +47,5 @@ private:
     trajectory_t m_trajectory;
     SwerveChassis& m_swerve;
     frc::Timer m_timer;
+    EndConditionType m_end_type;
 };
