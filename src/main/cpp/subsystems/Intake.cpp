@@ -183,7 +183,7 @@ namespace IntakeConstants {
     constexpr auto intakingWheelVelocity = units::turns_per_second_t{
         1_tr*intakingSurfaceSpeed/intakeWheelCircum
     };
-    constexpr auto outakingSurfaceSpeed = 4_mps;
+    constexpr auto outakingSurfaceSpeed = -4_mps;
     constexpr auto outakingWheelVelocity = 1_tr*outakingSurfaceSpeed/intakeWheelCircum;
 
     constexpr auto scoreWheelVelocity = 5_tps;
