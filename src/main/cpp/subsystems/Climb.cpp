@@ -12,7 +12,7 @@ namespace ClimbConstants{
     constexpr auto kSprocketCircum = std::numbers::pi*1_in;
     constexpr auto kGearReduction = 3*4*4;
 
-    constexpr auto kMinHeight = 22_in;
+    constexpr auto kMinHeight = 21.5_in;
     constexpr auto kMaxHeight = 29_in;
     constexpr auto kClimbHeight = 24_in;
     constexpr auto kFirstStageLength =
