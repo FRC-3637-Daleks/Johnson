@@ -55,7 +55,7 @@ namespace ShooterConstants {
     inline const ShooterSetpoint hub_shot{56.7_tps, 5_mm};
     inline const ShooterSetpoint trench_shot{71_tps, 45_mm};
     inline const ShooterSetpoint tower_shot{69_tps, 40_mm};
-    inline const ShooterSetpoint hopper_shot{30_tps, 5_mm};
+    inline const ShooterSetpoint hopper_shot{20_tps, 5_mm};
 }
 
 std::unique_ptr<ShooterSim> create_shooter_sim(Shooter& shooter);
@@ -138,8 +138,8 @@ void Shooter::UpdateDashboard() {
         isAtCorrectSpeed()
     );
 
-    frc::SmartDashboard::PutNumber("Shooter/LauncherCurrent (A)",
-        m_flyWheelLeadMotor.GetSupplyCurrent().GetValue().value());
+    // frc::SmartDashboard::PutNumber("Shooter/LauncherCurrent (A)",
+    //     m_flyWheelLeadMotor.GetSupplyCurrent().GetValue().value());
 
     if (m_wheel) {
         m_wheel->SetAngle(m_wheel->GetAngle()*1_deg

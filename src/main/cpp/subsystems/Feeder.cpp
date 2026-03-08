@@ -171,8 +171,8 @@ void Feeder::UpdateDashboard() {
     frc::SmartDashboard::PutNumber("Feeder"+thisMotorStr+"/Velocity (TPS)",
         units::turns_per_second_t{getRPM()}.value());
     
-    frc::SmartDashboard::PutNumber("Feeder"+thisMotorStr+"/Current (A)",
-        m_feederMotor.GetOutputCurrent());
+    // frc::SmartDashboard::PutNumber("Feeder"+thisMotorStr+"/Current (A)",
+    //     m_feederMotor.GetOutputCurrent());
 
     if (!m_wheelLine) return;
 
