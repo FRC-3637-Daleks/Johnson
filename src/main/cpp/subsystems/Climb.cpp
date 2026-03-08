@@ -179,14 +179,14 @@ frc2::CommandPtr Climb::Retract(){
 
 frc2::CommandPtr Climb::BlindUp() {
   return RunEnd(
-    [this] {m_climbMotor.Set(0.5);},
+    [this] {m_climbMotor.Set(0.7);},
     [this] {m_climbMotor.StopMotor();}
   );
 }
 
 frc2::CommandPtr Climb::BlindDown() {
   return RunEnd(
-    [this] {m_climbMotor.Set(-0.5);},
+    [this] {m_climbMotor.Set(-0.7);},
     [this] {m_climbMotor.StopMotor();}
   );
 }
