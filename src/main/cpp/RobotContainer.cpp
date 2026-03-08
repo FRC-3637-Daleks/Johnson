@@ -23,6 +23,7 @@
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <frc2/command/Commands.h>
 #include <frc2/command/button/Trigger.h>
+#include <frc/RobotController.h>
 #include <iostream>
 
 #include <choreo/Choreo.h>
@@ -130,6 +131,8 @@ RobotContainer::RobotContainer()
   ConfigureContinuous();
 
   frc::DataLogManager::Log(fmt::format("Finished initializing robot."));
+
+  frc::RobotController::SetBrownoutVoltage(5_V);
 }
 
 void RobotContainer::ConfigureBindings() {
