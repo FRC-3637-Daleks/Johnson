@@ -391,7 +391,7 @@ frc2::CommandPtr Intake::BlindRetract() {
 frc2::CommandPtr Intake::HomeArm() {
     // detects when current spikes and motor isnt moving for a 10th of a second
     auto hard_stopped = frc2::Trigger{[this] {
-        return frc::IsNear(0_tps, m_armMotor.GetVelocity().GetValue(), 1_tps)
+        return frc::IsNear(0_tps, m_armMotor.GetVelocity().GetValue(), 0.01_tps)
             && m_armMotor.GetStatorCurrent().GetValue() > 15_A;
     }}.Debounce(0.1_s);
 
