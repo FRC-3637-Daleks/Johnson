@@ -44,7 +44,7 @@ namespace ShooterConstants {
     constexpr auto feederMOI = 0.001_kg_sq_m;
 
     //PID
-    double kP = 10.0;
+    double kP = 15.0;
     double kI = 0.000;
     double kD = 0.0;
     constexpr auto kS = 2.0_A;
@@ -86,6 +86,7 @@ Shooter::Shooter() :
     slot0Configs.kP = ShooterConstants::kP; 
     slot0Configs.kI = ShooterConstants::kI; 
     slot0Configs.kD = ShooterConstants::kD; 
+    slot0Configs.kS = ShooterConstants::kS.value();
     slot0Configs.kA = ShooterConstants::kA.value();
 
     PIDConfig.WithSlot0(slot0Configs);
