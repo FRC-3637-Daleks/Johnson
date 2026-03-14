@@ -163,8 +163,8 @@ void Feeder::InitializeDashboard() {
 
     frc::SmartDashboard::PutNumber("Feeder"+ thisMotorStr+"/SetFeederSpeedTPS", 0.0);
     put_cmd("SetFeeder"+ thisMotorStr, 
-    setRPM(frc::SmartDashboard::GetNumber(
-        "Feeder"+ thisMotorStr+"/SetFeederSpeedTPS", 0.0)*1.0_tps));
+    ManuallySetMotor([this] {return frc::SmartDashboard::GetNumber(
+        "Feeder"+ thisMotorStr+"/SetFeederSpeedTPS", 0.0);}, 1.0));
 }
 
 void Feeder::UpdateDashboard() {
