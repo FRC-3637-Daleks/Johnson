@@ -34,5 +34,6 @@ frc2::CommandPtr DepotAuto(RobotContainer &robot);
 frc2::CommandPtr BuildAuto(RobotContainer &robot, Trajectory_t trajectory);
 frc2::CommandPtr BuildSingleAuto(RobotContainer &robot, Trajectory_t trajectory);
 frc2::CommandPtr BuildRepeatedAuto(RobotContainer &robot, Trajectory_t trajectory);
+frc2::CommandPtr BuildDepotAuto(RobotContainer &robot, Trajectory_t trajectory);
 
 };
