@@ -175,7 +175,7 @@ void RobotContainer::ConfigureBindings() {
   
   (!m_oi.TowerAim && !m_oi.HUBAim && !m_oi.AutoAim).Debounce(1_s).OnTrue(m_shooter.RetractHood());
   m_oi.BottomFeeder.WhileTrue(m_feederBottom.ManuallySetMotor(m_oi.getBottomFeederSpeed, OperatorConstants::BottomFeederScaler));
-  //m_oi.BottomFeeder.WhileTrue(m_intake.ScoreFuel(1_s).Repeatedly());
+  m_oi.BottomFeeder.WhileTrue(m_intake.ScoreFuel(1_s).Repeatedly());
 
   // Cancel this with "BottomFeeder" trigger simultaneously
   m_oi.OutTake.WhileTrue(m_feederBottom.setRPMEnd(-15_tps));
@@ -338,7 +338,7 @@ frc2::Command* RobotContainer::GetAutonomousCommand() {
 }
 
 frc2::CommandPtr RobotContainer::TopFeederShooting() {
-  return m_feederTop.setRPMEnd(40_tps);
+  return m_feederTop.setRPMEnd(50_tps);
 }
 
 frc2::CommandPtr RobotContainer::GetDisabledCommand() {
