@@ -40,7 +40,10 @@ constexpr double kNeutralDeadband = 0.04;
 
 // Current Limit configs
 constexpr auto kDriveMotorCurrentLimit = 70_A;
-constexpr auto kSteerMotorCurrentLimit = 30_A;
+constexpr auto kDriveMotorSustainedCurrentLimit = 30_A;
+constexpr auto kDriveMotorCurrentLimitTime = 0.25_s;
+constexpr auto kSlipCurrent = 80_A;
+constexpr auto kSteerMotorStatorCurrentLimit = 30_A;
 // Can exceed limit for 40ms seconds
 constexpr auto kCurrentLimitPeriod = 40_ms;
 
@@ -56,7 +59,7 @@ constexpr auto kWheelMoment = .0101_kg_sq_m;
 constexpr auto kMotorSpeedChoreo = 5104_rpm; // choreo value
 constexpr auto kMotorSpeed = 6000_rpm;       // Website value
 constexpr auto kDriveMaxAcceleration = 500_tr_per_s_sq;
-constexpr auto kDriveTargetAcceleration = 300_tr_per_s_sq;
+constexpr auto kDriveTargetAcceleration = 200_tr_per_s_sq;
 constexpr auto kDistanceToRotations = kDriveEncoderDistancePerRevolution / 1_tr;
 
 constexpr double kSteerGearReduction = 18.75;
@@ -71,7 +74,7 @@ constexpr auto kSteerSpeed = kMotorSpeed / kSteerGearReduction;
 constexpr auto kDriveV = 12.0_V/units::turns_per_second_t{kPhysicalMaxSpeed/kDistanceToRotations};
 constexpr auto kDriveGains = configs::Slot0Configs{}
   .WithKP(0)
-  .WithKI(0.1)
+  .WithKI(0.0)
   .WithKD(0)
   .WithKV(kDriveV.value())
 ;
@@ -152,6 +155,17 @@ SwerveModule::SwerveModule(const std::string name, const int driveMotorId,
   driveConfig.WithMotorOutput(configs::MotorOutputConfigs{}
     .WithNeutralMode(signals::NeutralModeValue::Brake)
     .WithDutyCycleNeutralDeadband(kNeutralDeadband)
+  );
+  
+  driveConfig.WithCurrentLimits(configs::CurrentLimitsConfigs{}
+    .WithStatorCurrentLimit(kSlipCurrent)
+    .WithSupplyCurrentLimit(kDriveMotorCurrentLimit)
+    .WithSupplyCurrentLowerLimit(kDriveMotorSustainedCurrentLimit)
+    .WithSupplyCurrentLowerTime(kDriveMotorCurrentLimitTime)
+  );
+
+  steerConfig.WithCurrentLimits(configs::CurrentLimitsConfigs{}
+    .WithStatorCurrentLimit(kSteerMotorStatorCurrentLimit)
   );
 
   driveConfig.WithSlot0(kDriveGains);
