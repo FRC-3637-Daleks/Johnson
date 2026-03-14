@@ -4,7 +4,7 @@
 
 #pragma once
 
-//#define NOCLIMB
+#define NOCLIMB
 
 #include <frc/MathUtil.h>
 #include <frc/XboxController.h>
