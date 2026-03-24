@@ -49,6 +49,9 @@ constexpr auto kMaxAngularSpeed = std::numbers::pi * 1_rad_per_s;
 constexpr auto kMaxAngularAcceleration = std::numbers::pi * 2_rad_per_s_sq;
 
 constexpr frc::Pose2d desiredPose{0_m, 0_m, 0_deg};
+
+constexpr auto kHubBlue = frc::Translation2d{4.65_m, 4.06_m};
+constexpr auto kHubRed = frc::Translation2d{11.95_m, 4.06_m};
 } // namespace AutoConstants
 
 namespace OperatorConstants {
@@ -350,4 +353,27 @@ void RobotContainer::CheckAlliance() {
     frc::DriverStation::Alliance::kRed);
 
   if (wasRed != m_isRed) ReloadAuto();
+}
+
+frc2::CommandPtr RobotContainer::AutoAim(){
+  
+  auto distanceFunc = [this]{return 2.5_in;};
+
+
+
+
+  
+  return m_shooter.AutoAdjust(distanceFunc)
+                  .AlongWith(TopFeederShooting())
+                  .AlongWith(m_swerve.ZTargetCommand(
+                    [] {return 0_mps;},
+                    [] {return 0_mps;},
+                    [this] {
+                        if (IsRed()) {
+                          return frc::Pose2d{AutoConstants::kHubRed, 0_deg};
+                        } else {
+                          return frc::Pose2d{AutoConstants::kHubBlue, 0_deg};
+                        }
+                      }
+                  ));
 }
