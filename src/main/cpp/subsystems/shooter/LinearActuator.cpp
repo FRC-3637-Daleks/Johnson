@@ -50,6 +50,11 @@ frc2::CommandPtr LinearActuator::SetPosition(double point) {
                   [this] {SetPos(LinearActuatorConstants::minLength);});
 }
 
+frc2::CommandPtr LinearActuator::SetPosition(std::function<double()> positionFunc){
+    return RunEnd([this, positionFunc] {SetPos(positionFunc());},
+                  [this] {SetPos(LinearActuatorConstants::minLength);});
+}
+
 //RunOnce
 frc2::CommandPtr LinearActuator::SetPositionUntilThere(double point) {
     return RunOnce([this, point] { SetPos(point); })

@@ -17,6 +17,8 @@
 
 #include <rev/sim/SparkFlexSim.h>
 
+#include <wpi/interpolating_map.h>
+
 namespace ShooterConstants {
     int kfeederBreakBeamID = 1;
 
@@ -66,6 +68,13 @@ Shooter::Shooter() :
     m_feederBreakBeam{ShooterConstants::kfeederBreakBeamID},
     m_sim_state{create_shooter_sim(*this)}
 {
+   
+    m_distance_to_shots.insert(2_in, ShooterConstants::hub_shot);
+    m_distance_to_shots.insert(4_in, ShooterConstants::trench_shot);
+    m_distance_to_shots.insert(6_in, ShooterConstants::tower_shot);
+    
+    
+    
     //Shooter PID config
     ctre::phoenix6::configs::TalonFXConfiguration PIDConfig;
     ctre::phoenix6::configs::MotionMagicConfigs MMConfig;
@@ -185,6 +194,13 @@ frc2::CommandPtr Shooter::AimFromTower() {
     );
 }
 
+frc2::CommandPtr Shooter::AutoAdjust(std::function<units::inch_t()> distanceFunc){
+    
+   return SetFlywheelSpeed(distanceFunc).AlongWith(SetHoodPosition(distanceFunc));
+   
+}
+
+
 frc2::CommandPtr Shooter::SpinUp() {
     return RunOnce([this] {SetFlywheelSpeedNRM(ShooterConstants::hub_shot.Velocity());});
 }
@@ -199,6 +215,13 @@ frc2::CommandPtr Shooter::SetFlywheelSpeed(units::angular_velocity::turns_per_se
         [this, velocity] {SetFlywheelSpeedNRM(velocity);},
         [this] {m_flyWheelLeadMotor.StopMotor();});
 }
+frc2::CommandPtr Shooter::SetFlywheelSpeed(std::function<units::inch_t()> distanceFunc){
+    return RunEnd(
+        [this, distanceFunc]{SetFlywheelSpeedNRM(m_distance_to_shots[distanceFunc()].Velocity());},
+        [this]{m_flyWheelFollowMotor.StopMotor();}
+    );
+}
+
 
 frc2::CommandPtr Shooter::CycleHopper() {
     return SetFlywheelSpeedAndHoodPosParallel(
@@ -214,6 +237,12 @@ frc2::CommandPtr Shooter::SetFlywheelSpeedAndHoodPosParallel(
 
 frc2::CommandPtr Shooter::SetHoodPosition(double point) {
     return m_hoodActuator.SetPosition(point);}
+
+frc2::CommandPtr Shooter::SetHoodPosition(std::function<units::inch_t()> distanceFunc){
+    auto getHoodPosition = [this, distanceFunc] {return m_distance_to_shots[distanceFunc()].Hood().value();};
+    return m_hoodActuator.SetPosition(getHoodPosition);
+
+}
 
 frc2::CommandPtr Shooter::SetHoodPositionUntilThere(double point) {
     return m_hoodActuator.SetPositionUntilThere(point);}

@@ -63,15 +63,20 @@ public:
 
     frc2::CommandPtr CycleHopper();
 
+    frc2::CommandPtr AutoAdjust(std::function<units::inch_t()> distanceFunc);
+
 public:
     frc2::CommandPtr SetFlywheelSpeedAndHoodPosParallel(
         const ShooterSetpoint &setpoint
     );
     
     frc2::CommandPtr SetFlywheelSpeed(units::angular_velocity::turns_per_second_t velocity);
+    frc2::CommandPtr SetFlywheelSpeed(std::function<units::inch_t()> distanceFunc);
 
     //Point in mm
     frc2::CommandPtr SetHoodPosition(double point);
+    frc2::CommandPtr SetHoodPosition(std::function<units::inch_t()> distanceFunc);
+
     //Point in mm
     frc2::CommandPtr SetHoodPositionUntilThere(double point);
     frc2::CommandPtr SetHoodPositionMin();
@@ -79,6 +84,12 @@ public:
     bool isHoodAtPos();
     bool isAtCorrectSpeed();
     bool readyToFire() {return isHoodAtPos() && isAtCorrectSpeed();}
+
+
+private:
+
+    wpi::interpolating_map<units::inch_t, ShooterSetpoint> m_distance_to_shots{};
+
 
 private:
 

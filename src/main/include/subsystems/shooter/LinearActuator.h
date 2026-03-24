@@ -23,6 +23,8 @@ public:
     //percent as range of 0-1 were zero and one are within limits
     frc2::CommandPtr SetPosition(double point);
 
+    frc2::CommandPtr SetPosition(std::function<double()> positionFunc);
+
     frc2::CommandPtr SetPositionUntilThere(double point);
 
     frc2::CommandPtr RelativePositionChange(double change);
