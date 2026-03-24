@@ -86,6 +86,7 @@ public:
 
 public:
   frc2::CommandPtr TopFeederShooting();
+  frc2::CommandPtr AutoAim();
 
 public:
   bool IsRed() {return m_isRed;}

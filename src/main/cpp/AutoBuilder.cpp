@@ -1,10 +1,6 @@
 #include "AutoBuilder.h"
 #include "RobotContainer.h"
 
-namespace AutoConstants {
-    constexpr auto kHubBlue = frc::Translation2d{4.65_m, 4.06_m};
-    constexpr auto kHubRed = frc::Translation2d{11.95_m, 4.06_m};
-}
 
 namespace AutoBuilder{
 
@@ -14,26 +10,10 @@ namespace AutoBuilder{
                                                       .FinallyDo([]{fmt::println("ENDING INTAKE");});
         }
 
-        frc2::CommandPtr AutoAim(RobotContainer &robot) {
-            return robot.m_swerve.ZTargetCommand(
-                [] {return 0_mps;},
-                [] {return 0_mps;},
-                [&robot] {
-                    if (robot.IsRed()) {
-                        return frc::Pose2d{AutoConstants::kHubRed, 0_deg};
-                    } else {
-                        return frc::Pose2d{AutoConstants::kHubBlue, 0_deg};
-                    }
-                }
-            );
-        }
-
         frc2::CommandPtr AutoShoot(RobotContainer &robot){
             return  frc2::cmd::Print("***********Shooting***********")
                 .AlongWith(
-                    robot.m_shooter.AimFromTrench()
-                    .AlongWith(robot.TopFeederShooting())
-                    .AlongWith(AutoAim(robot))
+                    robot.AutoAim()
                 ).WithDeadline(frc2::cmd::Wait(0.5_s)
                     .AndThen(
                         frc2::cmd::WaitUntil(
