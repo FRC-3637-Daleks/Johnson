@@ -160,21 +160,9 @@ void RobotContainer::ConfigureBindings() {
   constexpr auto kHubBlue = frc::Translation2d{4.65_m, 4.06_m};
   constexpr auto kHubRed = frc::Translation2d{11.95_m, 4.06_m};
 
-  m_oi.AutoAim.WhileTrue(m_swerve.ZTargetCommand(
-      [this] {return m_oi.fwd();},
-      [this] {return m_oi.strafe();},
-      [this] {
-          if (IsRed()) {
-              return frc::Pose2d{kHubRed, 0_deg};
-          } else {
-              return frc::Pose2d{kHubBlue, 0_deg};
-          }
-      }));
-
   //Driver Controller
   m_oi.RetractHoldArm.OnTrue(m_intake.Retract());
-  m_oi.AutoAim.OnTrue(m_shooter.AimFromTrench()
-                      .AlongWith(TopFeederShooting()));
+  m_oi.AutoAim.WhileTrue(AutoAim());
   m_oi.HUBAim.OnTrue(m_shooter.AimFromHUB()
                       .AlongWith(TopFeederShooting()));
   m_oi.TowerAim.OnTrue(m_shooter.AimFromTower()
@@ -372,13 +360,16 @@ void RobotContainer::CheckAlliance() {
 
 frc2::CommandPtr RobotContainer::AutoAim(){
   
-  auto distanceFunc = [this]{return 2.5_in;};
+  auto distanceFunc = [this] {
+    const auto hubPoint = IsRed() ? AutoConstants::kHubRed : AutoConstants::kHubBlue;
+    return m_swerve.GetPose().Translation().Distance(hubPoint);
+  };
 
   return m_shooter.AutoAdjust(distanceFunc)
                   .AlongWith(TopFeederShooting())
                   .AlongWith(m_swerve.ZTargetCommand(
-                    [] {return 0_mps;},
-                    [] {return 0_mps;},
+                    [this] {return m_oi.fwd();},
+                    [this] {return m_oi.strafe();},
                     [this] {
                         if (IsRed()) {
                           return frc::Pose2d{AutoConstants::kHubRed, 0_deg};
