@@ -19,6 +19,8 @@
 
 #include <wpi/interpolating_map.h>
 
+#include <iostream>
+
 namespace ShooterConstants {
     int kfeederBreakBeamID = 1;
 
