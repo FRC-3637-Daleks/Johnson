@@ -90,7 +90,7 @@ public:
 
 private:
 
-    wpi::interpolating_map<units::inch_t, ShooterSetpoint> m_distance_to_shots{};
+    wpi::interpolating_map<units::meter_t, ShooterSetpoint> m_distance_to_shots{};
 
 
 private:

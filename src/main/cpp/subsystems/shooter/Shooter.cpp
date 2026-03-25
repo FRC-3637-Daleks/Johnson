@@ -57,8 +57,9 @@ namespace ShooterConstants {
     constexpr auto canBus = ctre::phoenix6::CANBus::RoboRIO();
 
     inline const ShooterSetpoint hub_shot{56.7_tps, 5_mm};
-    inline const ShooterSetpoint trench_shot{71_tps, 45_mm};
     inline const ShooterSetpoint tower_shot{69_tps, 40_mm};
+    inline const ShooterSetpoint trench_shot{71_tps, 45_mm};
+    inline const ShooterSetpoint corner_shot{80_tps, 50_mm}; //NOT REAL VALUES
     inline const ShooterSetpoint hopper_shot{20_tps, 5_mm};
 }
 
@@ -71,11 +72,10 @@ Shooter::Shooter() :
     m_sim_state{create_shooter_sim(*this)}
 {
    
-    m_distance_to_shots.insert(2_in, ShooterConstants::hub_shot);
-    m_distance_to_shots.insert(4_in, ShooterConstants::trench_shot);
-    m_distance_to_shots.insert(6_in, ShooterConstants::tower_shot);
-    
-    
+    m_distance_to_shots.insert(1.35_m, ShooterConstants::hub_shot);
+    m_distance_to_shots.insert(3.11_m, ShooterConstants::tower_shot);
+    m_distance_to_shots.insert(3.75_m, ShooterConstants::trench_shot);
+    m_distance_to_shots.insert(5.07_m, ShooterConstants::corner_shot);
     
     //Shooter PID config
     ctre::phoenix6::configs::TalonFXConfiguration PIDConfig;

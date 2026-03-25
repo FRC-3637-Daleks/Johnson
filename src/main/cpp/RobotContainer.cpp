@@ -358,7 +358,10 @@ void RobotContainer::CheckAlliance() {
 
 frc2::CommandPtr RobotContainer::AutoAim(){
   
-  auto distanceFunc = [this]{return 2.5_in;};
+  auto distanceFunc = [this] {
+    const auto hubPoint = IsRed() ? AutoConstants::kHubRed : AutoConstants::kHubBlue;
+    return m_swerve.GetPose().Translation().Distance(hubPoint);
+  };
 
   return m_shooter.AutoAdjust(distanceFunc)
                   .AlongWith(TopFeederShooting())
