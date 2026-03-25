@@ -359,10 +359,6 @@ frc2::CommandPtr RobotContainer::AutoAim(){
   
   auto distanceFunc = [this]{return 2.5_in;};
 
-
-
-
-  
   return m_shooter.AutoAdjust(distanceFunc)
                   .AlongWith(TopFeederShooting())
                   .AlongWith(m_swerve.ZTargetCommand(
