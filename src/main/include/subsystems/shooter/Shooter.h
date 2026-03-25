@@ -20,6 +20,8 @@ struct ShooterSetpoint: frc::Vectord<2> {
     using shooter_velocity_t = units::turns_per_second_t;
     using hood_t = units::millimeter_t;
 
+    using frc::Vectord<2>::Vectord;
+
     ShooterSetpoint(shooter_velocity_t vel, hood_t hood):
         frc::Vectord<2>{vel.value(), hood.value()} 
     {}
