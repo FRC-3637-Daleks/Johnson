@@ -86,8 +86,11 @@ namespace AutoBuilder{
     frc2::CommandPtr BuildDepotAuto(RobotContainer &robot, Trajectory_t trajectory){
         return util::ResetStart(robot.m_swerve, trajectory)
             .AndThen(BuildAuto(robot, trajectory.GetSplit(0).value()))
+#ifndef NOCLIMB            
             .AndThen(robot.m_climb.Deploy())
             .AndThen(robot.m_swerve.FollowPathCommand(trajectory.GetSplit(1).value()))
-            .AndThen(robot.m_climb.LiftBot());
+            .AndThen(robot.m_climb.LiftBot())
+#endif
+        ;
     }
 };
