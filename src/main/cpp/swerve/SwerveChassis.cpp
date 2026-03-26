@@ -282,6 +282,9 @@ void SwerveChassis::UpdateDashboard() {
     const auto robot_center = this->GetPose();
 
     m_field.SetRobotPose(this->GetPose());
+    m_field.GetObject("Map To Odom")->SetPose(
+        frc::Pose2d{} + m_map_to_odom
+    );
 
     constexpr int xs[] = {1, 1, -1, -1};
     constexpr int ys[] = {1, -1, 1, -1};
