@@ -122,7 +122,7 @@ frc::Transform2d ROSBridge::GetMapToOdom() {
 
   const units::meter_t x{offset[0]};
   const units::meter_t y{offset[1]};
-  const units::degree_t theta{orientation[2]};
+  const units::radian_t theta{orientation[2]};
 
   return frc::Transform2d{x, y, theta};
 }
@@ -143,7 +143,7 @@ std::optional<frc::Transform2d> ROSBridge::GetNewMapToOdom() {
 
   const units::meter_t x{offset[0]};
   const units::meter_t y{offset[1]};
-  const units::degree_t theta{orientation[2]};
+  const units::radian_t theta{orientation[2]};
 
   return frc::Transform2d{x, y, theta};
 }
