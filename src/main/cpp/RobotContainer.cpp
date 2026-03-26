@@ -154,6 +154,20 @@ void RobotContainer::ConfigureBindings() {
   //m_intake.SetDefaultCommand(m_intake.IntakeFuel());
   m_shooter.SetDefaultCommand(m_shooter.SpinUp());
 
+  constexpr auto kHubBlue = frc::Translation2d{4.65_m, 4.06_m};
+  constexpr auto kHubRed = frc::Translation2d{11.95_m, 4.06_m};
+
+  m_oi.AutoAim.WhileTrue(m_swerve.ZTargetCommand(
+      [this] {return m_oi.fwd();},
+      [this] {return m_oi.strafe();},
+      [this] {
+          if (IsRed()) {
+              return frc::Pose2d{kHubRed, 0_deg};
+          } else {
+              return frc::Pose2d{kHubBlue, 0_deg};
+          }
+      }));
+
   //Driver Controller
   m_oi.RetractHoldArm.OnTrue(m_intake.Retract());
   m_oi.AutoAim.OnTrue(m_shooter.AimFromTrench()
