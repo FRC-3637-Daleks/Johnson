@@ -54,6 +54,7 @@ constexpr auto kHubBlue = frc::Translation2d{4.65_m, 4.06_m};
 constexpr auto kHubRed = frc::Translation2d{11.95_m, 4.06_m};
 
 constexpr auto aimingTolerance = 3_deg;
+constexpr auto allianceZoneTolerance = 3.9_m;
 } // namespace AutoConstants
 
 namespace OperatorConstants {
@@ -357,7 +358,11 @@ void RobotContainer::CheckAlliance() {
   if (wasRed != m_isRed) ReloadAuto();
 }
 
-bool RobotContainer::isReadyToFire(){
+bool RobotContainer::isInAllianceZone() {
+  return m_swerve.GetPose().X() < AutoConstants::allianceZoneTolerance; //NEED TO TEST
+}
+
+bool RobotContainer::isReadyToFire() {
   const auto hubPoint = IsRed() ? AutoConstants::kHubRed : AutoConstants::kHubBlue;
 
   const auto expectedAngle = (hubPoint - m_swerve.GetPose().Translation()).Angle();
