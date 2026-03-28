@@ -52,6 +52,8 @@ constexpr frc::Pose2d desiredPose{0_m, 0_m, 0_deg};
 
 constexpr auto kHubBlue = frc::Translation2d{4.65_m, 4.06_m};
 constexpr auto kHubRed = frc::Translation2d{11.95_m, 4.06_m};
+
+constexpr auto aimingTolerance = 3_deg;
 } // namespace AutoConstants
 
 namespace OperatorConstants {
@@ -354,6 +356,18 @@ void RobotContainer::CheckAlliance() {
     frc::DriverStation::Alliance::kRed);
 
   if (wasRed != m_isRed) ReloadAuto();
+}
+
+bool RobotContainer::isReadyToFire(){
+  const auto hubPoint = IsRed() ? AutoConstants::kHubRed : AutoConstants::kHubBlue;
+
+  const auto expectedAngle = (hubPoint - m_swerve.GetPose().Translation()).Angle();
+  const auto currentAngle = m_swerve.GetPose().Rotation();
+  const auto relativeAngle = expectedAngle.RelativeTo(currentAngle);
+  const bool aimingAtHub = relativeAngle.Degrees() < AutoConstants::aimingTolerance && 
+                           relativeAngle.Degrees() > -AutoConstants::aimingTolerance;
+
+  return m_shooter.readyToFire() && aimingAtHub;
 }
 
 frc2::CommandPtr RobotContainer::AutoAim(){
