@@ -17,7 +17,7 @@ namespace AutoBuilder{
                 ).WithDeadline(frc2::cmd::Wait(0.5_s)
                     .AndThen(
                         frc2::cmd::WaitUntil(
-                            [&robot] {return m_container.isReadyToFire();}
+                            [&robot] {return robot.isReadyToFire();}
                         ).AlongWith(robot.m_feederBottom.setRPMEnd(-25_tps).WithTimeout(0.5_s))
                     ).WithTimeout(2_s)
                     .AndThen(
