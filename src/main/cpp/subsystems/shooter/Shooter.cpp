@@ -19,8 +19,6 @@
 
 #include <wpi/interpolating_map.h>
 
-#include <iostream>
-
 namespace ShooterConstants {
     int kfeederBreakBeamID = 1;
 
@@ -36,7 +34,7 @@ namespace ShooterConstants {
     units::ampere_t PeakReverseTorqueCurrent = -10_A;
 
     //used just in bool isAtCorrectSpeed()
-    units::angular_velocity::turns_per_second_t kSpeedTolerance = 0.3_tps;
+    units::angular_velocity::turns_per_second_t kSpeedTolerance = 0.4_tps;
 
     constexpr auto launcherGearing = 26.0/18.0;
     constexpr auto launcherMOI = 0.01_kg_sq_m;

@@ -28,7 +28,6 @@ void Robot::DriverStationConnected() {
 void Robot::RobotPeriodic() {
   frc2::CommandScheduler::GetInstance().Run();
 
-
   // Log the RIO states.
   frc::SmartDashboard::PutNumber(
       "RIO/Battery Voltage", frc::RobotController::GetBatteryVoltage() / 1_V);
