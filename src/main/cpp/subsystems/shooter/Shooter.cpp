@@ -193,12 +193,36 @@ frc2::CommandPtr Shooter::AimFromTower() {
     );
 }
 
-frc2::CommandPtr Shooter::AutoAdjust(std::function<units::inch_t()> distanceFunc){
-    
-   return SetFlywheelSpeed(distanceFunc).AlongWith(SetHoodPosition(distanceFunc));
-   
+frc2::CommandPtr Shooter::AutoAdjust(std::function<frc::Translation2d()> positionFunc, std::function<bool()> isRedFunc){
+   return AutoAdjustFlyWheel(positionFunc, isRedFunc).AlongWith(AutoAdjustHood(positionFunc, isRedFunc));
 }
 
+frc2::CommandPtr Shooter::AutoAdjustFlyWheel(std::function<frc::Translation2d()> positionFunc, std::function<bool()> isRedFunc){
+    auto distanceFunc = [this, positionFunc, isRedFunc] {
+        const auto hubPoint = isRedFunc() ? ShooterConstants::kHubRed : ShooterConstants::kHubBlue;
+        return positionFunc().Distance(hubPoint);
+    };
+
+    return SetFlywheelSpeed(distanceFunc);
+}
+
+frc2::CommandPtr Shooter::AutoAdjustHood(std::function<frc::Translation2d()> positionFunc, std::function<bool()> isRedFunc){
+    auto getHoodPosition = [this, positionFunc, isRedFunc] {
+        const auto isRed = isRedFunc();
+        const auto position = positionFunc();
+
+        if ((isRed && position.X() > ShooterConstants::redAllianceZoneTolerance) || (!isRed && position.X() < ShooterConstants::blueAllianceZoneTolerance)){
+            return 5.0;
+        }
+
+        const auto hubPoint = isRed ? ShooterConstants::kHubRed : ShooterConstants::kHubBlue;
+        const auto distance = position.Distance(hubPoint);
+
+        return m_distance_to_shots[distance].Hood().value();
+    };
+    
+    return m_hoodActuator.SetPosition(getHoodPosition);
+}
 
 frc2::CommandPtr Shooter::SpinUp() {
     return RunOnce([this] {SetFlywheelSpeedNRM(ShooterConstants::hub_shot.Velocity());});

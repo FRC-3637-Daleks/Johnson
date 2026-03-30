@@ -50,11 +50,7 @@ constexpr auto kMaxAngularAcceleration = std::numbers::pi * 2_rad_per_s_sq;
 
 constexpr frc::Pose2d desiredPose{0_m, 0_m, 0_deg};
 
-constexpr auto kHubBlue = frc::Translation2d{4.65_m, 4.06_m};
-constexpr auto kHubRed = frc::Translation2d{11.95_m, 4.06_m};
-
 constexpr auto aimingTolerance = 3_deg;
-constexpr auto allianceZoneTolerance = 3.9_m;
 } // namespace AutoConstants
 
 namespace OperatorConstants {
@@ -359,12 +355,8 @@ void RobotContainer::CheckAlliance() {
   if (wasRed != m_isRed) ReloadAuto();
 }
 
-bool RobotContainer::isInAllianceZone() {
-  return m_swerve.GetPose().X() < AutoConstants::allianceZoneTolerance; //NEED TO TEST
-}
-
 bool RobotContainer::isReadyToFire() {
-  const auto hubPoint = IsRed() ? AutoConstants::kHubRed : AutoConstants::kHubBlue;
+  const auto hubPoint = IsRed() ? ShooterConstants::kHubRed : ShooterConstants::kHubBlue;
 
   const auto expectedAngle = (hubPoint - m_swerve.GetPose().Translation()).Angle();
   const auto currentAngle = m_swerve.GetPose().Rotation();
@@ -377,21 +369,24 @@ bool RobotContainer::isReadyToFire() {
 
 frc2::CommandPtr RobotContainer::AutoAim(){
   
-  auto distanceFunc = [this] {
-    const auto hubPoint = IsRed() ? AutoConstants::kHubRed : AutoConstants::kHubBlue;
-    return m_swerve.GetPose().Translation().Distance(hubPoint);
+  auto positionFunc = [this] {
+    return m_swerve.GetPose().Translation();
   };
 
-  return m_shooter.AutoAdjust(distanceFunc)
+  auto isRed = [this]{
+    return IsRed();
+  };
+
+  return m_shooter.AutoAdjust(positionFunc, isRed)
                   .AlongWith(TopFeederShooting())
                   .AlongWith(m_swerve.ZTargetCommand(
                     [] {return 0_mps;},
                     [] {return 0_mps;},
                     [this] {
                         if (IsRed()) {
-                          return frc::Pose2d{AutoConstants::kHubRed, 0_deg};
+                          return frc::Pose2d{ShooterConstants::kHubRed, 0_deg};
                         } else {
-                          return frc::Pose2d{AutoConstants::kHubBlue, 0_deg};
+                          return frc::Pose2d{ShooterConstants::kHubBlue, 0_deg};
                         }
                       }
                   ));
