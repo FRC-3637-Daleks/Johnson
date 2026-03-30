@@ -89,7 +89,6 @@ public:
   frc2::CommandPtr AutoAim();
   
   bool isReadyToFire();
-  bool isInAllianceZone();
 
 public:
   bool IsRed() {return m_isRed;}
