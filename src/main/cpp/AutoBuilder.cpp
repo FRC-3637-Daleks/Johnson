@@ -57,8 +57,7 @@ namespace AutoBuilder{
                 BuildAuto(robot, trajectory.GetSplit(1).value())
             );
         } else {  // 1 or fewer splits
-          
-            std::function<frc::Translation2d()> positionFunc = [&trajectory] {
+            std::function<frc::Translation2d()> positionFunc = [trajectory] {
                 return trajectory.GetFinalPose().value_or(frc::Pose2d{}).Translation();
             };
 
