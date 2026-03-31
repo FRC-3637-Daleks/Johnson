@@ -18,13 +18,15 @@
 
 namespace IntakeConstants {
     // Ports
-    constexpr auto kCanBus = ctre::phoenix6::CANBus{"Drivebase"};
+    constexpr auto kArmCanBus = ctre::phoenix6::CANBus{"Drivebase"};
+    constexpr auto kRollerCanBus = ctre::phoenix6::CANBus::RoboRIO();
     constexpr int kArmMotorID = 11;
-    constexpr int kFollowerIntakeMotorID = 11;
+    constexpr int kRollerMotorID = 12;
+    constexpr int kFollowerIntakeMotorID = 13;
 
-    // Arm
     // Physical constants
     constexpr auto armGearing = 120.0;
+    constexpr auto intakeGearing = 2.0;
     
     constexpr auto armLength = 18_in;
     constexpr auto armMass = 12_lb;
@@ -55,6 +57,7 @@ namespace IntakeConstants {
 
     // Gains/Limits
     constexpr auto armMotor = frc::DCMotor::KrakenX60FOC(1).WithReduction(armGearing);
+    constexpr auto rollerMotor = frc::DCMotor::KrakenX44FOC(2).WithReduction(intakeGearing);
 
     constexpr auto gravityTorqueCurrent = armMotor.Current(gravityTorque);
 
@@ -83,6 +86,13 @@ namespace IntakeConstants {
         .WithStatorCurrentLimit(units::math::max(IntakeConstants::peakForwardCurrent, -IntakeConstants::peakReverseCurrent))
     ;
 
+    constexpr auto rollerCurrentLimits = ctre::phoenix6::configs::CurrentLimitsConfigs{}
+        .WithSupplyCurrentLimit(60_A)  // never allow over this amount
+        .WithSupplyCurrentLowerLimit(30_A)  // limit to this if over for 100_ms
+        .WithSupplyCurrentLowerTime(500_ms)
+        .WithStatorCurrentLimit(80_A)
+    ;
+
     constexpr auto mmConfig = ctre::phoenix6::configs::MotionMagicConfigs{}
         .WithMotionMagicAcceleration(extendVel/accelTime)
         .WithMotionMagicCruiseVelocity(2*extendVel)
@@ -108,6 +118,13 @@ namespace IntakeConstants {
         .WithKA(kA.value())
         .WithKP(5*(kG/units::turns_per_second_t{units::math::abs(retractVel)}).value())
         .WithKI(5*(kG/units::turn_t{armRange}).value())
+    ;
+
+    constexpr auto rollerGains = ctre::phoenix6::configs::Slot0Configs{}
+        .WithKP(0.12)
+        .WithKI(0)
+        .WithKD(0)
+        .WithKV(ctre::unit::volts_per_turn_per_second_t{1.0/rollerMotor.Kv}.value())
     ;
 
     // No kG since the cosine cant be calculated appropriately
@@ -173,8 +190,13 @@ namespace IntakeConstants {
         .WithOverrideBrakeDurNeutral(true)
     ;
 
+    constexpr auto rollerRequest =
+        ctre::phoenix6::controls::VelocityVoltage{0.0_tps}
+        .WithSlot(0)
+        .WithIgnoreSoftwareLimits(true)
+    ;
+
     // Intake Rollers
-    constexpr auto intakeGearing = 1.0;
     constexpr auto intakeWheelDiameter = 2_in;
     constexpr auto intakeWheelCircum = intakeWheelDiameter * std::numbers::pi;
 
@@ -205,16 +227,16 @@ public:
 };
 
 Intake::Intake() :
-    m_armMotor{IntakeConstants::kArmMotorID, IntakeConstants::kCanBus},
-    m_intakeMotor{Feeder::Type::Intake},
-    m_feederIntakeFollower{IntakeConstants::kFollowerIntakeMotorID, rev::spark::SparkFlex::MotorType::kBrushless},
+    m_armMotor{IntakeConstants::kArmMotorID, IntakeConstants::kArmCanBus},
+    m_intakeMotor{IntakeConstants::kRollerMotorID, IntakeConstants::kRollerCanBus},
+    m_feederIntakeFollower{IntakeConstants::kFollowerIntakeMotorID, IntakeConstants::kRollerCanBus},
     m_armZeroed{false},
     m_sim_state{new IntakeSim{*this}}
 {
-    //Config follower/reverse
-    rev::spark::SparkFlexConfig intakeFollowerConfig;
-    intakeFollowerConfig.Follow(m_intakeMotor.getMotorIDforFollower(), true/*inverted*/);
-    m_feederIntakeFollower.Configure(intakeFollowerConfig, rev::ResetMode::kNoResetSafeParameters, rev::PersistMode::kPersistParameters);
+    //Config follower
+    m_feederIntakeFollower.SetControl(ctre::phoenix6::controls::Follower{
+        IntakeConstants::kRollerMotorID, true
+    });
 
     auto put_cmd = [this] (std::string_view name, frc2::CommandPtr&& cmd) {
         frc::SmartDashboard::PutData(fmt::format("Intake/{}", name),
@@ -231,11 +253,17 @@ Intake::Intake() :
     put_cmd("ScoreFuel", ScoreFuel());
 
     using namespace ctre::phoenix6;
-    configs::TalonFXConfiguration armConfig;
+    configs::TalonFXConfiguration armConfig, rollerConfig;
 
     armConfig.WithMotorOutput(configs::MotorOutputConfigs{}
         .WithNeutralMode(signals::NeutralModeValue::Brake)
         .WithInverted(signals::InvertedValue::Clockwise_Positive)
+    );
+
+    rollerConfig.WithMotorOutput(configs::MotorOutputConfigs{}
+        .WithNeutralMode(signals::NeutralModeValue::Brake)
+        .WithInverted(signals::InvertedValue::Clockwise_Positive)
+        .WithDutyCycleNeutralDeadband(0.05)
     );
 
     armConfig.WithTorqueCurrent(configs::TorqueCurrentConfigs{}
@@ -256,9 +284,14 @@ Intake::Intake() :
     );
 
     armConfig.WithCurrentLimits(IntakeConstants::currentLimits);
+    rollerConfig.WithCurrentLimits(IntakeConstants::currentLimits);
 
     armConfig.WithFeedback(configs::FeedbackConfigs{}
         .WithSensorToMechanismRatio(IntakeConstants::armGearing)
+    );
+
+    rollerConfig.WithFeedback(configs::FeedbackConfigs{}
+        .WithSensorToMechanismRatio(IntakeConstants::intakeGearing)
     );
 
     armConfig.WithSlot0(IntakeConstants::positionGains);
@@ -266,8 +299,10 @@ Intake::Intake() :
     armConfig.WithSlot2(IntakeConstants::blindGains);
     armConfig.WithMotionMagic(IntakeConstants::mmConfig);
 
-    m_armMotor.GetConfigurator().Apply(armConfig);
+    rollerConfig.WithSlot0(IntakeConstants::rollerGains);
 
+    m_armMotor.GetConfigurator().Apply(armConfig);
+    m_intakeMotor.GetConfigurator().Apply(rollerConfig);
 }
 
 Intake::~Intake() {
@@ -322,7 +357,17 @@ frc2::CommandPtr Intake::ManuallyControlArm(std::function<double()> input) {
 }
 
 frc2::CommandPtr Intake::ManuallyCotrolIntake(std::function<double()> input, double scaler) {
-    return m_intakeMotor.ManuallySetMotor(input, scaler);
+    return m_rollerSubsystem.RunEnd(
+        [this, input, scaler] {m_intakeMotor.Set(input()*scaler);},
+        [this] {m_intakeMotor.StopMotor();}
+    );
+}
+
+frc2::CommandPtr Intake::SpinRoller(units::turns_per_second_t vel) {
+    return m_rollerSubsystem.RunEnd(
+        [this, vel] {SetRollerVelocity(vel);},
+        [this] {m_intakeMotor.StopMotor();}
+    );
 }
 
 frc2::CommandPtr Intake::BlindExtend() {
@@ -378,8 +423,7 @@ frc2::CommandPtr Intake::IntakeFuel() {
     return 
         Extend()
         .AndThen(
-            m_intakeMotor.setRPMEnd(
-                IntakeConstants::intakingWheelVelocity)
+            SpinRoller(IntakeConstants::intakingWheelVelocity)
         )
     ;
 }
@@ -388,8 +432,7 @@ frc2::CommandPtr Intake::OutakeFuel() {
     return 
         Extend()
         .AndThen(
-           m_intakeMotor.setRPMEnd(
-                IntakeConstants::outakingWheelVelocity)
+           SpinRoller(IntakeConstants::outakingWheelVelocity)
         )
     ;
 }
@@ -398,7 +441,7 @@ frc2::CommandPtr Intake::ScoreFuel(units::second_t duration) {
     auto req = IntakeConstants::scoreArmRequest;
     req.WithVelocity(-IntakeConstants::armRange/duration);
     return
-        m_intakeMotor.setRPMEnd(IntakeConstants::intakingWheelVelocity).RaceWith(
+        SpinRoller(IntakeConstants::intakingWheelVelocity).RaceWith(
                 Run([this, req] {m_armMotor.SetControl(req);}).WithTimeout(duration)
                 .AndThen(Extend().WithTimeout(duration))
             ).WithTimeout(duration*3)
@@ -427,6 +470,11 @@ void Intake::HoldRetracted() {
     m_armMotor.SetControl(IntakeConstants::holdRetractRequest);
 }
 
+void Intake::SetRollerVelocity(units::turns_per_second_t vel) {
+    auto req = IntakeConstants::rollerRequest;
+    m_intakeMotor.SetControl(req.WithVelocity(vel));
+}
+
 void Intake::UpdateDashboard() {
     frc::SmartDashboard::PutBoolean("Intake/Zeroed", m_armZeroed);
     frc::SmartDashboard::PutNumber("Intake/Arm Current (A)", 
@@ -452,7 +500,7 @@ void Intake::InitVisualization(frc::MechanismRoot2d* intake_pivot) {
     m_arm = intake_pivot->Append<frc::MechanismLigament2d>(
         "intake", 1.5, 90_deg, 15, frc::Color8Bit{frc::Color::kDimGray});
     
-    m_intakeMotor.InitVisualization(m_arm);
+    //m_intakeMotor.InitVisualization(m_arm);
 }
 
 //**************************** Simulation ****************************/

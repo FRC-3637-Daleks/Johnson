@@ -6,7 +6,6 @@
 #include <frc2/command/button/Trigger.h>
 #include <frc/smartdashboard/MechanismLigament2d.h>
 #include <frc/smartdashboard/Mechanism2d.h>
-#include "Feeder.h"
 
 #include <ctre/phoenix6/TalonFX.hpp>
 
@@ -39,6 +38,8 @@ public:
     frc2::CommandPtr ManuallyControlArm(std::function<double()> input);
 
     frc2::CommandPtr ManuallyCotrolIntake(std::function<double()> input, double scaler);
+
+    frc2::CommandPtr SpinRoller(units::turns_per_second_t vel);
 
     // Extends arm at a constant velocity for a duration that should roughly extend it fully
     frc2::CommandPtr BlindExtend();
@@ -75,14 +76,18 @@ private:
     // Applies a bit of pressure at the extents to help keep the intake secure
     void HoldExtended(); void HoldRetracted(); void HoldLift();
 
+    // Positive is in
+    void SetRollerVelocity(units::turns_per_second_t vel);
+
 private:
     void UpdateDashboard();
     void UpdateVisualization();
 
 private:
     ctre::phoenix6::hardware::TalonFX m_armMotor;
-    Feeder m_intakeMotor;
-    rev::spark::SparkFlex m_feederIntakeFollower;
+    ctre::phoenix6::hardware::TalonFX m_intakeMotor;
+    ctre::phoenix6::hardware::TalonFX m_feederIntakeFollower;
+    frc2::Subsystem m_rollerSubsystem;
 
     bool m_armZeroed;
     std::function<bool()> Zeroed{[this] {return m_armZeroed;}};
