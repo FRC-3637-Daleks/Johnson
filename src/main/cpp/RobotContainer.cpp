@@ -360,8 +360,7 @@ bool RobotContainer::isReadyToFire() {
   const auto expectedAngle = (hubPoint - m_swerve.GetPose().Translation()).Angle();
   const auto currentAngle = m_swerve.GetPose().Rotation();
   const auto relativeAngle = expectedAngle.RelativeTo(currentAngle);
-  const bool aimingAtHub = relativeAngle.Degrees() < AutoConstants::aimingTolerance && 
-                           relativeAngle.Degrees() > -AutoConstants::aimingTolerance;
+  const bool aimingAtHub = units::math::abs(relativeAngle.Degrees()) < AutoConstants::aimingTolerance;
 
   return m_shooter.readyToFire() && aimingAtHub;
 }
