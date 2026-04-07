@@ -25,31 +25,31 @@ namespace IntakeConstants {
     constexpr int kFollowerIntakeMotorID = 13;
 
     // Physical constants
-    constexpr auto armGearing = 120.0;
+    constexpr auto armGearing = double(3*4*5)*(32.0/18.0);
     constexpr auto intakeGearing = 2.0;
     
-    constexpr auto armLength = 18_in;
-    constexpr auto armMass = 12_lb;
+    constexpr auto armLength = 10_in;
+    constexpr auto armMass = 15_lb;
     // 1/3*m*r^2
-    constexpr auto armMOI = 1.0/3.0 * armMass * armLength * armLength;
+    constexpr auto armMOI = 1.0 * armMass * armLength * armLength;
     constexpr auto armWeight = armMass * units::standard_gravity_t{1.0};
     // center of mass halfway up arm
     constexpr units::newton_meter_t gravityTorque = armWeight*armLength;
 
     constexpr auto fuelMass = 0.2_kg;
-    constexpr auto maxFuelOnIntake = 40;
+    constexpr auto maxFuelOnIntake = 30;
     constexpr auto maxFuelMass = fuelMass*maxFuelOnIntake;
     constexpr auto fuelTorque = maxFuelMass*units::standard_gravity_t{1.0}*armLength/2;
     
     // Configurations
     constexpr auto tolerance = 0.01_tr;
-    constexpr auto armOutPos = 0.21_tr;
-    constexpr auto armLiftPos = 0.15_tr;
-    constexpr auto armInPos = 0.0_tr;
+    constexpr auto armOutPos = 75_deg;
+    constexpr auto armLiftPos = 20_deg;
+    constexpr auto armInPos = -10_deg;
     constexpr auto armRange = units::math::abs(armOutPos - armInPos);
-    constexpr auto extendTime = 0.75_s;
-    constexpr auto retractTime = 0.75_s;
-    constexpr auto accelTime = 0.1_s;
+    constexpr auto extendTime = 0.5_s;
+    constexpr auto retractTime = 0.5_s;
+    constexpr auto accelTime = 0.05_s;
     constexpr auto slowRetractTime = 3_s;
     constexpr auto extendVel = (armOutPos - armInPos)/extendTime;
     constexpr auto retractVel = (armInPos - armOutPos)/retractTime;
@@ -163,7 +163,7 @@ namespace IntakeConstants {
     ;
 
     constexpr auto homeArmRequest =
-        ctre::phoenix6::controls::DutyCycleOut{-0.4}
+        ctre::phoenix6::controls::DutyCycleOut{-0.1}
         .WithIgnoreSoftwareLimits(true)
     ;
 
@@ -257,12 +257,12 @@ Intake::Intake() :
 
     armConfig.WithMotorOutput(configs::MotorOutputConfigs{}
         .WithNeutralMode(signals::NeutralModeValue::Brake)
-        .WithInverted(signals::InvertedValue::Clockwise_Positive)
+        .WithInverted(signals::InvertedValue::CounterClockwise_Positive)
     );
 
     rollerConfig.WithMotorOutput(configs::MotorOutputConfigs{}
         .WithNeutralMode(signals::NeutralModeValue::Brake)
-        .WithInverted(signals::InvertedValue::Clockwise_Positive)
+        .WithInverted(signals::InvertedValue::CounterClockwise_Positive)
         .WithDutyCycleNeutralDeadband(0.05)
     );
 

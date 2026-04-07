@@ -67,9 +67,8 @@ constexpr auto kMaxTeleopTurnSpeed = 2.5 * std::numbers::pi * 1_rad_per_s;
 
 constexpr double kSlowModeFactor = 0.3;
 
-constexpr double BottomFeederScaler = 25;
+constexpr double BottomFeederScaler = 40;
 constexpr double TopFeederScaler = 30;
-constexpr double IntakeFeederScaler = 30;
 } // namespace OperatorConstants
 
 namespace FieldConstants {
@@ -175,7 +174,7 @@ void RobotContainer::ConfigureBindings() {
   
   (!m_oi.TowerAim && !m_oi.HUBAim && !m_oi.AutoAim).Debounce(1_s).OnTrue(m_shooter.RetractHood());
   m_oi.BottomFeeder.WhileTrue(m_feederBottom.ManuallySetMotor(m_oi.getBottomFeederSpeed, OperatorConstants::BottomFeederScaler));
-  //m_oi.BottomFeeder.WhileTrue(m_intake.ScoreFuel(1_s).Repeatedly());
+  m_oi.BottomFeeder.WhileTrue(m_intake.ScoreFuel(0.5_s).Repeatedly());
 
   // Cancel this with "BottomFeeder" trigger simultaneously
   m_oi.OutTake.WhileTrue(m_feederBottom.setRPMEnd(-15_tps));
@@ -203,12 +202,12 @@ void RobotContainer::ConfigureBindings() {
   m_oi.ClimbDownManual.WhileTrue(m_climb.BlindDown());
 #endif
   m_oi.MakeRStickBottomFeederAndIntake.WhileTrue(m_feederBottom.ManuallySetMotor(m_oi.getFeederSpeedCOP, OperatorConstants::BottomFeederScaler)
-      .AlongWith(m_intake.ManuallyCotrolIntake(m_oi.getFeederSpeedCOP, OperatorConstants::IntakeFeederScaler)));
+      .AlongWith(m_intake.ManuallyCotrolIntake(m_oi.getFeederSpeedCOP, 1)));
   m_oi.MakeRStickBottomAndTopFeeder.WhileTrue(m_feederBottom.ManuallySetMotor(m_oi.getFeederSpeedCOP, OperatorConstants::BottomFeederScaler)
       .AlongWith(m_feederTop.ManuallySetMotor(m_oi.getFeederSpeedCOP, OperatorConstants::TopFeederScaler)));
   m_oi.MakeRStickBottomAndTopFeederOpposite.WhileTrue(m_feederBottom.ManuallySetMotor(m_oi.getFeederSpeedCOP, OperatorConstants::BottomFeederScaler)
       .AlongWith(m_feederTop.ManuallySetMotor([this] {return -m_oi.getFeederSpeedCOP();} ,OperatorConstants::TopFeederScaler)));
-  m_oi.MakeRStickIntakeOnly.WhileTrue(m_intake.ManuallyCotrolIntake(m_oi.getFeederSpeedCOP, OperatorConstants::IntakeFeederScaler));
+  m_oi.MakeRStickIntakeOnly.WhileTrue(m_intake.ManuallyCotrolIntake(m_oi.getFeederSpeedCOP, 1));
 
   m_oi.HoodRaise.WhileTrue(m_shooter.SetHoodPositionMin());
   m_oi.HoodLower.WhileTrue(m_shooter.SetHoodPosition(50));
