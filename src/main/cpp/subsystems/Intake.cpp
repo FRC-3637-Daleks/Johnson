@@ -406,7 +406,7 @@ frc2::CommandPtr Intake::HomeArm() {
             //m_armZeroed = hard_stopped.Get();
             if (hard_stopped.Get()) {
                 m_armZeroed = true;
-                m_armMotor.SetPosition(0_tr);
+                m_armMotor.SetPosition(IntakeConstants::armInPos);
             }
         })
         .Until([this, hard_stopped] {return hard_stopped.Get();})
