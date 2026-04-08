@@ -524,7 +524,7 @@ IntakeSim::IntakeSim(Intake& in) :
     std::random_device rng;
     std::uniform_real_distribution dist{IntakeConstants::armInPos.value(), IntakeConstants::armOutPos.value()};
     m_armPhysics.SetState(dist(rng)*1_tr, 0_rpm);
-    m_ArmMotorState.SetRawRotorPosition(m_armPhysics.GetAngle()*IntakeConstants::armGearing);
+    m_ArmMotorState.SetRawRotorPosition(-m_armPhysics.GetAngle()*IntakeConstants::armGearing);
     in.m_armMotor.SetPosition(0.0_tr);
 }
 
@@ -538,14 +538,14 @@ void Intake::SimulationPeriodic() {
     //update arm physics sim
     auto& ssArmPhys = m_sim_state->m_armPhysics;
     ssArmPhys.SetInputVoltage(
-        m_sim_state->m_ArmMotorState.GetMotorVoltage());
+        -m_sim_state->m_ArmMotorState.GetMotorVoltage());
         
     const auto last_vel = ssArmPhys.GetVelocity();
     ssArmPhys.Update(20_ms);
 
     //update arm motor
-    m_sim_state->m_ArmMotorState.SetRawRotorPosition(ssArmPhys.GetAngle() * IntakeConstants::armGearing);
-    m_sim_state->m_ArmMotorState.SetRotorVelocity(ssArmPhys.GetVelocity() * IntakeConstants::armGearing);
+    m_sim_state->m_ArmMotorState.SetRawRotorPosition(-ssArmPhys.GetAngle() * IntakeConstants::armGearing);
+    m_sim_state->m_ArmMotorState.SetRotorVelocity(-ssArmPhys.GetVelocity() * IntakeConstants::armGearing);
     const auto accel = (ssArmPhys.GetVelocity() - last_vel)/20_ms;
-    m_sim_state->m_ArmMotorState.SetRotorAcceleration(accel);
+    m_sim_state->m_ArmMotorState.SetRotorAcceleration(-accel);
 }
