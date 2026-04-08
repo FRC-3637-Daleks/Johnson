@@ -177,8 +177,11 @@ void RobotContainer::ConfigureBindings() {
   // ).WithTimeout(2_s));
   
   (!m_oi.TowerAim && !m_oi.HUBAim && !m_oi.AutoAim).Debounce(1_s).OnTrue(m_shooter.RetractHood());
-  m_oi.BottomFeeder.WhileTrue(m_feederBottom.ManuallySetMotor(m_oi.getBottomFeederSpeed, OperatorConstants::BottomFeederScaler));
-  m_oi.BottomFeeder.WhileTrue(m_intake.ScoreFuel(0.5_s).Repeatedly());
+
+  frc2::Trigger readyToFireTrigger{[this] {return isReadyToFire();}};
+
+  (m_oi.BottomFeeder && readyToFireTrigger).WhileTrue(m_feederBottom.ManuallySetMotor(m_oi.getBottomFeederSpeed, OperatorConstants::BottomFeederScaler));
+  (m_oi.BottomFeeder && readyToFireTrigger).Debounce(0.25_s).WhileTrue(m_intake.ScoreFuel(0.5_s).Repeatedly());
 
   // Cancel this with "BottomFeeder" trigger simultaneously
   m_oi.OutTake.WhileTrue(m_feederBottom.setRPMEnd(-15_tps));
@@ -217,7 +220,7 @@ void RobotContainer::ConfigureBindings() {
   m_oi.HoodLower.WhileTrue(m_shooter.SetHoodPosition(50));
   //RT + class state variable for right trigger shooter stuff
   m_oi.PitReset.OnTrue(
-    m_shooter.SpinDown()
+    m_shooter.SpinDown().AndThen(frc2::cmd::Run([] {}))
       .AlongWith(m_shooter.RetractHood())
 #ifndef NOCLIMB
       .AlongWith(m_climb.Retract())
