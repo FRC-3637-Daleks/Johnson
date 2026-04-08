@@ -156,8 +156,8 @@ void RobotContainer::ConfigureBindings() {
   //m_intake.SetDefaultCommand(m_intake.IntakeFuel());
   m_shooter.SetDefaultCommand(m_shooter.SpinUp());
 
-  constexpr auto kHubBlue = frc::Translation2d{4.65_m, 4.06_m};
-  constexpr auto kHubRed = frc::Translation2d{11.95_m, 4.06_m};
+  constexpr auto kHubBlue = ShooterConstants::kHubBlue;
+  constexpr auto kHubRed = ShooterConstants::kHubRed;
 
   //Driver Controller
   m_oi.RetractHoldArm.OnTrue(m_intake.Retract());
