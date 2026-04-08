@@ -20,7 +20,7 @@ namespace AutoBuilder{
                         [&robot] {return robot.isReadyToFire();}
                     ).AlongWith(robot.m_feederBottom.setRPMEnd(-25_tps).WithTimeout(0.5_s))
                     .AndThen(
-                        robot.m_feederBottom.setRPMEnd(20_tps)
+                        robot.m_feederBottom.setRPMEnd(40_tps)
                         .RaceWith(robot.m_intake.ScoreFuel(1_s).Repeatedly().WithTimeout(3_s))
                     )
                 ).AndThen(robot.m_shooter.RetractHood())
@@ -57,14 +57,16 @@ namespace AutoBuilder{
                 BuildAuto(robot, trajectory.GetSplit(1).value())
             );
         } else {  // 1 or fewer splits
-            std::function<frc::Translation2d()> positionFunc = [trajectory] {
-                return trajectory.GetFinalPose().value_or(frc::Pose2d{}).Translation();
+            const auto final_pose = trajectory.GetFinalPose().value_or(frc::Pose2d{});
+            auto positionFunc = [final_pose] {
+                return final_pose.Translation();
             };
 
             return frc2::cmd::Sequence(
-                robot.m_intake.Extend().WithTimeout(0.8_s),
-                util::AutoIntake(robot).AlongWith(robot.m_shooter.AutoAdjustFlyWheel(positionFunc, isRed).Repeatedly())
-                                       .RaceWith(swerve.FollowPathCommand(trajectory, PathFollower::EndConditionType::NEAR_DEST)),                        
+                swerve.FollowPathCommand(trajectory, PathFollower::EndConditionType::NEAR_DEST)
+                    .DeadlineFor(
+                        util::AutoIntake(robot)
+                        .AlongWith(robot.m_shooter.AutoAdjustFlyWheel(positionFunc, isRed))),
                 util::AutoShoot(robot)
             );
         }
