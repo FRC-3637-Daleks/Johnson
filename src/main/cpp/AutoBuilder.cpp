@@ -65,7 +65,7 @@ namespace AutoBuilder{
             return frc2::cmd::Sequence(
                 swerve.FollowPathCommand(trajectory, PathFollower::EndConditionType::NEAR_DEST)
                     .DeadlineFor(
-                        util::AutoIntake(robot)
+                        frc2::cmd::Wait(0.5_s).AndThen(util::AutoIntake(robot))
                         .AlongWith(robot.m_shooter.AutoAdjustFlyWheel(positionFunc, isRed))),
                 util::AutoShoot(robot)
             );
@@ -75,7 +75,8 @@ namespace AutoBuilder{
     frc2::CommandPtr BuildSingleAuto(RobotContainer &robot, Trajectory_t trajectory) {
         return util::ResetStart(robot.m_swerve, trajectory)
             .AndThen(robot.m_intake.SeedArm())
-            .AndThen(BuildAuto(robot, trajectory));
+            .AndThen(BuildAuto(robot, trajectory))
+            .AndThen(util::AutoShoot(robot).Repeatedly());  // just empty hopper
     }
 
     frc2::CommandPtr BuildRepeatedAuto(RobotContainer &robot, Trajectory_t trajectory) {
