@@ -64,8 +64,11 @@ public:
   frc2::Trigger AutoAim = m_swerveController.Y(); //from any place
   frc2::Trigger HUBAim = m_swerveController.A(); //HUB
   frc2::Trigger TowerAim = m_swerveController.X(); //Ladder
-  frc2::Trigger BottomFeeder{
+  frc2::Trigger ShootFuelPlease{
     [this] {return std::abs(getBottomFeederSpeed()) > 0.25;}
+  };
+  frc2::Trigger ShootFuelNOW{
+    [this] {return m_swerveController.GetLeftTriggerAxis() > 0.25;}
   };
   frc2::Trigger OutTake = m_swerveController.B();
   frc2::Trigger LiftArm = m_swerveController.RightBumper();
