@@ -50,7 +50,8 @@ constexpr auto kMaxAngularAcceleration = std::numbers::pi * 2_rad_per_s_sq;
 
 constexpr frc::Pose2d desiredPose{0_m, 0_m, 0_deg};
 
-constexpr auto aimingTolerance = 3_deg;
+// aim tolerance measured in displacement of trajectory from ideal
+constexpr auto aimingTolerance = 6_in;
 } // namespace AutoConstants
 
 namespace OperatorConstants {
@@ -363,9 +364,11 @@ bool RobotContainer::isReadyToFire() {
   const auto hubPoint = IsRed() ? ShooterConstants::kHubRed : ShooterConstants::kHubBlue;
 
   const auto expectedAngle = (hubPoint - m_swerve.GetPose().Translation()).Angle();
+  const auto currentDistance = (hubPoint - m_swerve.GetPose().Translation()).Norm();
   const auto currentAngle = m_swerve.GetPose().Rotation();
   const auto relativeAngle = expectedAngle.RelativeTo(currentAngle);
-  const bool aimingAtHub = units::math::abs(relativeAngle.Degrees()) < AutoConstants::aimingTolerance;
+  const auto shotError = currentDistance * relativeAngle.Sin();
+  const bool aimingAtHub = units::math::abs(shotError) < AutoConstants::aimingTolerance;
 
   return m_shooter.readyToFire() && aimingAtHub;
 }
