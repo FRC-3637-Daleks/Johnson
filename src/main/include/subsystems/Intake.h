@@ -39,6 +39,8 @@ public:
 
     frc2::CommandPtr ManuallyCotrolIntake(std::function<double()> input, double scaler);
 
+    frc2::CommandPtr StopRollerUntilThisCMDInterupted();
+    
     frc2::CommandPtr SpinRoller(units::turns_per_second_t vel);
 
     // Extends arm at a constant velocity for a duration that should roughly extend it fully

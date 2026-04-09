@@ -8,7 +8,7 @@
 
 namespace LEDConstants {
     constexpr int kPort = 1;
-    constexpr int kNumLED = 128;
+    constexpr int kNumLED = 41;
 
     constexpr auto kTransitionShiftTimestamp = 10_s;
     constexpr auto kShift1Timestamp = 35_s;
@@ -24,6 +24,7 @@ namespace LEDConstants {
                                                                     kShift4Timestamp,
                                                                     kEndGameTimestamp};
 
+    const auto kStevensStateMachineIsntWorkingPattern = frc::LEDPattern::Rainbow(255, 150); //Rainbow
     const auto kActivePattern = frc::LEDPattern::Solid(frc::Color{0.0, 1.0, 0.0});          // Green
     const auto kInactivePattern = frc::LEDPattern::Solid(frc::Color{1.0, 0.0, 0.0});        // Red
     const auto kFirstWarningPattern = frc::LEDPattern::Solid(frc::Color{1.0, 1.0, 0.0});    // Yellow
@@ -115,6 +116,12 @@ void LEDSubsystem::Periodic() {
         } else {
             LEDConstants::kInactivePattern.ApplyTo(m_ledBuffer);
         }
+    }
+
+    //Overide in logic for auto and if were not getting team color to make it
+    //return green because if we don't know out team color, no useful data can be displayed
+    if (m_team == LEDConstants::TEAM::NONE) {
+        LEDConstants::kStevensStateMachineIsntWorkingPattern.ApplyTo(m_ledBuffer);
     }
     
     // Applies The Pattern
