@@ -43,13 +43,13 @@ constexpr auto kPeriod = 20_ms;
 constexpr auto kOdomPeriod = 5_ms;
 constexpr int kOdomHertz = (1_s/kOdomPeriod).value();
 
-constexpr double kPTheta = 3.62;
+constexpr double kPTheta = 6;
 constexpr double kITheta = 0.00;
 constexpr double kDTheta = 0.00;
 inline const frc::ProfiledPIDController<units::radians> kThetaPID{
     kPTheta, kITheta, kDTheta, {kMaxTurnRate, kMaxTurnAcceleration}};
 
-constexpr double kPXY = 5.2;
+constexpr double kPXY = 6.0;
 constexpr double kIXY = 0.0;
 constexpr double kDXY = 0.0;
 inline const frc::PIDController kTranslatePID{kPXY, kIXY, kDXY};

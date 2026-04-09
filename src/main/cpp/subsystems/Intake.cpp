@@ -37,7 +37,7 @@ namespace IntakeConstants {
     constexpr units::newton_meter_t gravityTorque = armWeight*armLength;
 
     constexpr auto fuelMass = 0.2_kg;
-    constexpr auto maxFuelOnIntake = 30;
+    constexpr auto maxFuelOnIntake = 25;
     constexpr auto maxFuelMass = fuelMass*maxFuelOnIntake;
     constexpr auto fuelTorque = maxFuelMass*units::standard_gravity_t{1.0}*armLength/2;
     
@@ -76,7 +76,7 @@ namespace IntakeConstants {
     // Scaled relative to the weight of the intake
     constexpr auto peakExtendTorque = 4*gravityTorque;
     constexpr auto peakForwardCurrent = armMotor.Current(peakExtendTorque);
-    constexpr auto peakRetractTorque = 2*(gravityTorque + fuelTorque);
+    constexpr auto peakRetractTorque = 3*(gravityTorque + fuelTorque);
     constexpr auto peakReverseCurrent = armMotor.Current(-peakRetractTorque);
 
     constexpr auto currentLimits = ctre::phoenix6::configs::CurrentLimitsConfigs{}
@@ -173,14 +173,14 @@ namespace IntakeConstants {
     ;
 
     constexpr auto holdRetractRequest = 
-        ctre::phoenix6::controls::TorqueCurrentFOC{-gravityTorqueCurrent}
+        ctre::phoenix6::controls::TorqueCurrentFOC{-gravityTorqueCurrent/5}
         .WithIgnoreSoftwareLimits(true)
     ;
 
     constexpr auto scoreArmRequest = 
         ctre::phoenix6::controls::MotionMagicVelocityTorqueCurrentFOC{slowRetractVel}
         .WithSlot(1)
-        .WithIgnoreSoftwareLimits(true)
+        .WithIgnoreSoftwareLimits(false)
         .WithOverrideCoastDurNeutral(true)
         .WithFeedForward(-armMotor.Current(fuelTorque))
     ;
@@ -279,6 +279,13 @@ Intake::Intake() :
     armConfig.WithHardwareLimitSwitch(configs::HardwareLimitSwitchConfigs{}
         .WithReverseLimitAutosetPositionEnable(true)
         .WithReverseLimitAutosetPositionValue(0_tr)
+    );
+
+    armConfig.WithSoftwareLimitSwitch(configs::SoftwareLimitSwitchConfigs{}
+        .WithReverseSoftLimitEnable(true)
+        .WithReverseSoftLimitThreshold(IntakeConstants::armInPos)
+        .WithForwardSoftLimitEnable(true)
+        .WithForwardSoftLimitThreshold(IntakeConstants::armOutPos)
     );
 
     armConfig.WithClosedLoopGeneral(configs::ClosedLoopGeneralConfigs{}
@@ -449,12 +456,14 @@ units::ampere_t Intake::getCurrentArm() {
 
 frc2::CommandPtr Intake::ScoreFuel(units::second_t duration) {
     auto req = IntakeConstants::scoreArmRequest;
-    req.WithVelocity(-IntakeConstants::armRange/(duration*2));
+    req.WithVelocity(-IntakeConstants::armRange/(duration));
     return 
         SpinRoller(IntakeConstants::intakingWheelVelocity).RaceWith(
-             (Run([this, req] {m_armMotor.SetControl(req);}).WithTimeout(duration)).Until([this] {return getCurrentArm() > 20_A;})
-             .AndThen(Extend())
-        ).WithTimeout(duration*3)
+             (Run([this, req] {m_armMotor.SetControl(req);})
+                //.Until([this] {return getCurrentArm() < -IntakeConstants::peakReverseCurrent + 2_A;})
+                .WithTimeout(duration))
+             .AndThen(Extend().WithTimeout(duration*3))
+        )
     ;
     // auto req = IntakeConstants::scoreArmRequest;
     // req.WithVelocity(-IntakeConstants::armRange/(duration*2));

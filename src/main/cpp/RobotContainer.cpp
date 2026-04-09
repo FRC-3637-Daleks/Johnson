@@ -51,7 +51,7 @@ constexpr auto kMaxAngularAcceleration = std::numbers::pi * 2_rad_per_s_sq;
 constexpr frc::Pose2d desiredPose{0_m, 0_m, 0_deg};
 
 // aim tolerance measured in displacement of trajectory from ideal
-constexpr auto aimingTolerance = 6_in;
+constexpr auto aimingTolerance = 12_in;
 } // namespace AutoConstants
 
 namespace OperatorConstants {
