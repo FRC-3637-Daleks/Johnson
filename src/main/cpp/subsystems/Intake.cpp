@@ -443,16 +443,30 @@ frc2::CommandPtr Intake::OutakeFuel() {
     ;
 }
 
+units::ampere_t Intake::getCurrentArm() {
+    return m_armMotor.GetTorqueCurrent().GetValue();
+}
+
 frc2::CommandPtr Intake::ScoreFuel(units::second_t duration) {
     auto req = IntakeConstants::scoreArmRequest;
     req.WithVelocity(-IntakeConstants::armRange/(duration*2));
-    return
+    return 
         SpinRoller(IntakeConstants::intakingWheelVelocity).RaceWith(
-                Run([this, req] {m_armMotor.SetControl(req);}).WithTimeout(duration)
-                .AndThen(Extend().WithTimeout(duration))
-            ).WithTimeout(duration*3)
+             (Run([this, req] {m_armMotor.SetControl(req);}).WithTimeout(duration)).Until([this] {return getCurrentArm() > 20_A;})
+             .AndThen(Extend().WithTimeout(duration))
+        ).WithTimeout(duration*3)
     ;
+    // auto req = IntakeConstants::scoreArmRequest;
+    // req.WithVelocity(-IntakeConstants::armRange/(duration*2));
+    // return
+    //     SpinRoller(IntakeConstants::intakingWheelVelocity).RaceWith(
+    //             Run([this, req] {m_armMotor.SetControl(req);}).WithTimeout(duration)
+    //             .AndThen(Extend().WithTimeout(duration))
+    //         ).WithTimeout(duration*3)
+    // ;
 }
+
+
 
 //**************************** Private Members ****************************/
 

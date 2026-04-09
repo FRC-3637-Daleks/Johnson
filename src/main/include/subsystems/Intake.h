@@ -64,6 +64,9 @@ public:
     // Executes a specific motion profile for coaxing the fuel into the shooter
     frc2::CommandPtr ScoreFuel(units::second_t duration = 3_s);
 
+   units::ampere_t getCurrentArm();
+
+
     frc2::CommandPtr Unzero() {return RunOnce([this] {m_armZeroed = false;});}
 
 public:
