@@ -181,8 +181,17 @@ void RobotContainer::ConfigureBindings() {
 
   frc2::Trigger readyToFireTrigger{[this] {return isReadyToFire();}};
   
-  (m_oi.ShootFuelPlease && readyToFireTrigger || m_oi.ShootFuelNOW).WhileTrue(m_feederBottom.ManuallySetMotor(m_oi.getBottomFeederSpeed, OperatorConstants::BottomFeederScaler));
-  m_oi.ShootFuelPlease.WhileTrue(m_intake.ScoreFuel(0.5_s).Repeatedly());
+  //Manual Position Shoot
+  frc2::Trigger shootForReal = 
+  (m_oi.ShootFuelPlease && ((m_oi.TowerAim || m_oi.HUBAim)  //Manual Shoot
+                          || (m_oi.ShootFuelNOW)            //Overide
+                          || (readyToFireTrigger)           //Auto is ready to fire
+        ));
+        
+  shootForReal.WhileTrue(m_feederBottom.ManuallySetMotor(m_oi.getBottomFeederSpeed, OperatorConstants::BottomFeederScaler));
+  
+  //Auto Jiggle when ready to shoot unless outtaking
+  (shootForReal && !m_oi.OutTake).WhileTrue(m_intake.ScoreFuel(0.5_s).Repeatedly());
 
   // Cancel this with "BottomFeeder" trigger simultaneously
   m_oi.OutTake.WhileTrue(m_feederBottom.setRPMEnd(-15_tps));
