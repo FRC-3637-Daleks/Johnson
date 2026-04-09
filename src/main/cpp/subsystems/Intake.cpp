@@ -432,6 +432,10 @@ frc2::CommandPtr Intake::SeedArm(units::turn_t pos) {
     return RunOnce([this, pos] {if (!m_armZeroed) m_armMotor.SetPosition(pos); m_armZeroed = true;});
 }
 
+frc2::CommandPtr Intake::SeedArm() {
+    return SeedArm(IntakeConstants::armInPos);
+}
+
 frc2::CommandPtr Intake::IntakeFuel() {
     return 
         Extend()

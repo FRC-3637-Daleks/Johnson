@@ -53,7 +53,8 @@ public:
     frc2::CommandPtr HomeArm();
 
     // Seeds the intake position if its at a known location
-    frc2::CommandPtr SeedArm(units::turn_t pos = 0_tr);
+    frc2::CommandPtr SeedArm(units::turn_t pos);
+    frc2::CommandPtr SeedArm();
 
     // Intakes fuel indefinitely
     frc2::CommandPtr IntakeFuel();
