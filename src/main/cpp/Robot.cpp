@@ -132,6 +132,7 @@ void Robot::SimulationInit() {}
 void Robot::SimulationPeriodic() {
   frc::SmartDashboard::PutBoolean("AutoAim/IsShooterReady?", m_container.isShooterSpunUp());
   frc::SmartDashboard::PutBoolean("AutoAim/IsAimingAtHub?", m_container.isAimingAtHub());
+  frc::SmartDashboard::PutBoolean("AutoAim/IsHoodAtPos?", m_container.m_shooter.isHoodAtPos());
 }
 
 #ifndef RUNNING_FRC_TESTS
