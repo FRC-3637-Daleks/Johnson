@@ -78,6 +78,11 @@ void Robot::RobotPeriodic() {
                                  can_status.transmitErrorCount);
   frc::SmartDashboard::PutNumber("CAN Bus/TX Full Count",
                                  can_status.txFullCount);
+
+  frc::SmartDashboard::PutBoolean("AutoAim/IsShooterReady?", m_container.isShooterSpunUp());
+  frc::SmartDashboard::PutBoolean("AutoAim/IsAimingAtHub?", m_container.isAimingAtHub());
+  frc::SmartDashboard::PutBoolean("AutoAim/IsHoodAtPos?", m_container.m_shooter.isHoodAtPos());
+
 }
 
 /**
@@ -130,9 +135,7 @@ void Robot::SimulationInit() {}
  * This function is called periodically whilst in simulation.
  */
 void Robot::SimulationPeriodic() {
-  frc::SmartDashboard::PutBoolean("AutoAim/IsShooterReady?", m_container.isShooterSpunUp());
-  frc::SmartDashboard::PutBoolean("AutoAim/IsAimingAtHub?", m_container.isAimingAtHub());
-  frc::SmartDashboard::PutBoolean("AutoAim/IsHoodAtPos?", m_container.m_shooter.isHoodAtPos());
+  
 }
 
 #ifndef RUNNING_FRC_TESTS
