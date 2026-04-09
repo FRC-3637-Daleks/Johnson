@@ -47,7 +47,8 @@ constexpr auto kSteerMotorStatorCurrentLimit = 30_A;
 // Can exceed limit for 40ms seconds
 constexpr auto kCurrentLimitPeriod = 40_ms;
 
-constexpr auto kWheelDiameter = 4_in;
+constexpr auto kWheelDiameterTheoretical = 4_in;
+constexpr auto kWheelDiameter = 0.945*kWheelDiameterTheoretical;
 
 constexpr double kDriveEncoderReduction = 5.9;     // reduction in drive motor
 // Linear distance per revolution of motor
