@@ -66,7 +66,7 @@ namespace AutoBuilder{
             return frc2::cmd::Sequence(
                 swerve.FollowPathCommand(trajectory, PathFollower::EndConditionType::NEAR_DEST)
                     .DeadlineFor(
-                        frc2::cmd::Wait(0.5_s).AndThen(util::AutoIntake(robot))
+                        frc2::cmd::Wait(0.1_s).AndThen(util::AutoIntake(robot))
                         .AlongWith(robot.m_shooter.AutoAdjustFlyWheel(positionFunc, isRed))),
                 util::AutoShoot(robot)
             );

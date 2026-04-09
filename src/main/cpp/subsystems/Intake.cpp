@@ -65,10 +65,10 @@ namespace IntakeConstants {
     
     // These constants seem to need vibe-tuning
     constexpr ctre::unit::amperes_per_turn_per_second_squared_t kA = 
-        0.5*armGearing*armMOI/armMotor.Kt/1_tr;
+        1*armGearing*armMOI/armMotor.Kt/1_tr;
     
     // Higher results in slower acceleration
-    constexpr ctre::unit::volts_per_turn_per_second_squared_t kA_profile{20};
+    constexpr ctre::unit::volts_per_turn_per_second_squared_t kA_profile{15};
     
     // motion magic cruise velocity 0.3
 
@@ -168,7 +168,7 @@ namespace IntakeConstants {
     ;
 
     constexpr auto holdExtendRequest = 
-        ctre::phoenix6::controls::TorqueCurrentFOC{gravityTorqueCurrent/10}
+        ctre::phoenix6::controls::TorqueCurrentFOC{gravityTorqueCurrent/5}
         .WithIgnoreSoftwareLimits(true)
     ;
 

@@ -90,7 +90,7 @@ public:
   
   bool isAimingAtHub();
   bool isShooterSpunUp();
-  bool isReadyToFire() {isAimingAtHub() && isShooterSpunUp();}
+  bool isReadyToFire() {return isAimingAtHub() && isShooterSpunUp();}
 
 public:
   bool IsRed() {return m_isRed;}
