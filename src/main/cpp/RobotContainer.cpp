@@ -179,13 +179,14 @@ void RobotContainer::ConfigureBindings() {
   
   (!m_oi.TowerAim && !m_oi.HUBAim && !m_oi.AutoAim).Debounce(1_s).OnTrue(m_shooter.RetractHood());
 
-  frc2::Trigger readyToFireTrigger{[this] {return isReadyToFire();}};
+  frc2::Trigger aimingAtHub{[this] {return isAimingAtHub();}};
+  frc2::Trigger shooterReady([this] {return isShooterSpunUp();});
   
   //Manual Position Shoot
   frc2::Trigger shootForReal = 
   (m_oi.ShootFuelPlease && ((m_oi.TowerAim || m_oi.HUBAim)  //Manual Shoot
                           || (m_oi.ShootFuelNOW)            //Overide
-                          || (readyToFireTrigger)           //Auto is ready to fire
+                          || (aimingAtHub && shooterReady)  //Auto is ready to fire
         ));
         
   shootForReal.WhileTrue(m_feederBottom.ManuallySetMotor(m_oi.getBottomFeederSpeed, OperatorConstants::BottomFeederScaler));
@@ -194,13 +195,15 @@ void RobotContainer::ConfigureBindings() {
   (shootForReal && !m_oi.OutTake).WhileTrue(m_intake.ScoreFuel(0.5_s).Repeatedly());
 
   // Cancel this with "BottomFeeder" trigger simultaneously
-  m_oi.OutTake.WhileTrue(m_feederBottom.setRPMEnd(-15_tps));
+  m_oi.OutTake.WhileTrue(
+    m_feederBottom.setRPMEnd(-15_tps).WithTimeout(0.5_s)
+    .AndThen(m_feederBottom.setRPMEnd(20_tps).WithTimeout(0.5_s)).Repeatedly());
   m_oi.OutTake.WhileTrue(m_intake.OutakeFuel());
   m_oi.OutTake.WhileTrue(m_shooter.CycleHopper()
                         .AlongWith(TopFeederShooting()));
 
-  m_oi.LiftArm.WhileTrue(m_intake.Lift());
-  m_oi.LiftArm.OnFalse(m_intake.IntakeFuel());
+  // m_oi.LiftArm.WhileTrue(m_intake.Lift());
+  m_oi.LiftArm.OnTrue(m_intake.IntakeFuel());
   m_oi.LiftArm.MultiPress(2, 0.5_s).OnTrue(m_intake.StopRollerUntilThisCMDInterupted()); //make it stop
 #ifndef NOCLIMB
   m_oi.ClimbUp.OnTrue(m_climb.Deploy());
@@ -370,7 +373,7 @@ void RobotContainer::CheckAlliance() {
   if (wasRed != m_isRed) ReloadAuto();
 }
 
-bool RobotContainer::isReadyToFire() {
+bool RobotContainer::isAimingAtHub() {
   const auto hubPoint = IsRed() ? ShooterConstants::kHubRed : ShooterConstants::kHubBlue;
 
   const auto expectedAngle = (hubPoint - m_swerve.GetPose().Translation()).Angle();
@@ -380,7 +383,11 @@ bool RobotContainer::isReadyToFire() {
   const auto shotError = currentDistance * relativeAngle.Sin();
   const bool aimingAtHub = units::math::abs(shotError) < AutoConstants::aimingTolerance;
 
-  return m_shooter.readyToFire() && aimingAtHub;
+  return aimingAtHub;
+}
+
+bool RobotContainer::isShooterSpunUp() {
+  return m_shooter.readyToFire();
 }
 
 frc2::CommandPtr RobotContainer::AutoAim(){

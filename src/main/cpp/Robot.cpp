@@ -129,7 +129,10 @@ void Robot::SimulationInit() {}
 /**
  * This function is called periodically whilst in simulation.
  */
-void Robot::SimulationPeriodic() {}
+void Robot::SimulationPeriodic() {
+  frc::SmartDashboard::PutBoolean("AutoAim/IsShooterReady?", m_container.isShooterSpunUp());
+  frc::SmartDashboard::PutBoolean("AutoAim/IsAimingAtHub?", m_container.isAimingAtHub());
+}
 
 #ifndef RUNNING_FRC_TESTS
 int main() { return frc::StartRobot<Robot>(); }

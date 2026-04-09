@@ -88,9 +88,9 @@ namespace IntakeConstants {
 
     constexpr auto rollerCurrentLimits = ctre::phoenix6::configs::CurrentLimitsConfigs{}
         .WithSupplyCurrentLimit(40_A)  // never allow over this amount
-        .WithSupplyCurrentLowerLimit(30_A)  // limit to this if over for 250_ms
+        .WithSupplyCurrentLowerLimit(25_A)  // limit to this if over for 250_ms
         .WithSupplyCurrentLowerTime(250_ms)
-        .WithStatorCurrentLimit(30_A)
+        .WithStatorCurrentLimit(50_A)
     ;
 
     constexpr auto mmConfig = ctre::phoenix6::configs::MotionMagicConfigs{}
@@ -453,7 +453,7 @@ frc2::CommandPtr Intake::ScoreFuel(units::second_t duration) {
     return 
         SpinRoller(IntakeConstants::intakingWheelVelocity).RaceWith(
              (Run([this, req] {m_armMotor.SetControl(req);}).WithTimeout(duration)).Until([this] {return getCurrentArm() > 20_A;})
-             .AndThen(Extend().WithTimeout(duration))
+             .AndThen(Extend())
         ).WithTimeout(duration*3)
     ;
     // auto req = IntakeConstants::scoreArmRequest;

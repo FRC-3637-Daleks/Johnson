@@ -136,5 +136,7 @@ void LinearActuator::UpdateDashboard() {
     ("Shooter/LinearActuator/PosEstimate", positionEstimate);
     frc::SmartDashboard::PutNumber
     ("Shooter/LinearActuator/PosTarget", positionTarget);
+    frc::SmartDashboard::PutBoolean
+    ("Shooter/LinearActuator/IsAtTarget", isLinearActuatorAtPos());
 }
 

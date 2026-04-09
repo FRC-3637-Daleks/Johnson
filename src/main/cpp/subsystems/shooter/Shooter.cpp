@@ -34,7 +34,7 @@ namespace ShooterConstants {
     units::ampere_t PeakReverseTorqueCurrent = -10_A;
 
     //used just in bool isAtCorrectSpeed()
-    units::angular_velocity::turns_per_second_t kSpeedTolerance = 0.4_tps;
+    units::angular_velocity::turns_per_second_t kSpeedTolerance = 2_tps;
 
     constexpr auto launcherGearing = 26.0/18.0;
     constexpr auto launcherMOI = 0.01_kg_sq_m;
@@ -70,10 +70,11 @@ Shooter::Shooter() :
     m_sim_state{create_shooter_sim(*this)}
 {
    
-    m_distance_to_shots.insert(1.35_m, ShooterConstants::hub_shot);
-    m_distance_to_shots.insert(3.11_m, ShooterConstants::tower_shot);
-    m_distance_to_shots.insert(3.75_m, ShooterConstants::trench_shot);
-    m_distance_to_shots.insert(5.07_m, ShooterConstants::corner_shot);
+    m_distance_to_shots.insert(1.11_m, ShooterConstants::hub_shot);
+    m_distance_to_shots.insert(2.44_m, {65_tps, 38_mm});
+    //m_distance_to_shots.insert(3.11_m, ShooterConstants::tower_shot);
+    m_distance_to_shots.insert(3.475_m, ShooterConstants::trench_shot);
+    //m_distance_to_shots.insert(5.07_m, ShooterConstants::corner_shot);
     
     //Shooter PID config
     ctre::phoenix6::configs::TalonFXConfiguration PIDConfig;
@@ -241,7 +242,10 @@ frc2::CommandPtr Shooter::SetFlywheelSpeed(units::angular_velocity::turns_per_se
 }
 frc2::CommandPtr Shooter::SetFlywheelSpeed(std::function<units::inch_t()> distanceFunc){
     return RunEnd(
-        [this, distanceFunc]{SetFlywheelSpeedNRM(m_distance_to_shots[distanceFunc()].Velocity());},
+        [this, distanceFunc]{
+            const auto dist = distanceFunc();
+            frc::SmartDashboard::PutNumber("Shooter/distance (m)", units::meter_t{dist}.value());
+            SetFlywheelSpeedNRM(m_distance_to_shots[dist].Velocity());},
         [this]{m_flyWheelFollowMotor.StopMotor();}
     );
 }

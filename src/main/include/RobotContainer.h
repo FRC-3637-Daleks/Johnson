@@ -88,7 +88,8 @@ public:
   frc2::CommandPtr TopFeederShooting();
   frc2::CommandPtr AutoAim();
   
-  bool isReadyToFire();
+  bool isAimingAtHub();
+  bool isShooterSpunUp();
 
 public:
   bool IsRed() {return m_isRed;}
