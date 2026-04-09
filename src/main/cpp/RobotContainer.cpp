@@ -282,7 +282,12 @@ void RobotContainer::ConfigureAuto() {
     auto trajectory = choreo::Choreo::LoadTrajectory<choreo::SwerveSample>(entry_string);
     if(trajectory.has_value()){
       m_chooser.AddOption(
-        trajectory.value().name, trajectory.value());
+        trajectory.value().name + "_Left", trajectory.value());
+        //Flipped trajectory across horizontal midline
+        trajectory = trajectory.value().Flipped<2024>().Flipped<2026>();
+        m_chooser.AddOption(
+        trajectory.value().name + "_Right", trajectory.value());
+      
     }
     else{
       fmt::println("FAILED TO LOAD TRAJECTORY: {}", entry_string);

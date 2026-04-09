@@ -4,19 +4,26 @@
  "type":"Swerve",
  "variables":{
   "expressions":{
-   "IntakeVel":{
+   "BumpVel":{
     "dimension":"LinVel",
     "var":{
      "exp":"2 m / s",
      "val":2.0
+    }
+   },
+   "IntakeVel":{
+    "dimension":"LinVel",
+    "var":{
+     "exp":"3.5 m / s",
+     "val":3.5
     }
    }
   },
   "poses":{
    "Dep":{
     "x":{
-     "exp":"0.95 m",
-     "val":0.95
+     "exp":"1.1 m",
+     "val":1.1
     },
     "y":{
      "exp":"5.94 m",
@@ -43,8 +50,8 @@
    },
    "LB":{
     "x":{
-     "exp":"3.2 m",
-     "val":3.2
+     "exp":"2.8 m",
+     "val":2.8
     },
     "y":{
      "exp":"5.55 m",
@@ -71,8 +78,8 @@
    },
    "LTrench":{
     "x":{
-     "exp":"4.2 m",
-     "val":4.2
+     "exp":"4.45 m",
+     "val":4.45
     },
     "y":{
      "exp":"7.6 m",

@@ -22,7 +22,7 @@
  },
  "params":{
   "waypoints":[
-    {"x":{"exp":"LTrench.x", "val":4.2}, "y":{"exp":"LTrench.y", "val":7.6}, "heading":{"exp":"LTrench.heading", "val":-1.5707963267948966}, "intervals":27, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"LTrench.x", "val":4.45}, "y":{"exp":"LTrench.y", "val":7.6}, "heading":{"exp":"LTrench.heading", "val":-1.5707963267948966}, "intervals":27, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"7.74 m", "val":7.74}, "y":{"exp":"7.28 m", "val":7.28}, "heading":{"exp":"0 deg", "val":0.0}, "intervals":33, "split":false, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
     {"x":{"exp":"7.74 m", "val":7.74}, "y":{"exp":"4.57 m", "val":4.57}, "heading":{"exp":"0 deg", "val":0.0}, "intervals":26, "split":false, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
     {"x":{"exp":"6 m", "val":6.0}, "y":{"exp":"7.28 m", "val":7.28}, "heading":{"exp":"0 deg", "val":0.0}, "intervals":23, "split":false, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
@@ -36,7 +36,7 @@
     {"from":0, "to":1, "data":{"type":"KeepOutCircle", "props":{"x":{"exp":"5.288782172079664 m", "val":5.288782172079664}, "y":{"exp":"5.834598943591118 m", "val":5.834598943591118}, "r":{"exp":"1 m", "val":1.0}}}, "enabled":true},
     {"from":4, "to":4, "data":{"type":"KeepInRectangle", "props":{"x":{"exp":"1 m", "val":1.0}, "y":{"exp":"6.750079989433289 m", "val":6.750079989433289}, "w":{"exp":"8.808899067342281 m", "val":8.808899067342281}, "h":{"exp":"1.3958815783262253 m", "val":1.3958815783262253}}}, "enabled":true},
     {"from":4, "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
-    {"from":1, "to":2, "data":{"type":"MaxVelocity", "props":{"max":{"exp":"IntakeVel", "val":2.0}}}, "enabled":true}],
+    {"from":1, "to":2, "data":{"type":"MaxVelocity", "props":{"max":{"exp":"IntakeVel", "val":3.5}}}, "enabled":true}],
   "targetDt":{
    "exp":"0.05 s",
    "val":0.05
