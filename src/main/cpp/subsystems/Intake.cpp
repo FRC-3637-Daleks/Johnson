@@ -87,10 +87,10 @@ namespace IntakeConstants {
     ;
 
     constexpr auto rollerCurrentLimits = ctre::phoenix6::configs::CurrentLimitsConfigs{}
-        .WithSupplyCurrentLimit(60_A)  // never allow over this amount
-        .WithSupplyCurrentLowerLimit(30_A)  // limit to this if over for 100_ms
-        .WithSupplyCurrentLowerTime(500_ms)
-        .WithStatorCurrentLimit(80_A)
+        .WithSupplyCurrentLimit(40_A)  // never allow over this amount
+        .WithSupplyCurrentLowerLimit(30_A)  // limit to this if over for 250_ms
+        .WithSupplyCurrentLowerTime(250_ms)
+        .WithStatorCurrentLimit(30_A)
     ;
 
     constexpr auto mmConfig = ctre::phoenix6::configs::MotionMagicConfigs{}
@@ -286,7 +286,7 @@ Intake::Intake() :
     );
 
     armConfig.WithCurrentLimits(IntakeConstants::currentLimits);
-    rollerConfig.WithCurrentLimits(IntakeConstants::currentLimits);
+    rollerConfig.WithCurrentLimits(IntakeConstants::rollerCurrentLimits);
 
     armConfig.WithFeedback(configs::FeedbackConfigs{}
         .WithSensorToMechanismRatio(IntakeConstants::armGearing)

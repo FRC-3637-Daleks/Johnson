@@ -192,6 +192,7 @@ void RobotContainer::ConfigureBindings() {
 
   m_oi.LiftArm.WhileTrue(m_intake.Lift());
   m_oi.LiftArm.OnFalse(m_intake.IntakeFuel());
+  m_oi.LiftArm.MultiPress(2, 0.5_s).OnTrue(m_intake.ManuallyCotrolIntake([]{return 0;}, 1)); //make it stop
 #ifndef NOCLIMB
   m_oi.ClimbUp.OnTrue(m_climb.Deploy());
   m_oi.ClimbLift.OnTrue(m_climb.LiftBot());
