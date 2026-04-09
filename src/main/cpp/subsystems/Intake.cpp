@@ -365,6 +365,10 @@ frc2::CommandPtr Intake::ManuallyCotrolIntake(std::function<double()> input, dou
     );
 }
 
+frc2::CommandPtr Intake::StopRollerUntilThisCMDInterupted() {
+    return m_rollerSubsystem.Run([this] {m_intakeMotor.StopMotor();});
+}
+
 frc2::CommandPtr Intake::SpinRoller(units::turns_per_second_t vel) {
     return m_rollerSubsystem.RunEnd(
         [this, vel] {SetRollerVelocity(vel);},
