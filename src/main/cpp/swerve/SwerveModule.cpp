@@ -60,7 +60,7 @@ constexpr auto kWheelMoment = .0101_kg_sq_m;
 constexpr auto kMotorSpeedChoreo = 5104_rpm; // choreo value
 constexpr auto kMotorSpeed = 6000_rpm;       // Website value
 constexpr auto kDriveMaxAcceleration = 500_tr_per_s_sq;
-constexpr auto kDriveTargetAcceleration = 200_tr_per_s_sq;
+constexpr auto kDriveTargetAcceleration = 250_tr_per_s_sq;
 constexpr auto kDistanceToRotations = kDriveEncoderDistancePerRevolution / 1_tr;
 
 constexpr double kSteerGearReduction = 18.75;
