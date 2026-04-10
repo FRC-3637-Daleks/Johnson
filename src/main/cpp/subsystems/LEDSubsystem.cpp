@@ -47,6 +47,7 @@ LEDSubsystem::LEDSubsystem() : m_led{LEDConstants::kPort}, m_ledBuffer(LEDConsta
     m_led.SetLength(LEDConstants::kNumLED);
     LEDConstants::kAutonPattern.ApplyTo(m_ledBuffer);
     m_led.SetData(m_ledBuffer);
+    m_led.Start();
 }
 
 void LEDSubsystem::TeleopInit()
