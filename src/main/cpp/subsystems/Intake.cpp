@@ -188,6 +188,7 @@ namespace IntakeConstants {
     constexpr auto manualArmRequest =
         ctre::phoenix6::controls::DutyCycleOut{0.0}
         .WithOverrideBrakeDurNeutral(true)
+        .WithIgnoreSoftwareLimits(true)
     ;
 
     constexpr auto rollerRequest =
@@ -542,7 +543,7 @@ IntakeSim::IntakeSim(Intake& in) :
     m_armPhysics{
         frc::DCMotor::KrakenX60FOC(1),
         IntakeConstants::armGearing,
-        IntakeConstants::armMOI,
+        IntakeConstants::armMOI/3.0,
         IntakeConstants::armLength,
         IntakeConstants::armInPos,  // Min Angle
         IntakeConstants::armOutPos,   // Max Angle
