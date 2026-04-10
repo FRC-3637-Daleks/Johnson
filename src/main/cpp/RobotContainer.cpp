@@ -281,13 +281,16 @@ void RobotContainer::ConfigureAuto() {
     
     auto trajectory = choreo::Choreo::LoadTrajectory<choreo::SwerveSample>(entry_string);
     if(trajectory.has_value()){
+      //Flipped trajectory across horizontal midline
+      const auto normal_trajectory = std::move(trajectory.value());
+      const auto flipped_trajectory = normal_trajectory.Flipped<2024>().Flipped<2026>();
+
       m_chooser.AddOption(
-        trajectory.value().name + "_Left", trajectory.value());
-        //Flipped trajectory across horizontal midline
-        trajectory = trajectory.value().Flipped<2024>().Flipped<2026>();
-        m_chooser.AddOption(
-        trajectory.value().name + "_Right", trajectory.value());
-      
+        normal_trajectory.name + "_Left", std::move(normal_trajectory)
+      );
+      m_chooser.AddOption(
+        flipped_trajectory.name + "_Right", std::move(flipped_trajectory)
+      );
     }
     else{
       fmt::println("FAILED TO LOAD TRAJECTORY: {}", entry_string);
@@ -303,7 +306,8 @@ void RobotContainer::ConfigureAuto() {
 }
 
 void RobotContainer::ReloadAuto() {
-  const auto t = IsRed()? m_chooser.GetSelected().Flipped():m_chooser.GetSelected();
+  const auto selected_trajectory = m_chooser.GetSelected();
+  const auto t = IsRed()? std::move(selected_trajectory).Flipped():std::move(selected_trajectory);
 
   if (t.GetPoses().size() == 0) {
     // default auto selected
@@ -313,7 +317,7 @@ void RobotContainer::ReloadAuto() {
   } else {
     m_swerve.GetField().GetObject("preview")->SetPoses(t.GetPoses());
     m_swerve.GetField().GetObject("auton start")->SetPose(t.GetInitialPose().value());
-    m_loaded_auto = AutoBuilder::BuildSingleAuto(*this, t);
+    m_loaded_auto = AutoBuilder::BuildSingleAuto(*this, std::move(t));
   }
 
 }
