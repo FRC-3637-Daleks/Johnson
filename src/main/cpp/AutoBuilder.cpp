@@ -6,8 +6,13 @@ namespace AutoBuilder{
 
    namespace util{
         frc2::CommandPtr AutoIntake(RobotContainer &robot){
-            return frc2::cmd::Print("STARTING INTAKE").AlongWith(robot.m_intake.IntakeFuel())
-                                                      .FinallyDo([]{fmt::println("ENDING INTAKE");});
+            return frc2::cmd::Print("STARTING INTAKE")
+                .AlongWith(
+                    robot.m_intake.BlindExtend()
+                    .AndThen(robot.m_intake.IntakeFuel())
+                )
+                .FinallyDo([]{fmt::println("ENDING INTAKE");})
+            ;
         }
 
         frc2::CommandPtr AutoShoot(RobotContainer &robot){
