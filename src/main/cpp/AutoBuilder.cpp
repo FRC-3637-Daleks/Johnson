@@ -6,9 +6,15 @@ namespace AutoBuilder{
 
    namespace util{
         frc2::CommandPtr AutoIntake(RobotContainer &robot){
+            constexpr auto kRedNeutral = 11.0_m;
+            constexpr auto kBlueNeutral = 5.05_m;
             return frc2::cmd::Print("STARTING INTAKE")
                 .AlongWith(
-                    robot.m_intake.BlindExtend()
+                    frc2::cmd::WaitUntil([&robot] {
+                        const auto x = robot.m_swerve.GetPose().X();
+                        return x > kBlueNeutral && x < kRedNeutral;
+                    })
+                    .AndThen(robot.m_intake.BlindExtend())
                     .AndThen(robot.m_intake.IntakeFuel())
                 )
                 .FinallyDo([]{fmt::println("ENDING INTAKE");})
@@ -27,7 +33,8 @@ namespace AutoBuilder{
                     .AlongWith(robot.m_feederBottom.setRPMEnd(-25_tps).WithTimeout(0.5_s))
                     .AndThen(
                         robot.m_feederBottom.setRPMEnd(40_tps)
-                        .RaceWith(robot.m_intake.ScoreFuel(1_s).Repeatedly().WithTimeout(3_s))
+                        .RaceWith(robot.m_intake.ScoreFuel(0.75_s).Repeatedly().WithTimeout(2.5_s)
+                            .AndThen(robot.m_intake.Retract().WithTimeout(0.5_s)))  // end retracted
                     )
                 ).AndThen(robot.m_shooter.RetractHood())
             ;
@@ -73,7 +80,7 @@ namespace AutoBuilder{
             return frc2::cmd::Sequence(
                 swerve.FollowPathCommand(std::move(trajectory), PathFollower::EndConditionType::NEAR_DEST)
                     .DeadlineFor(
-                        frc2::cmd::Wait(0.1_s).AndThen(util::AutoIntake(robot))
+                        util::AutoIntake(robot)
                         .AlongWith(robot.m_shooter.AutoAdjustFlyWheel(positionFunc, isRed))),
                 util::AutoShoot(robot)
             );
