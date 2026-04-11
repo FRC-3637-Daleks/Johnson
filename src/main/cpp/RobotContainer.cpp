@@ -193,11 +193,11 @@ void RobotContainer::ConfigureBindings() {
     m_oi.RumbleController(0.75)
   );
         
-  shootForReal.Debounce(1_s).WhileTrue(m_feederBottom.ManuallySetMotor(m_oi.getBottomFeederSpeed, OperatorConstants::BottomFeederScaler));
+  shootForReal.WhileTrue(m_feederBottom.ManuallySetMotor(m_oi.getBottomFeederSpeed, OperatorConstants::BottomFeederScaler));
   
   //Auto Jiggle when ready to shoot unless outtaking
   (shootForReal && !m_oi.OutTake).WhileTrue(
-    frc2::cmd::Wait(0.5_s)
+    frc2::cmd::Wait(0.25_s)
     .AndThen(m_intake.ScoreFuel(0.5_s)).Repeatedly()
   );
 
