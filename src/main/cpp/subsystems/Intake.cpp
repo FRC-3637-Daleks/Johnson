@@ -440,7 +440,7 @@ frc2::CommandPtr Intake::SeedArm() {
 frc2::CommandPtr Intake::IntakeFuel() {
     return 
         Extend()
-        .AndThen(
+        .AlongWith(
             SpinRoller(IntakeConstants::intakingWheelVelocity)
         )
     ;

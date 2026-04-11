@@ -14,7 +14,7 @@ namespace AutoBuilder{
                         const auto x = robot.m_swerve.GetPose().X();
                         return x > kBlueNeutral && x < kRedNeutral;
                     })
-                    .AndThen(robot.m_intake.BlindExtend())
+                    .AndThen(robot.m_intake.BlindExtend().WithTimeout(0.25_s))
                     .AndThen(robot.m_intake.IntakeFuel())
                 )
                 .FinallyDo([]{fmt::println("ENDING INTAKE");})
