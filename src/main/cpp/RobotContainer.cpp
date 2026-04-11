@@ -71,7 +71,7 @@ constexpr auto kMaxTeleopTurnSpeed = 2.5 * std::numbers::pi * 1_rad_per_s;
 constexpr double kSlowModeFactor = 0.3;
 
 constexpr double BottomFeederScaler = 70;
-constexpr double TopFeederScaler = 30;
+constexpr double TopFeederScaler = 40;
 } // namespace OperatorConstants
 
 namespace FieldConstants {
@@ -162,9 +162,9 @@ void RobotContainer::ConfigureBindings() {
   //Driver Controller
   m_oi.RetractHoldArm.OnTrue(m_intake.Retract());
   m_oi.AutoAim.WhileTrue(AutoAim());
-  m_oi.HUBAim.OnTrue(m_shooter.AimFromHUB()
+  m_oi.HUBAim.WhileTrue(m_shooter.AimFromHUB()
                       .AlongWith(TopFeederShooting()));
-  m_oi.TowerAim.OnTrue(m_shooter.AimFromTower()
+  m_oi.TowerAim.WhileTrue(m_shooter.AimFromTower()
                       .AlongWith(TopFeederShooting()));
   
   (m_oi.AutoAim || m_oi.HUBAim || m_oi.TowerAim).OnTrue(
@@ -177,7 +177,7 @@ void RobotContainer::ConfigureBindings() {
   //   [this] { return IsRed()? 180_deg:0_deg; }
   // ).WithTimeout(2_s));
   
-  (!m_oi.TowerAim && !m_oi.HUBAim && !m_oi.AutoAim).Debounce(1_s).OnTrue(m_shooter.RetractHood());
+  //(!m_oi.TowerAim && !m_oi.HUBAim && !m_oi.AutoAim).Debounce(1_s).OnTrue(m_shooter.RetractHood());
 
   frc2::Trigger aimingAtHub{[this] {return isAimingAtHub();}};
   frc2::Trigger shooterReady([this] {return isShooterSpunUp();});
