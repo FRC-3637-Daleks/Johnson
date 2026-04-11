@@ -87,6 +87,7 @@ public:
 public:
   frc2::CommandPtr TopFeederShooting();
   frc2::CommandPtr AutoAim();
+  frc2::CommandPtr FusePose();
   
   bool isAimingAtHub();
   bool isShooterSpunUp();

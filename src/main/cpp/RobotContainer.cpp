@@ -70,7 +70,7 @@ constexpr auto kMaxTeleopTurnSpeed = 2.5 * std::numbers::pi * 1_rad_per_s;
 
 constexpr double kSlowModeFactor = 0.3;
 
-constexpr double BottomFeederScaler = 40;
+constexpr double BottomFeederScaler = 70;
 constexpr double TopFeederScaler = 30;
 } // namespace OperatorConstants
 
@@ -349,19 +349,10 @@ void RobotContainer::ConfigureContinuous() {
   auto robot_still = frc2::Trigger{[this] {
     //return true;
     return m_swerve.IsStopped();
-  }}.Debounce(0.25_s);
+  }}.Debounce(0.1_s);
 
   // ROS to swerve
-  robot_still.WhileTrue(
-    frc2::cmd::StartRun(
-      // toss old values
-      [this] {m_ros.GetNewMapToOdom();},
-      [this] {
-        // this allows other sources to override this if it dies on an erroneous state
-        if (auto map_to_odom = m_ros.GetNewMapToOdom())
-          m_swerve.SetMapToOdom(map_to_odom.value());
-      }
-    ).IgnoringDisable(true));
+  robot_still.WhileTrue(FusePose());
 
   if constexpr (frc::RobotBase::IsSimulation()) {
     frc2::CommandScheduler::GetInstance().Schedule(
@@ -369,6 +360,18 @@ void RobotContainer::ConfigureContinuous() {
         m_ros.PubSim(m_swerve.GetSimulatedGroundTruth());
         }).IgnoringDisable(true));
   }
+}
+
+frc2::CommandPtr RobotContainer::FusePose() {
+  return frc2::cmd::StartRun(
+      // toss old values
+      [this] {m_ros.GetNewMapToOdom();},
+      [this] {
+        // this allows other sources to override this if it dies on an erroneous state
+        if (auto map_to_odom = m_ros.GetNewMapToOdom())
+          m_swerve.SetMapToOdom(map_to_odom.value());
+      }
+    ).IgnoringDisable(true);
 }
 
 frc2::Command* RobotContainer::GetAutonomousCommand() {
@@ -421,6 +424,7 @@ frc2::CommandPtr RobotContainer::AutoAim(){
 
   return m_shooter.AutoAdjust(positionFunc, isRed)
                   .AlongWith(TopFeederShooting())
+                  .AlongWith(FusePose())
                   .AlongWith(m_swerve.ZTargetCommand(
                     [this] {return m_oi.fwd();},
                     [this] {return m_oi.strafe();},
