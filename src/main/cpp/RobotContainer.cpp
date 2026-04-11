@@ -203,8 +203,8 @@ void RobotContainer::ConfigureBindings() {
 
   // Cancel this with "BottomFeeder" trigger simultaneously
   m_oi.OutTake.WhileTrue(
-    m_feederBottom.setRPMEnd(-15_tps).WithTimeout(0.5_s)
-    .AndThen(m_feederBottom.setRPMEnd(20_tps).WithTimeout(0.5_s)).Repeatedly());
+    m_feederBottom.setRPMEnd(-40_tps)
+  );
   m_oi.OutTake.WhileTrue(m_intake.OutakeFuel());
   m_oi.OutTake.WhileTrue(m_shooter.CycleHopper()
                         .AlongWith(TopFeederShooting()));
@@ -347,9 +347,9 @@ void RobotContainer::ConfigureContinuous() {
   // though this shouldnt be necessary with well timestamped camera frames
   // we dont want any teleportation during high speed motion
   auto robot_still = frc2::Trigger{[this] {
-    return true;
-    //return m_swerve.IsStopped();
-  }}.Debounce(0.5_s);
+    //return true;
+    return m_swerve.IsStopped();
+  }}.Debounce(0.25_s);
 
   // ROS to swerve
   robot_still.WhileTrue(
