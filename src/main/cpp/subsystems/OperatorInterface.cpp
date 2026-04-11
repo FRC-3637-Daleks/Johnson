@@ -83,21 +83,21 @@ units::revolutions_per_minute_t OperatorInterface::rot() {
          boolean_slowdown();
 }
 
-frc2::CommandPtr OperatorInterface::RumbleController(units::second_t time,
-                                                     double intensity) {
-  return frc2::cmd::Run([this, intensity] {
-           m_copilotController.SetRumble(
-               frc::GenericHID::RumbleType::kBothRumble, intensity);
-           m_swerveController.SetRumble(
-               frc::GenericHID::RumbleType::kBothRumble, intensity);
-         })
-      .WithTimeout(time)
-      .AndThen([this] {
+frc2::CommandPtr OperatorInterface::RumbleController(double intensity) {
+  return frc2::cmd::RunEnd(
+    [this, intensity] {
+      m_copilotController.SetRumble(
+          frc::GenericHID::RumbleType::kBothRumble, intensity);
+      m_swerveController.SetRumble(
+          frc::GenericHID::RumbleType::kBothRumble, intensity);
+      },
+      [this] {
         m_copilotController.SetRumble(frc::GenericHID::RumbleType::kBothRumble,
                                       0);
         m_swerveController.SetRumble(frc::GenericHID::RumbleType::kBothRumble,
                                      0);
-      });
+      }
+    );
 }
 
 bool OperatorInterface::IsRed() {

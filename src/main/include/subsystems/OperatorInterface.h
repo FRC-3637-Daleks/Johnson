@@ -58,7 +58,7 @@ public:
   frc2::Trigger ZeroHeadingTrigger = m_swerveController.Start();
   frc2::Trigger RobotRelativeToggleTrigger = m_swerveController.Back();
 
-  frc2::CommandPtr RumbleController(units::second_t time, double intensity);
+  frc2::CommandPtr RumbleController(double intensity);
 
   frc2::Trigger RetractHoldArm = m_swerveController.LeftBumper();
   frc2::Trigger AutoAim = m_swerveController.Y(); //from any place

@@ -184,10 +184,14 @@ void RobotContainer::ConfigureBindings() {
   
   //Manual Position Shoot
   frc2::Trigger shootForReal = 
-  (m_oi.ShootFuelPlease && ((m_oi.TowerAim || m_oi.HUBAim)  //Manual Shoot
+  (m_oi.ShootFuelPlease && ((shooterReady && (m_oi.TowerAim || m_oi.HUBAim))  //Manual Shoot
                           || (m_oi.ShootFuelNOW)            //Overide
                           || (aimingAtHub && shooterReady)  //Auto is ready to fire
         ));
+  
+  ((m_oi.HUBAim || m_oi.TowerAim || m_oi.AutoAim) && shooterReady).WhileTrue(
+    m_oi.RumbleController(0.75)
+  );
         
   shootForReal.WhileTrue(m_feederBottom.ManuallySetMotor(m_oi.getBottomFeederSpeed, OperatorConstants::BottomFeederScaler));
   
