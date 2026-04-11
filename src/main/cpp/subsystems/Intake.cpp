@@ -182,7 +182,7 @@ namespace IntakeConstants {
         .WithSlot(1)
         .WithIgnoreSoftwareLimits(false)
         .WithOverrideCoastDurNeutral(true)
-        .WithFeedForward(-armMotor.Current(fuelTorque))
+        .WithFeedForward(-armMotor.Current(fuelTorque/2))
     ;
 
     constexpr auto manualArmRequest =

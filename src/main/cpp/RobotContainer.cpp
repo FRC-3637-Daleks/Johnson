@@ -196,7 +196,10 @@ void RobotContainer::ConfigureBindings() {
   shootForReal.WhileTrue(m_feederBottom.ManuallySetMotor(m_oi.getBottomFeederSpeed, OperatorConstants::BottomFeederScaler));
   
   //Auto Jiggle when ready to shoot unless outtaking
-  (shootForReal && !m_oi.OutTake).WhileTrue(m_intake.ScoreFuel(0.5_s).Repeatedly());
+  (shootForReal && !m_oi.OutTake).WhileTrue(
+    frc2::cmd::Wait(0.5_s)
+    .AndThen(m_intake.ScoreFuel(0.5_s)).Repeatedly()
+  );
 
   // Cancel this with "BottomFeeder" trigger simultaneously
   m_oi.OutTake.WhileTrue(
@@ -343,7 +346,10 @@ void RobotContainer::ConfigureContinuous() {
   // trigger active when robot is stopped for half a second
   // though this shouldnt be necessary with well timestamped camera frames
   // we dont want any teleportation during high speed motion
-  auto robot_still = frc2::Trigger{[this] {return m_swerve.IsStopped();}}.Debounce(0.5_s);
+  auto robot_still = frc2::Trigger{[this] {
+    return true;
+    //return m_swerve.IsStopped();
+  }}.Debounce(0.5_s);
 
   // ROS to swerve
   robot_still.WhileTrue(
