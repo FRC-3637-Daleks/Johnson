@@ -35,7 +35,7 @@ namespace FeederConstants {
 
     Perams BottomMotor {
     /*units::volt_t VoltComp*/          12_V,
-    /*units::ampere_t SmartCurrLim*/    40_A,
+    /*units::ampere_t SmartCurrLim*/    80_A,
     /*double P*/                        0.01,
     /*double I*/                        0.0,
     /*double D*/                        0.0,
