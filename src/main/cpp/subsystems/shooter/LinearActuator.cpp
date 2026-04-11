@@ -25,7 +25,7 @@ namespace LinearActuatorConstants {
     double minLength = 05;
     double maxLength = 55; //from 0
 
-    double tolerance = 0.01; //As a percentage of 0-1
+    double tolerance = 2; // In mm
 }
 
 LinearActuator::LinearActuator() :
