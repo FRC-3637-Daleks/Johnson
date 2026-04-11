@@ -6,11 +6,11 @@ namespace AutoBuilder{
 
    namespace util{
         frc2::CommandPtr AutoIntake(RobotContainer &robot){
-            constexpr auto kRedNeutral = 11.0_m;
-            constexpr auto kBlueNeutral = 5.05_m;
             return frc2::cmd::Print("STARTING INTAKE")
                 .AlongWith(
                     frc2::cmd::WaitUntil([&robot] {
+                        constexpr auto kRedNeutral = 11.0_m;
+                        constexpr auto kBlueNeutral = 5.05_m;
                         const auto x = robot.m_swerve.GetPose().X();
                         return x > kBlueNeutral && x < kRedNeutral;
                     })
