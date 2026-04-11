@@ -173,7 +173,7 @@ namespace IntakeConstants {
     ;
 
     constexpr auto holdRetractRequest = 
-        ctre::phoenix6::controls::TorqueCurrentFOC{-gravityTorqueCurrent/5}
+        ctre::phoenix6::controls::TorqueCurrentFOC{-gravityTorqueCurrent/3}
         .WithIgnoreSoftwareLimits(true)
     ;
 
@@ -404,7 +404,7 @@ frc2::CommandPtr Intake::HomeArm() {
     // detects when current spikes and motor isnt moving for a 10th of a second
     auto hard_stopped = frc2::Trigger{[this] {
         return frc::IsNear(0_tps, m_armMotor.GetVelocity().GetValue(), 0.01_tps)
-            && m_armMotor.GetStatorCurrent().GetValue() > 15_A;
+            && m_armMotor.GetStatorCurrent().GetValue() > 10_A;
     }}.Debounce(0.1_s);
 
     return

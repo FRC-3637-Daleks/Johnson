@@ -44,6 +44,8 @@ namespace AutoBuilder{
                         || units::math::abs(error.Rotation().Degrees()) > 30_deg) {
                         swerve.ResetPose(expected_pose.value());
                     }
+
+                    swerve.ResetControlHeading(swerve.GetPose().Rotation());
                 }
             });
         }

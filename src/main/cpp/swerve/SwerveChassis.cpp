@@ -154,12 +154,12 @@ void SwerveChassis::RobotRelativeDrive(const frc::ChassisSpeeds& cmd_vel, std::f
 
 void SwerveChassis::Drive(const frc::ChassisSpeeds& cmd_vel) {
     RobotRelativeDrive(
-        frc::ChassisSpeeds::FromFieldRelativeSpeeds(cmd_vel, m_heading_offset + GetHeading()));
+        frc::ChassisSpeeds::FromFieldRelativeSpeeds(cmd_vel, m_heading_offset + GetOdomPose().Rotation()));
 }
 
 void SwerveChassis::Drive(const frc::ChassisSpeeds& cmd_vel, std::function<bool()> shouldHaveOffset) {
     RobotRelativeDrive(
-        frc::ChassisSpeeds::FromFieldRelativeSpeeds(cmd_vel, m_heading_offset + GetHeading()), shouldHaveOffset);
+        frc::ChassisSpeeds::FromFieldRelativeSpeeds(cmd_vel, m_heading_offset + GetOdomPose().Rotation()), shouldHaveOffset);
 }
 
 void SwerveChassis::SetModuleStates(
@@ -249,7 +249,7 @@ bool SwerveChassis::IsStopped() {
 }
 
 void SwerveChassis::ResetControlHeading(frc::Rotation2d heading) {
-    m_heading_offset = heading - GetHeading();
+    m_heading_offset = heading - GetOdomPose().Rotation();
 }
 
 void SwerveChassis::ResetPose(const frc::Pose2d& pose) {
