@@ -44,7 +44,7 @@ constexpr auto kOdomPeriod = 5_ms;
 constexpr int kOdomHertz = (1_s/kOdomPeriod).value();
 
 constexpr double kPTheta = 6;
-constexpr double kITheta = 0.00;
+constexpr double kITheta = 0.50;
 constexpr double kDTheta = 0.00;
 inline const frc::ProfiledPIDController<units::radians> kThetaPID{
     kPTheta, kITheta, kDTheta, {kMaxTurnRate, kMaxTurnAcceleration}};
