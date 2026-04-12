@@ -59,8 +59,8 @@
     {"from":9, "to":9, "data":{"type":"KeepInRectangle", "props":{"x":{"exp":"1 m", "val":1.0}, "y":{"exp":"6.746600031852722 m", "val":6.746600031852722}, "w":{"exp":"8.896592281758785 m", "val":8.896592281758785}, "h":{"exp":"1.32866470515728 m", "val":1.32866470515728}}}, "enabled":true},
     {"from":6, "to":7, "data":{"type":"KeepInLane", "props":{"tolerance":{"exp":"0.01 m", "val":0.01}}}, "enabled":true},
     {"from":5, "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":false},
-    {"from":1, "to":2, "data":{"type":"MaxVelocity", "props":{"max":{"exp":"IntakeVel", "val":3.5}}}, "enabled":false},
-    {"from":6, "to":7, "data":{"type":"MaxVelocity", "props":{"max":{"exp":"IntakeVel", "val":3.5}}}, "enabled":true}],
+    {"from":1, "to":2, "data":{"type":"MaxVelocity", "props":{"max":{"exp":"IntakeVel", "val":3.0}}}, "enabled":false},
+    {"from":6, "to":7, "data":{"type":"MaxVelocity", "props":{"max":{"exp":"IntakeVel", "val":3.0}}}, "enabled":true}],
   "targetDt":{
    "exp":"0.05 s",
    "val":0.05
