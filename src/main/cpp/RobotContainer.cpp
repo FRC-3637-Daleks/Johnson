@@ -429,10 +429,11 @@ frc2::CommandPtr RobotContainer::AutoAim(){
                     [this] {return m_oi.fwd();},
                     [this] {return m_oi.strafe();},
                     [this] {
+                        frc::Transform2d adjustment{0_m, m_oi.aim_adjust(), 0_deg};
                         if (IsRed()) {
-                          return frc::Pose2d{ShooterConstants::kHubRed, 0_deg};
+                          return frc::Pose2d{ShooterConstants::kHubRed, 0_deg} + adjustment;
                         } else {
-                          return frc::Pose2d{ShooterConstants::kHubBlue, 0_deg};
+                          return frc::Pose2d{ShooterConstants::kHubBlue, 0_deg} + adjustment.Inverse();
                         }
                       }
                   ));

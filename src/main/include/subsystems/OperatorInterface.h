@@ -45,6 +45,7 @@ public:
   units::meters_per_second_t fwd();
   units::meters_per_second_t alt_fwd();
   units::revolutions_per_minute_t rot();
+  units::meter_t aim_adjust();
 
   //Co-Pilot = COP
   std::function<double()> getIntakeArmSpeedCOP{[this] 

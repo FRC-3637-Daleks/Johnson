@@ -24,6 +24,7 @@ constexpr int kFieldRelativeButton = frc::XboxController::Button::kBack;
 
 constexpr auto kMaxTeleopSpeed = 17.7_fps;
 constexpr auto kMaxTeleopTurnSpeed = 3.0 * std::numbers::pi * 1_rad_per_s;
+constexpr auto kMaxAimAdjust = 2_m;
 } // namespace OperatorConstants
 OperatorInterface::OperatorInterface()
     : m_swerveController{OperatorConstants::kSwerveControllerPort},
@@ -80,6 +81,16 @@ units::revolutions_per_minute_t OperatorInterface::rot() {
 
   // positive input -> right -> negative theta velocity
   return -1 * OperatorConstants::kMaxTeleopTurnSpeed * squaredInput * throttle() *
+         boolean_slowdown();
+}
+
+units::meter_t OperatorInterface::aim_adjust() {
+  auto input = frc::ApplyDeadband(m_swerveController.GetHID().GetRightX(),
+                                  OperatorConstants::kRotDeadband);
+  auto squaredInput = input * std::abs(input);
+
+  // positive input -> right -> negative theta velocity
+  return OperatorConstants::kMaxAimAdjust * squaredInput * throttle() *
          boolean_slowdown();
 }
 
