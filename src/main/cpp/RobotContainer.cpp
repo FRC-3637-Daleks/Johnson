@@ -349,7 +349,7 @@ void RobotContainer::ConfigureContinuous() {
   auto robot_still = frc2::Trigger{[this] {
     //return true;
     return m_swerve.IsStopped();
-  }}.Debounce(0.1_s);
+  }}.Debounce(0.25_s);
 
   // ROS to swerve
   robot_still.WhileTrue(FusePose());
