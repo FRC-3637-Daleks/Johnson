@@ -53,7 +53,7 @@
     {"from":1, "to":2, "data":{"type":"KeepInLane", "props":{"tolerance":{"exp":"0.01 m", "val":0.01}}}, "enabled":true},
     {"from":3, "to":4, "data":{"type":"KeepInLane", "props":{"tolerance":{"exp":"0.01 m", "val":0.01}}}, "enabled":true},
     {"from":3, "to":4, "data":{"type":"MaxVelocity", "props":{"max":{"exp":"BumpVel", "val":3.0}}}, "enabled":true},
-    {"from":1, "to":2, "data":{"type":"MaxVelocity", "props":{"max":{"exp":"IntakeVel", "val":3.0}}}, "enabled":true},
+    {"from":1, "to":2, "data":{"type":"MaxVelocity", "props":{"max":{"exp":"IntakeVel", "val":2.5}}}, "enabled":true},
     {"from":3, "to":4, "data":{"type":"MaxAngularVelocity", "props":{"max":{"exp":"0.1 deg / s", "val":0.0017453292519943298}}}, "enabled":true},
     {"from":4, "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
     {"from":1, "to":2, "data":{"type":"MaxAngularVelocity", "props":{"max":{"exp":"0.1 deg / s", "val":0.0017453292519943298}}}, "enabled":true},
@@ -62,7 +62,7 @@
     {"from":9, "to":10, "data":{"type":"KeepInLane", "props":{"tolerance":{"exp":"0.01 m", "val":0.01}}}, "enabled":true},
     {"from":9, "to":10, "data":{"type":"MaxAngularVelocity", "props":{"max":{"exp":"10 deg / s", "val":0.17453292519943295}}}, "enabled":true},
     {"from":9, "to":10, "data":{"type":"MaxVelocity", "props":{"max":{"exp":"BumpVel", "val":3.0}}}, "enabled":true},
-    {"from":7, "to":8, "data":{"type":"MaxVelocity", "props":{"max":{"exp":"IntakeVel", "val":3.0}}}, "enabled":true}],
+    {"from":7, "to":8, "data":{"type":"MaxVelocity", "props":{"max":{"exp":"IntakeVel", "val":2.5}}}, "enabled":true}],
   "targetDt":{
    "exp":"0.05 s",
    "val":0.05
