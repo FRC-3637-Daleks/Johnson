@@ -54,6 +54,7 @@ namespace ShooterConstants {
 
     constexpr auto canBus = ctre::phoenix6::CANBus::RoboRIO();
 
+    inline const ShooterSetpoint universal_hub_shot{62_tps, 20_mm};
     inline const ShooterSetpoint hub_shot{55_tps, 25_mm};
     inline const ShooterSetpoint tower_shot{69_tps, 40_mm};
     inline const ShooterSetpoint trench_shot{69_tps, 55_mm};
@@ -179,7 +180,7 @@ void Shooter::Periodic() {
 
 frc2::CommandPtr Shooter::AimFromHUB() {
     return SetFlywheelSpeedAndHoodPosParallel(
-        ShooterConstants::hub_shot
+        ShooterConstants::universal_hub_shot
     );
 }
 
