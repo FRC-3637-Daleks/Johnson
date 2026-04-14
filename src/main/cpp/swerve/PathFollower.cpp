@@ -11,6 +11,12 @@
 #include <numbers>
 #include <random>
 
+namespace PathFollowerConstants {
+
+constexpr frc::Pose2d kCloseEnough{0.25_m, 0.25_m, 25_deg};
+
+}
+
 PathFollower::PathFollower(trajectory_t trajectory, SwerveChassis& swerve,
   EndConditionType end_type)
   : m_trajectory{std::move(trajectory)}
@@ -31,8 +37,25 @@ void PathFollower::Execute() {
     m_trajectory.SampleAt(currentTime, /* mirror */ false)) {
     auto desiredPose = desiredState->GetPose();
     auto feedForward = desiredState->GetChassisSpeeds();
+    auto currentPose = m_swerve.GetPose();
+    auto futurePos = currentPose.Translation() + frc::Translation2d{feedForward.vx*20_ms, feedForward.vy*20_ms};
+    auto currentError = currentPose.Translation() - desiredPose.Translation();
+    auto futureError = futurePos - desiredPose.Translation();
+
     m_swerve.DriveToPose(desiredPose, feedForward,
       {0.0_m, 0.0_m, 0_deg});
+    
+    /* Most of the time we should be on top of the desired state due to feedforward
+     * If we fall behind too much, pause the timer so that the robot can catch up
+     * to the desired state.
+     * We also have to check that we're not in front of the desired-state before
+     * clock is paused
+     */
+    if (!m_swerve.AtPose(desiredState->GetPose(), PathFollowerConstants::kCloseEnough)
+        && currentError.Norm() > futureError.Norm())
+        m_timer.Stop();
+    else
+      m_timer.Start();
   }
 }
 
