@@ -128,8 +128,8 @@ frc2::CommandPtr Drivetrain::CoastModeCommand(bool coast) {
     [this] { this->CoastMode(false); });
 }
 
-frc2::CommandPtr Drivetrain::FollowPathCommand(
+std::unique_ptr<PathFollower> Drivetrain::FollowPathCommand(
   choreo::Trajectory<choreo::SwerveSample> trajectory,
   PathFollower::EndConditionType end_type) {
-  return PathFollower{std::move(trajectory), *this, end_type}.ToPtr();
+  return std::make_unique<PathFollower>(std::move(trajectory), *this, end_type);
 }

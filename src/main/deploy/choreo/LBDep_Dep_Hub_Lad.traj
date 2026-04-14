@@ -201,5 +201,6 @@
     {"t":4.41917, "x":2.68189, "y":4.08947, "heading":0.0, "vx":0.0, "vy":0.0, "omega":0.0, "ax":0.0, "ay":0.0, "alpha":0.0, "fx":[0.0,0.0,0.0,0.0], "fy":[0.0,0.0,0.0,0.0]}],
   "splits":[0,16]
  },
- "events":[]
+ "events":[
+   {"name":"say_hi", "from":{"target":3, "targetTimestamp":2.57728, "offset":{"exp":"-1 s", "val":-1.0}}, "event":null}]
 }

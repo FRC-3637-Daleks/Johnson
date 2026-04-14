@@ -110,7 +110,7 @@ public:
       [desiredPose] { return desiredPose; }, timeout);
   }
 
-  frc2::CommandPtr
+  std::unique_ptr<PathFollower>
     FollowPathCommand(choreo::Trajectory<choreo::SwerveSample> trajectory,
                       PathFollower::EndConditionType end_type = PathFollower::EndConditionType::STOP_AT_DEST);
 

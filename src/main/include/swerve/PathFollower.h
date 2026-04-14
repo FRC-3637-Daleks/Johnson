@@ -2,6 +2,7 @@
 #include <frc2/command/Command.h>
 #include <frc2/command/CommandHelper.h>
 #include <frc2/command/Commands.h>
+#include <frc2/command/button/Trigger.h>
 
 #include <frc/DataLogManager.h>
 #include <frc/Timer.h>
@@ -42,6 +43,8 @@ public:
     void End(bool interrupted) override;
 
     bool IsFinished() override;
+
+    frc2::Trigger GetEventTrigger(std::string_view event_name);
 
 private:
     trajectory_t m_trajectory;

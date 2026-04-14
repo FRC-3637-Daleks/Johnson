@@ -53,3 +53,14 @@ bool PathFollower::IsFinished() {
       && (m_end_type == EndConditionType::NEAR_DEST || m_swerve.IsStopped())
     ;
 }
+
+frc2::Trigger PathFollower::GetEventTrigger(std::string_view event_name) {
+  return frc2::Trigger{[this, events = m_trajectory.GetEvents(event_name)] {
+    if (!m_timer.IsRunning()) return false;
+    for (const auto& e : events) {
+      if (frc::IsNear(e.timestamp, m_timer.Get(), 0.03_s)) return true;
+    }
+
+    return false;
+  }};
+}

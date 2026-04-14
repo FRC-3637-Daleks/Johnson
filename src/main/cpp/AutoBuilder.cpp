@@ -76,9 +76,12 @@ namespace AutoBuilder{
             auto positionFunc = [final_pose] {
                 return final_pose.Translation();
             };
+            
+            auto path = swerve.FollowPathCommand(std::move(trajectory), PathFollower::EndConditionType::NEAR_DEST);
+            path->GetEventTrigger("say_hi").OnTrue(frc2::cmd::Print("hi!"));
 
             return frc2::cmd::Sequence(
-                swerve.FollowPathCommand(std::move(trajectory), PathFollower::EndConditionType::NEAR_DEST)
+                frc2::CommandPtr{std::move(path)}
                     .DeadlineFor(
                         util::AutoIntake(robot)
                         .AlongWith(robot.m_shooter.AutoAdjustFlyWheel(positionFunc, isRed))),
