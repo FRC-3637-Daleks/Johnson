@@ -84,6 +84,7 @@ public:
   void ReloadAuto();
   void ConfigureContinuous();
 
+
 public:
   frc2::CommandPtr TopFeederShooting();
   frc2::CommandPtr AutoAim();

@@ -114,6 +114,36 @@ public:
     FollowPathCommand(choreo::Trajectory<choreo::SwerveSample> trajectory,
                       PathFollower::EndConditionType end_type = PathFollower::EndConditionType::STOP_AT_DEST);
 
+  /*Construct a swerve command that can alternate between traditional Rot 
+  and a field relative rot
+  */
+ frc2::CommandPtr DynamicSwerveCommand(std::function<units::meters_per_second_t> fwd,
+                                      std::function<units::meters_per_second_t> strafe,
+                                      std::function<units::revolutions_per_minute_t> rot,
+                                      std::function<float> rotX, std::function<float> rotY,
+                                      std::function<bool> isIntakeOut, std::function<bool> shouldOnlyRotShooter,
+                                      std::function<bool> isInFieldRelativeRotMode) {
+  if (!isInFieldRelativeRotMode) { //normal
+    return CustomSwerveCommand(
+      fwd,
+      strafe,
+      rot,
+      isIntakeOut
+    );
+
+    //wasteing like a lot of preformance here because atan2 is not a 
+    //dedicated OP on the CPU since like the 70s
+    units::radians_t direction = units::radians_t(std::atan2(rotX(), rotY()))
+
+    //custom command
+    return ZTargetCommand(
+      fwd,
+      strafe,
+      [this, direction] {return direction}
+    )
+  }
+ }
+
   /* Constructs a swerve control command from 3 independent controls
    * Each 'cmd' can be one of the following:
    * - A velocity (ie meters_per_second_t or radians_per_second_t)

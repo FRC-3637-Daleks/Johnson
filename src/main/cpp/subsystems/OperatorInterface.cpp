@@ -84,6 +84,16 @@ units::revolutions_per_minute_t OperatorInterface::rot() {
          boolean_slowdown();
 }
 
+float OperatorInterface::rotX() {
+  return frc::ApplyDeadband(m_swerveController.GetHID().GetRightX(),
+                                  OperatorConstants::kRotDeadband);
+}
+
+float OperatorInterface::rotY() {
+  return frc::ApplyDeadband(m_swerveController.GetHID().GetRightY(),
+                                  OperatorConstants::kRotDeadband);
+}
+
 units::meter_t OperatorInterface::aim_adjust() {
   auto input = frc::ApplyDeadband(m_swerveController.GetHID().GetRightX(),
                                   OperatorConstants::kRotDeadband);
