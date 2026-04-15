@@ -78,7 +78,7 @@ namespace AutoBuilder{
             };
             
             auto path = swerve.FollowPathCommand(std::move(trajectory), PathFollower::EndConditionType::NEAR_DEST);
-            path->GetEventTrigger("say_hi").OnTrue(frc2::cmd::Print("hi!"));
+            path->GetEventTrigger("Reset").OnTrue(robot.FusePose());
 
             return frc2::cmd::Sequence(
                 frc2::CommandPtr{std::move(path)}
