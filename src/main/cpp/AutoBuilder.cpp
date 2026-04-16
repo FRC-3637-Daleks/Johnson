@@ -11,8 +11,10 @@ namespace AutoBuilder{
                     frc2::cmd::WaitUntil([&robot] {
                         constexpr auto kRedNeutral = 11.0_m;
                         constexpr auto kBlueNeutral = 5.05_m;
+                        constexpr auto kRedDepot = 13.5_m;
+                        constexpr auto kBlueDepot = 3_m;
                         const auto x = robot.m_swerve.GetPose().X();
-                        return x > kBlueNeutral && x < kRedNeutral;
+                        return x > kBlueNeutral && x < kRedNeutral || x < kBlueDepot || x > kRedDepot;
                     })
                     .AndThen(robot.m_intake.BlindExtend().WithTimeout(0.25_s))
                     .AndThen(robot.m_intake.IntakeFuel())
