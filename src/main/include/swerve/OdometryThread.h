@@ -71,6 +71,8 @@ private:
   std::atomic<bool> m_unreadData{false};
   std::atomic<bool> m_exit_flag{false};
 
+  units::degree_t m_prev_heading{0_deg};
+
 private:
   // the actual thread function
   void Run(units::millisecond_t period);

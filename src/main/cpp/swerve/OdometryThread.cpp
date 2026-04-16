@@ -5,6 +5,7 @@
 #include <frc/RobotController.h>
 #include <frc/RobotBase.h>
 #include <frc/smartdashboard/SmartDashboard.h>
+#include <frc/filter/LinearFilter.h>
 
 #include <iostream>
 
@@ -95,6 +96,8 @@ void OdometryThread::Run(units::millisecond_t period) {
   units::millisecond_t time_samples[n_window] = {0_s};
   units::millisecond_t average_time = 0_s;
 
+  frc::LinearFilter omega_filter = frc::LinearFilter<units::degree_t>::SinglePoleIIR(0.02, 5_ms);
+
   // Run indefinitely
   while (!m_exit_flag) {
     total += 1;
@@ -103,10 +106,14 @@ void OdometryThread::Run(units::millisecond_t period) {
     bool timed_out = SwerveModule::SignalGroup::WaitForAllSignals(
       2*period, m_moduleSignals);
 
-    m_odom.Update(GetGyroHeading(), each_position());
+    const auto prev_heading = m_prev_heading;
+    const auto cur_heading = GetGyroHeading().Degrees();
+    m_odom.Update(cur_heading, each_position());
+    m_prev_heading = cur_heading;
 
     const auto now = ctre::phoenix6::utils::GetCurrentTime();
-    time_samples[total % n_window] = now - timestamp;
+    const auto dt = now - timestamp;
+    time_samples[total % n_window] = dt;
 
     if (now - timestamp - period > 0.2 * period || timed_out || total % 1000 == 0) {
       const auto millis_since_last =
@@ -134,7 +141,8 @@ void OdometryThread::Run(units::millisecond_t period) {
     timestamp = now;
     auto vels = kDriveKinematics.ToChassisSpeeds(each_state());
     if constexpr (!frc::RobotBase::IsSimulation()) {
-      vels.omega = GetTurnRate();  // this doesn't work in simulation annoyingly
+      //vels.omega = GetTurnRate();  // this doesn't work in simulation annoyingly
+      vels.omega = (omega_filter.Calculate(cur_heading - prev_heading))/dt;
     }
     PutData(m_odom.GetPose(), vels, timestamp);
   }
