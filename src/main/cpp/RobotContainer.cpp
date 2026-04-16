@@ -134,7 +134,7 @@ RobotContainer::RobotContainer()
 
   frc::DataLogManager::Log(fmt::format("Finished initializing robot."));
 
-  frc::RobotController::SetBrownoutVoltage(5_V);
+  frc::RobotController::SetBrownoutVoltage(6_V);
 }
 
 void RobotContainer::ConfigureBindings() {
@@ -144,6 +144,17 @@ void RobotContainer::ConfigureBindings() {
     [this] { return m_oi.strafe(); },
     [this] { return m_oi.rot(); },
     [this] { return m_intake.IsArmOut(); }));
+  
+  auto low_power_yikes = frc2::Trigger{[this] {
+    return m_pdh.GetTotalCurrent() > 160;
+  }}.Debounce(1_s);
+
+  low_power_yikes.OnTrue(m_swerve.CustomSwerveCommand(
+    [this] { return m_oi.fwd()*0.5; }, 
+    [this] { return m_oi.strafe()*0.5; },
+    [this] { return m_oi.rot()*0.5; },
+    [this] { return m_intake.IsArmOut(); })
+  );
 
   m_oi.ZeroHeadingTrigger.OnTrue(m_swerve.RunOnce([this] {
     if (IsRed())

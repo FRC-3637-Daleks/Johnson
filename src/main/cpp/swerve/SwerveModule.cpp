@@ -42,7 +42,7 @@ constexpr double kNeutralDeadband = 0.04;
 constexpr auto kDriveMotorCurrentLimit = 70_A;
 constexpr auto kDriveMotorSustainedCurrentLimit = 30_A;
 constexpr auto kDriveMotorCurrentLimitTime = 0.25_s;
-constexpr auto kSlipCurrent = 80_A;
+constexpr auto kSlipCurrent = 75_A;
 constexpr auto kSteerMotorStatorCurrentLimit = 30_A;
 // Can exceed limit for 40ms seconds
 constexpr auto kCurrentLimitPeriod = 40_ms;

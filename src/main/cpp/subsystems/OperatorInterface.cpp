@@ -28,7 +28,9 @@ constexpr auto kMaxAimAdjust = 2_m;
 } // namespace OperatorConstants
 OperatorInterface::OperatorInterface()
     : m_swerveController{OperatorConstants::kSwerveControllerPort},
-      m_copilotController{OperatorConstants::kCopilotControllerPort} {
+      m_copilotController{OperatorConstants::kCopilotControllerPort},
+      m_fwd_filter{OperatorConstants::kMaxTeleopSpeed/0.5_s},
+      m_strafe_filter{OperatorConstants::kMaxTeleopSpeed/0.5_s} {
 }
 
 double OperatorInterface::throttle() {
@@ -50,8 +52,9 @@ units::meters_per_second_t OperatorInterface::strafe() {
   auto alliance_flip = IsRed() ? -1 : 1;
 
   // positive input -> right -> negative y velocity on blue alliance
-  return -1 * OperatorConstants::kMaxTeleopSpeed * squaredInput * alliance_flip *
+  const auto ret = -1 * OperatorConstants::kMaxTeleopSpeed * squaredInput * alliance_flip *
          throttle() * boolean_slowdown();
+  return m_strafe_filter.Calculate(ret);
 }
 
 units::meters_per_second_t OperatorInterface::fwd() {
@@ -61,8 +64,9 @@ units::meters_per_second_t OperatorInterface::fwd() {
   auto alliance_flip = IsRed() ? -1 : 1;
 
   // positive input -> down -> negative x velocity on blue alliance
-  return -1 * OperatorConstants::kMaxTeleopSpeed * squaredInput * alliance_flip *
+  const auto ret = -1 * OperatorConstants::kMaxTeleopSpeed * squaredInput * alliance_flip *
          throttle() * boolean_slowdown();
+  return m_fwd_filter.Calculate(ret);
 }
 
 units::meters_per_second_t OperatorInterface::alt_fwd() {

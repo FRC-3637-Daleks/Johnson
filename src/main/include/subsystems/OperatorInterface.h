@@ -4,6 +4,7 @@
 #include <frc/geometry/Pose2d.h>
 #include <frc/geometry/Pose3d.h>
 #include <frc/trajectory/TrapezoidProfile.h>
+#include <frc/filter/SlewRateLimiter.h>
 #include <frc2/command/Command.h>
 #include <frc2/command/CommandPtr.h>
 #include <frc2/command/button/CommandJoystick.h>
@@ -107,6 +108,7 @@ public:
 public:
   frc2::CommandXboxController m_swerveController;
   frc2::CommandXboxController m_copilotController;
+  frc::SlewRateLimiter<units::meters_per_second> m_fwd_filter, m_strafe_filter;
   
   bool IsRed();
 };
