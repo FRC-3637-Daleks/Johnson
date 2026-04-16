@@ -197,7 +197,7 @@ void RobotContainer::ConfigureBindings() {
   
   //Auto Jiggle when ready to shoot unless outtaking
   (shootForReal && !m_oi.OutTake).WhileTrue(
-    frc2::cmd::Wait(0.25_s)
+    frc2::cmd::Wait(0.15_s)
     .AndThen(m_intake.ScoreFuel(0.5_s)).Repeatedly()
   );
 
