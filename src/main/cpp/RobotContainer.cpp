@@ -207,9 +207,9 @@ void RobotContainer::ConfigureBindings() {
   shootForReal.WhileTrue(m_feederBottom.ManuallySetMotor(m_oi.getBottomFeederSpeed, OperatorConstants::BottomFeederScaler));
   
   //Auto Jiggle when ready to shoot unless outtaking
-  (shootForReal && !m_oi.OutTake).WhileTrue(
-    frc2::cmd::Wait(0.15_s)
-    .AndThen(m_intake.ScoreFuel(0.5_s)).Repeatedly()
+  (m_oi.ShootFuelPlease && !m_oi.OutTake).WhileTrue(
+    frc2::cmd::Wait(0.75_s)
+    .AndThen(m_intake.ScoreFuel(1_s)).Repeatedly()
   );
 
 
