@@ -82,13 +82,16 @@ using namespace ChassisConstants;
 class SwerveChassisSimulation {
 public:
     SwerveChassisSimulation(SwerveChassis& chassis)
-        : m_gyroYaw(HALSIM_GetSimValueHandle(
-            HALSIM_GetSimDeviceHandle("navX-Sensor[4]"), "Yaw")),
+        : m_gyroSim(HALSIM_GetSimDeviceHandle("navX-Sensor[4]")),
+        m_gyroYaw(HALSIM_GetSimValueHandle(m_gyroSim, "Yaw")),
+        m_gyroRate(HALSIM_GetSimValueHandle(m_gyroSim, "Rate")),
         m_poseSim(chassis.kDriveKinematics, chassis.GetHeading(),
             chassis.each_position()) {}
 
 public:
+    HAL_SimDeviceHandle m_gyroSim;
     hal::SimDouble m_gyroYaw;
+    hal::SimDouble m_gyroRate;
     frc::SwerveDriveOdometry<4> m_poseSim;
 };
 
@@ -329,6 +332,7 @@ void SwerveChassis::SimulationPeriodic() {
     // robot nav x defines clockwise as positive instead of counterclockwise
     // but this robot is upside down so negate it again
     m_sim_state->m_gyroYaw.Set(-(-new_theta.Degrees().value()));
+    m_sim_state->m_gyroRate.Set(-(-units::degrees_per_second_t{chassis_speed.omega}.value()));
 
     // Feed this simulated gyro angle into the odometry to get simulated
     // position

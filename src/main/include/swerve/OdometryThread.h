@@ -77,6 +77,7 @@ private:
   void PutData(const frc::Pose2d& pose, const frc::ChassisSpeeds& vel,
     units::second_t timestamp);
   frc::Rotation2d GetGyroHeading();
+  units::degrees_per_second_t GetTurnRate();
 
 private:
   auto each_module(auto&& fn) {

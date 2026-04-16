@@ -3,6 +3,7 @@
 #include <ctre/phoenix6/StatusSignal.hpp>
 
 #include <frc/RobotController.h>
+#include <frc/RobotBase.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 
 #include <iostream>
@@ -131,8 +132,11 @@ void OdometryThread::Run(units::millisecond_t period) {
     }
 
     timestamp = now;
-    PutData(m_odom.GetPose(),
-      kDriveKinematics.ToChassisSpeeds(each_state()), timestamp);
+    auto vels = kDriveKinematics.ToChassisSpeeds(each_state());
+    if constexpr (!frc::RobotBase::IsSimulation()) {
+      vels.omega = GetTurnRate();  // this doesn't work in simulation annoyingly
+    }
+    PutData(m_odom.GetPose(), vels, timestamp);
   }
 }
 
@@ -140,4 +144,8 @@ frc::Rotation2d OdometryThread::GetGyroHeading() {
   // first negative for nav-x clockwise being positive (unconventional)
   // second negative for the whole sensor being inverted
   return units::degree_t(-(-m_gyro.GetYaw()));
+}
+
+units::degrees_per_second_t OdometryThread::GetTurnRate() {
+  return units::degrees_per_second_t{-(-m_gyro.GetRate())};
 }
