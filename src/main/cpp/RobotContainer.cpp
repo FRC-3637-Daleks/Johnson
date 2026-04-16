@@ -201,6 +201,7 @@ void RobotContainer::ConfigureBindings() {
     .AndThen(m_intake.ScoreFuel(0.5_s)).Repeatedly()
   );
 
+
   // Cancel this with "BottomFeeder" trigger simultaneously
   m_oi.OutTake.WhileTrue(
     m_feederBottom.setRPMEnd(-40_tps)
@@ -351,8 +352,11 @@ void RobotContainer::ConfigureContinuous() {
     return m_swerve.IsStopped();
   }}.Debounce(0.35_s);
 
+  auto is_auton = frc2::Trigger{[this] {
+    return frc::DriverStation::IsAutonomousEnabled();
+  }};
   // ROS to swerve
-  robot_still.WhileTrue(FusePose());
+  (robot_still && !is_auton).WhileTrue(FusePose());
 
   if constexpr (frc::RobotBase::IsSimulation()) {
     frc2::CommandScheduler::GetInstance().Schedule(
