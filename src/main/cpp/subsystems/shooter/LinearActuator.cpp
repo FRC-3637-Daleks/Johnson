@@ -22,7 +22,7 @@ namespace LinearActuatorConstants {
     double speed = 30;
 
     // Clamps Actuator to not go beyond these points
-    double minLength = 05;
+    double minLength = 12;
     double maxLength = 55; //from 0
 
     double tolerance = 2; // In mm
