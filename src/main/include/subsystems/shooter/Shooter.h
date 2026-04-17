@@ -65,6 +65,7 @@ public:
     frc2::CommandPtr AimFromHUB();
     frc2::CommandPtr AimFromTrench();
     frc2::CommandPtr AimFromTower();
+    frc2::CommandPtr Pass();
 
     // Spins up to the lowest setpoint to save time
     frc2::CommandPtr SpinUp();

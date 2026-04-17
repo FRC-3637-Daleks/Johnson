@@ -60,6 +60,7 @@ namespace ShooterConstants {
     inline const ShooterSetpoint trench_shot{69_tps, 55_mm};
     inline const ShooterSetpoint corner_shot{80_tps, 50_mm}; //NOT REAL VALUES
     inline const ShooterSetpoint hopper_shot{20_tps, 5_mm};
+    inline const ShooterSetpoint pass_shot{80_tps, 55_mm};
 }
 
 std::unique_ptr<ShooterSim> create_shooter_sim(Shooter& shooter);
@@ -193,6 +194,12 @@ frc2::CommandPtr Shooter::AimFromTrench() {
 frc2::CommandPtr Shooter::AimFromTower() {
     return SetFlywheelSpeedAndHoodPosParallel(
         ShooterConstants::tower_shot
+    );
+}
+
+frc2::CommandPtr Shooter::Pass() {
+    return SetFlywheelSpeedAndHoodPosParallel(
+        ShooterConstants::pass_shot
     );
 }
 

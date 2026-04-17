@@ -177,7 +177,7 @@ void RobotContainer::ConfigureBindings() {
                       .AlongWith(TopFeederShooting()));
   m_oi.TowerAim.WhileTrue(m_shooter.AimFromTower()
                       .AlongWith(TopFeederShooting()));
-  m_oi.PassMode.WhileTrue(m_shooter.AimFromTower());
+  m_oi.PassMode.WhileTrue(m_shooter.Pass());
   
   (m_oi.AutoAim || m_oi.HUBAim || m_oi.TowerAim).OnTrue(
     m_feederBottom.setRPMEnd(-25_tps).WithTimeout(0.5_s)
