@@ -81,6 +81,8 @@ public:
   frc2::Trigger ClimbDown = m_swerveController.POVRight();
   frc2::Trigger ClimbLift = m_swerveController.POVDown();
 
+  frc2::Trigger PassMode = m_swerveController.LeftStick();
+
   frc2::Trigger ArmDownAndIntake = m_copilotController.POVDown();
   frc2::Trigger ArmDown = m_copilotController.POVRight();
   frc2::Trigger ArmRetract = m_copilotController.POVLeft();

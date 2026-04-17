@@ -173,10 +173,11 @@ void RobotContainer::ConfigureBindings() {
   //Driver Controller
   m_oi.RetractHoldArm.OnTrue(m_intake.Retract());
   m_oi.AutoAim.WhileTrue(AutoAim());
-  m_oi.HUBAim.WhileTrue(m_shooter.AimFromHUB()
+  m_oi.HUBAim.OnTrue(m_shooter.AimFromHUB()
                       .AlongWith(TopFeederShooting()));
   m_oi.TowerAim.WhileTrue(m_shooter.AimFromTower()
                       .AlongWith(TopFeederShooting()));
+  m_oi.PassMode.WhileTrue(m_shooter.AimFromTower());
   
   (m_oi.AutoAim || m_oi.HUBAim || m_oi.TowerAim).OnTrue(
     m_feederBottom.setRPMEnd(-25_tps).WithTimeout(0.5_s)
@@ -195,9 +196,10 @@ void RobotContainer::ConfigureBindings() {
   
   //Manual Position Shoot
   frc2::Trigger shootForReal = 
-  (m_oi.ShootFuelPlease && ((shooterReady && (m_oi.TowerAim || m_oi.HUBAim))  //Manual Shoot
+  (m_oi.ShootFuelPlease && ((shooterReady/* && (m_oi.TowerAim || m_oi.HUBAim)*/)  //Manual Shoot
                           || (m_oi.ShootFuelNOW)            //Overide
                           || (aimingAtHub && shooterReady)  //Auto is ready to fire
+                          || (m_oi.PassMode)
         ));
   
   ((m_oi.HUBAim || m_oi.TowerAim || m_oi.AutoAim) && shooterReady).WhileTrue(
