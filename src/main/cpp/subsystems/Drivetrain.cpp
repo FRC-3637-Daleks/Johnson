@@ -110,7 +110,7 @@ Drivetrain::RobotRelativeSwerveCommand(chassis_speed_supplier_t cmd_vel) {
 frc2::CommandPtr
 Drivetrain::BasicSwerveCommand(chassis_speed_supplier_t cmd_vel) {
   return this->StartRun(
-    [this] { m_holonomicController.getThetaController().Reset(GetHeading().Radians(), GetChassisSpeed().omega);},
+    [this] { m_holonomicController.getThetaController().Reset(GetHeading().Radians(), 0_tps);},
     [=, this] { Drive(cmd_vel()); }
   );
 }
@@ -118,7 +118,7 @@ Drivetrain::BasicSwerveCommand(chassis_speed_supplier_t cmd_vel) {
 frc2::CommandPtr
 Drivetrain::BasicSwerveCommand(chassis_speed_supplier_t cmd_vel, std::function<bool()> shouldHaveOffset) {
   return this->StartRun(
-    [this] { m_holonomicController.getThetaController().Reset(GetHeading().Radians(), GetChassisSpeed().omega);},
+    [this] { m_holonomicController.getThetaController().Reset(GetHeading().Radians(), 0_tps);},
     [=, this] { Drive(cmd_vel(), shouldHaveOffset); }
   );
 }
