@@ -70,7 +70,7 @@ public:
     [this] {return std::abs(getBottomFeederSpeed()) > 0.25;}
   };
   frc2::Trigger ShootFuelNOW{
-    [this] {return m_swerveController.GetLeftTriggerAxis() > 0.25;}
+    [this] {return m_copilotController.GetLeftTriggerAxis() > 0.25;}
   };
   frc2::Trigger OutTake = m_swerveController.B();
   frc2::Trigger LiftArm = m_swerveController.RightBumper();
@@ -81,7 +81,7 @@ public:
   frc2::Trigger ClimbDown = m_swerveController.POVRight();
   frc2::Trigger ClimbLift = m_swerveController.POVDown();
 
-  frc2::Trigger PassMode = m_swerveController.LeftStick();
+  frc2::Trigger PassMode = m_swerveController.LeftStick() || m_swerveController.LeftTrigger();
 
   frc2::Trigger ArmDownAndIntake = m_copilotController.POVDown();
   frc2::Trigger ArmDown = m_copilotController.POVRight();
