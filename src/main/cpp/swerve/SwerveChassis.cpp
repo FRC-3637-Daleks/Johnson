@@ -167,10 +167,10 @@ void SwerveChassis::Drive(const frc::ChassisSpeeds& cmd_vel, std::function<bool(
 
 void SwerveChassis::SetXMode() {
     SetModuleStates({
-        frc::SwerveModuleState{0_mps, 45_deg},
-        frc::SwerveModuleState{0_mps, -45_deg},
-        frc::SwerveModuleState{0_mps, -45_deg},
-        frc::SwerveModuleState{0_mps, 45_deg}
+        frc::SwerveModuleState{0_mps, 0_deg},
+        frc::SwerveModuleState{0_mps, 0_deg},
+        frc::SwerveModuleState{0_mps, 0_deg},
+        frc::SwerveModuleState{0_mps, 0_deg}
     });
 }
 
