@@ -239,7 +239,7 @@ private:
     return [this, heading = std::forward<decltype(heading)>(heading)] {
       return units::radians_per_second_t{
           m_holonomicController.getThetaController().Calculate(
-              GetPose().Rotation().Radians(),
+              m_heading_offset + GetOdomPose().Rotation(),
               heading())};
       };
   }
