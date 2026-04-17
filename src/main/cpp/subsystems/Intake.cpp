@@ -204,7 +204,7 @@ namespace IntakeConstants {
     // Has to be moving faster than the robot lest we push away the balls
     // Remember to double it since the Fuel has to roll, meaning its center
     // of mass moves at half the speed
-    constexpr auto intakingSurfaceSpeed = 2*2.5_mps;
+    constexpr auto intakingSurfaceSpeed = 2*3_mps;
     constexpr auto intakingWheelVelocity = units::turns_per_second_t{
         1_tr*intakingSurfaceSpeed/intakeWheelCircum
     };
