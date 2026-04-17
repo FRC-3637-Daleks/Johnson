@@ -74,6 +74,8 @@ public:
     void Drive(const frc::ChassisSpeeds& cmd_vel);
     void Drive(const frc::ChassisSpeeds& cmd_vel, std::function<bool()> shouldHaveOffset);
 
+    void SetXMode();
+
     // Sets the state of each swerve module.
     void SetModuleStates(const module_states_t& desiredStates);
 

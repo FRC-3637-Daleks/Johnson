@@ -165,6 +165,15 @@ void SwerveChassis::Drive(const frc::ChassisSpeeds& cmd_vel, std::function<bool(
         frc::ChassisSpeeds::FromFieldRelativeSpeeds(cmd_vel, m_heading_offset + GetOdomPose().Rotation()), shouldHaveOffset);
 }
 
+void SwerveChassis::SetXMode() {
+    SetModuleStates({
+        frc::SwerveModuleState{0_mps, 45_deg},
+        frc::SwerveModuleState{0_mps, -45_deg},
+        frc::SwerveModuleState{0_mps, -45_deg},
+        frc::SwerveModuleState{0_mps, 45_deg}
+    });
+}
+
 void SwerveChassis::SetModuleStates(
     const wpi::array<frc::SwerveModuleState, kNumModules>& desiredStates) {
     for (int i = 0; i < kNumModules; i++)

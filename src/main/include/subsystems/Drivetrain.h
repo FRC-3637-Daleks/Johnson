@@ -61,6 +61,8 @@ public:
   frc2::CommandPtr BasicSwerveCommand(chassis_speed_supplier_t cmd_vel);
   frc2::CommandPtr BasicSwerveCommand(chassis_speed_supplier_t cmd_vel, std::function<bool()> shouldHaveOffset);
 
+  frc2::CommandPtr XStop();
+
   frc2::CommandPtr DynamicOdomReset();
 
   // Drives the robot to 'desiredPose()' with feedforward 'endVele);o'

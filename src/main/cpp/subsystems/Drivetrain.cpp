@@ -123,6 +123,13 @@ Drivetrain::BasicSwerveCommand(chassis_speed_supplier_t cmd_vel, std::function<b
   );
 }
 
+frc2::CommandPtr
+Drivetrain::XStop() {
+  return this->Run(
+    [this] {SetXMode();}
+  );
+}
+
 frc2::CommandPtr Drivetrain::CoastModeCommand(bool coast) {
   return this->StartEnd([this] { this->CoastMode(true); },
     [this] { this->CoastMode(false); });
