@@ -56,7 +56,7 @@ namespace ShooterConstants {
 
     inline const ShooterSetpoint universal_hub_shot{60_tps, 20_mm};
     inline const ShooterSetpoint hub_shot{55_tps, 25_mm};
-    inline const ShooterSetpoint tower_shot{69_tps, 40_mm};
+    inline const ShooterSetpoint tower_shot{72_tps, 40_mm};
     inline const ShooterSetpoint trench_shot{69_tps, 55_mm};
     inline const ShooterSetpoint corner_shot{80_tps, 50_mm}; //NOT REAL VALUES
     inline const ShooterSetpoint hopper_shot{20_tps, 5_mm};
