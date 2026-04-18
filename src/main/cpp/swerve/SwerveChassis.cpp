@@ -243,6 +243,14 @@ units::meters_per_second_t SwerveChassis::GetSpeed() {
         units::math::pow<2>(speeds.vy));
 }
 
+bool SwerveChassis::AtHeadingGoal() {
+    return frc::IsNear(
+        0_rad,
+        frc::AngleModulus(m_holonomicController.getThetaController().GetGoal().position - (GetOdomPose().Rotation() + m_heading_offset).Radians()),
+        0.3_rad
+    );
+}
+
 bool SwerveChassis::AtPose(const frc::Pose2d& desiredPose,
     const frc::Pose2d& tolerance) {
     auto currentPose = GetPose();

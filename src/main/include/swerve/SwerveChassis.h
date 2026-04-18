@@ -90,7 +90,7 @@ public:
 
     void DriveToPose(const frc::Pose2d& desiredPose,
         frc::ChassisSpeeds feedForward = {0_mps, 0_mps, 0_rpm},
-        const frc::Pose2d& tolerance = {0.06_m, 0.06_m, 3_deg});
+        const frc::Pose2d& tolerance = {0.06_m, 0.06_m, 6_deg});
 
     // Returns the rotational velocity of the robot in degrees per second.
     units::degrees_per_second_t GetTurnRate();
@@ -110,6 +110,8 @@ public:
     frc::ChassisSpeeds GetChassisSpeed();
 
     units::meters_per_second_t GetSpeed();
+
+    bool AtHeadingGoal();
 
     bool AtPose(const frc::Pose2d& desiredPose,
         const frc::Pose2d& tolerance = {0.06_m, 0.06_m, 2_deg});

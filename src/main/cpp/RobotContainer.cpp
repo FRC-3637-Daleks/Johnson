@@ -428,7 +428,7 @@ bool RobotContainer::isAimingAtHub() {
   const auto shotError = currentDistance * relativeAngle.Sin();
   const bool aimingAtHub = units::math::abs(shotError) < AutoConstants::aimingTolerance;
 
-  return aimingAtHub;
+  return aimingAtHub || m_swerve.AtHeadingGoal();
 }
 
 bool RobotContainer::isShooterSpunUp() {
