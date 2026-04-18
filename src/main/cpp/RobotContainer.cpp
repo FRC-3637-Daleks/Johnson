@@ -436,7 +436,9 @@ bool RobotContainer::isShooterSpunUp() {
 frc2::CommandPtr RobotContainer::AutoAim(){
   
   auto positionFunc = [this] {
-    return m_swerve.GetPose().Translation();
+    const auto [vx, vy, _] = m_swerve.GetChassisSpeed();
+    const auto t = m_shooter.GetTimeOfFlight();
+    return m_swerve.GetPose().Translation() + frc::Translation2d{vx*t, vy*t};
   };
 
   auto isRed = [this]{
@@ -449,12 +451,14 @@ frc2::CommandPtr RobotContainer::AutoAim(){
                   .AlongWith(m_swerve.ZTargetCommand(
                     [this] {return m_oi.fwd();},
                     [this] {return m_oi.strafe();},
-                    [this] {
-                        frc::Transform2d adjustment{0_m, m_oi.aim_adjust(), 0_deg};
+                    [this] {                    
+                        const auto [vx, vy, _] = m_swerve.GetChassisSpeed();
+                        const auto t = m_shooter.GetTimeOfFlight();
+                        frc::Transform2d adjustment{-vx*t, -vy*t, 0_deg};
                         if (IsRed()) {
                           return frc::Pose2d{ShooterConstants::kHubRed, 0_deg} + adjustment;
                         } else {
-                          return frc::Pose2d{ShooterConstants::kHubBlue, 0_deg} + adjustment.Inverse();
+                          return frc::Pose2d{ShooterConstants::kHubBlue, 0_deg} + adjustment;
                         }
                       }
                   ));

@@ -151,7 +151,6 @@ private:
 
     OdometryThread m_odom_thread;
     frc::Transform2d m_map_to_odom;  //< pose correction from sensors
-    frc::Rotation2d m_heading_offset;  //< heading offset used for field_relative control
 
     // Field widget for Shuffleboard.
     frc::Field2d m_field;
@@ -159,6 +158,7 @@ private:
 protected:
     // Stores controllers for each motion axis
     frc::HolonomicDriveController m_holonomicController;
+    frc::Rotation2d m_heading_offset;  //< heading offset used for field_relative control
 
 private:
     friend class SwerveChassisSimulation;

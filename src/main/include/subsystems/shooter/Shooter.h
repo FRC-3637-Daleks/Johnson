@@ -62,6 +62,9 @@ public:
     void Periodic() override;
 
 public:
+    units::second_t GetTimeOfFlight() {return 0.9_s;}
+
+public:
     frc2::CommandPtr AimFromHUB();
     frc2::CommandPtr AimFromTrench();
     frc2::CommandPtr AimFromTower();
