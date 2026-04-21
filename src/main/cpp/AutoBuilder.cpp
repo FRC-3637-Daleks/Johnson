@@ -93,10 +93,13 @@ namespace AutoBuilder{
     }
 
     frc2::CommandPtr BuildSingleAuto(RobotContainer &robot, Trajectory_t trajectory) {
+
+        frc::Pose2d final_pose = trajectory.GetFinalPose().value_or(frc::Pose2d{});
+
         return util::ResetStart(robot.m_swerve, trajectory)
             .AndThen(robot.m_intake.SeedArm())
             .AndThen(BuildAuto(robot, std::move(trajectory)))
-            .AndThen(util::AutoShootAtPose(robot, trajectory.GetFinalPose().value_or(frc::Pose2d{})).Repeatedly());  // just empty hopper
+            .AndThen(util::AutoShootAtPose(robot, final_pose).Repeatedly());  // just empty hopper
     }
 
     frc2::CommandPtr BuildRepeatedAuto(RobotContainer &robot, Trajectory_t trajectory) {
