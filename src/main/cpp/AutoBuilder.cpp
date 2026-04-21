@@ -23,11 +23,11 @@ namespace AutoBuilder{
             ;
         }
 
-        frc2::CommandPtr AutoShoot(RobotContainer &robot){
-            
+        frc2::CommandPtr AutoShootAtPose(RobotContainer &robot, frc::Pose2d pose){
+
             return  frc2::cmd::Print("***********Shooting***********")
                 .AlongWith(
-                    robot.AutoAim()
+                    robot.AutoAimAtPose(pose)
                 ).WithDeadline(
                     frc2::cmd::WaitUntil(
                         [&robot] {return robot.isReadyToFire();}
@@ -87,7 +87,7 @@ namespace AutoBuilder{
                     .DeadlineFor(
                         util::AutoIntake(robot)
                         .AlongWith(robot.m_shooter.AutoAdjustFlyWheel(positionFunc, isRed))),
-                util::AutoShoot(robot)
+                util::AutoShootAtPose(robot, final_pose)
             );
         }
     }
@@ -96,7 +96,7 @@ namespace AutoBuilder{
         return util::ResetStart(robot.m_swerve, trajectory)
             .AndThen(robot.m_intake.SeedArm())
             .AndThen(BuildAuto(robot, std::move(trajectory)))
-            .AndThen(util::AutoShoot(robot).Repeatedly());  // just empty hopper
+            .AndThen(util::AutoShootAtPose(robot, trajectory.GetFinalPose().value_or(frc::Pose2d{})).Repeatedly());  // just empty hopper
     }
 
     frc2::CommandPtr BuildRepeatedAuto(RobotContainer &robot, Trajectory_t trajectory) {

@@ -465,3 +465,21 @@ frc2::CommandPtr RobotContainer::AutoAim(){
                       }
                   ));
 }
+
+frc2::CommandPtr RobotContainer::AutoAimAtPose(frc::Pose2d pose){
+  
+  auto positionFunc = [this] {
+    const auto [vx, vy, _] = m_swerve.GetChassisSpeed();
+    const auto t = m_shooter.GetTimeOfFlight();
+    return m_swerve.GetPose().Translation() + frc::Translation2d{vx*t, vy*t};
+  };
+
+  auto isRed = [this]{
+    return IsRed();
+  };
+
+  return m_shooter.AutoAdjust(positionFunc, isRed)
+                  .AlongWith(TopFeederShooting())
+                  .AlongWith(FusePose())
+                  .AlongWith(m_swerve.DriveToPoseCommand(pose));
+}
