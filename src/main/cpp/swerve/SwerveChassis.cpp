@@ -201,7 +201,8 @@ void SwerveChassis::CoastMode(bool coast) {
 void SwerveChassis::DriveToPose(const frc::Pose2d& desiredPose,
     frc::ChassisSpeeds feedForward,
     const frc::Pose2d& tolerance) {
-    auto currentPose = GetPose();
+    auto currentPose_wrong_rot = GetPose();
+    auto currentPose = frc::Pose2d{currentPose_wrong_rot.Translation(), m_heading_offset + GetOdomPose().Rotation()};
     auto endVelo = units::math::sqrt(units::math::pow<2>(feedForward.vx) +
         units::math::pow<2>(feedForward.vy));
     auto rot = units::math::atan2(feedForward.vy, feedForward.vx);
