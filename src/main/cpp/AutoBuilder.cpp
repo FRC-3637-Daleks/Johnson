@@ -47,14 +47,14 @@ namespace AutoBuilder{
             const auto expected_pose = t.GetInitialPose();
             return frc2::cmd::RunOnce([&swerve, expected_pose] {
                 if (expected_pose) {
-                    const auto current_pose = swerve.GetPose();
+                    const auto current_pose = swerve.GetCameraCorrectedPose();
                     const auto error = current_pose - expected_pose.value();
                     if (error.Translation().Norm() > 2_m
                         || units::math::abs(error.Rotation().Degrees()) > 30_deg) {
                         swerve.ResetPose(expected_pose.value());
                     }
 
-                    swerve.ResetControlHeading(swerve.GetPose().Rotation());
+                    swerve.ResetControlHeading(swerve.GetCameraCorrectedPose().Rotation());
                 }
             });
         }
@@ -75,6 +75,7 @@ namespace AutoBuilder{
             );
         } else {  // 1 or fewer splits
             const auto final_pose = trajectory.GetFinalPose().value_or(frc::Pose2d{});
+            const auto path_time = trajectory.GetTotalTime();
             auto positionFunc = [final_pose] {
                 return final_pose.Translation();
             };
@@ -83,7 +84,7 @@ namespace AutoBuilder{
             path->GetEventTrigger("Reset").WhileTrue(robot.FusePose());
 
             return frc2::cmd::Sequence(
-                frc2::CommandPtr{std::move(path)}
+                frc2::CommandPtr{std::move(path)}//.WithTimeout(path_time + 3_s)
                     .DeadlineFor(
                         util::AutoIntake(robot)
                         .AlongWith(robot.m_shooter.AutoAdjustFlyWheel(positionFunc, isRed))),

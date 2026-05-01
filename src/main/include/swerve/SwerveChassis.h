@@ -102,7 +102,11 @@ public:
     units::second_t GetOdomTimestamp();
 
     // Returns the robot heading and translation as a Pose2d.
+    // The heading is based only on odom, not vision
     frc::Pose2d GetPose();
+
+    // Same as GetPose() but uses the heading from vision
+    frc::Pose2d GetCameraCorrectedPose();
 
     frc::Pose2d GetSimulatedGroundTruth();
 

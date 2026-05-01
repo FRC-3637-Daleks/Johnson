@@ -157,12 +157,12 @@ void SwerveChassis::RobotRelativeDrive(const frc::ChassisSpeeds& cmd_vel, std::f
 
 void SwerveChassis::Drive(const frc::ChassisSpeeds& cmd_vel) {
     RobotRelativeDrive(
-        frc::ChassisSpeeds::FromFieldRelativeSpeeds(cmd_vel, m_heading_offset + GetOdomPose().Rotation()));
+        frc::ChassisSpeeds::FromFieldRelativeSpeeds(cmd_vel, GetPose().Rotation()));
 }
 
 void SwerveChassis::Drive(const frc::ChassisSpeeds& cmd_vel, std::function<bool()> shouldHaveOffset) {
     RobotRelativeDrive(
-        frc::ChassisSpeeds::FromFieldRelativeSpeeds(cmd_vel, m_heading_offset + GetOdomPose().Rotation()), shouldHaveOffset);
+        frc::ChassisSpeeds::FromFieldRelativeSpeeds(cmd_vel, GetPose().Rotation()), shouldHaveOffset);
 }
 
 void SwerveChassis::SetXMode() {
@@ -201,8 +201,7 @@ void SwerveChassis::CoastMode(bool coast) {
 void SwerveChassis::DriveToPose(const frc::Pose2d& desiredPose,
     frc::ChassisSpeeds feedForward,
     const frc::Pose2d& tolerance) {
-    auto currentPose_wrong_rot = GetPose();
-    auto currentPose = frc::Pose2d{currentPose_wrong_rot.Translation(), m_heading_offset + GetOdomPose().Rotation()};
+    auto currentPose = GetPose();
     auto endVelo = units::math::sqrt(units::math::pow<2>(feedForward.vx) +
         units::math::pow<2>(feedForward.vy));
     auto rot = units::math::atan2(feedForward.vy, feedForward.vx);
@@ -229,6 +228,11 @@ units::second_t SwerveChassis::GetOdomTimestamp() {
 }
 
 frc::Pose2d SwerveChassis::GetPose() {
+    const auto fused_pose = GetCameraCorrectedPose();
+    return frc::Pose2d{fused_pose.Translation(), m_heading_offset + GetOdomPose().Rotation()};
+}
+
+frc::Pose2d SwerveChassis::GetCameraCorrectedPose() {
     constexpr frc::Pose2d origin{};
     const auto odom_transform = GetOdomPose() - origin;
     return origin + m_map_to_odom + odom_transform; // order matters
@@ -247,7 +251,7 @@ units::meters_per_second_t SwerveChassis::GetSpeed() {
 bool SwerveChassis::AtHeadingGoal() {
     return frc::IsNear(
         0_rad,
-        frc::AngleModulus(m_holonomicController.getThetaController().GetGoal().position - (GetOdomPose().Rotation() + m_heading_offset).Radians()),
+        frc::AngleModulus(m_holonomicController.getThetaController().GetGoal().position - GetPose().Rotation().Radians()),
         0.3_rad
     );
 }
