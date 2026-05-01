@@ -84,7 +84,7 @@ namespace AutoBuilder{
             path->GetEventTrigger("Reset").WhileTrue(robot.FusePose());
 
             return frc2::cmd::Sequence(
-                frc2::CommandPtr{std::move(path)}//.WithTimeout(path_time + 3_s)
+                frc2::CommandPtr{std::move(path)}.WithTimeout(path_time + 3_s)
                     .DeadlineFor(
                         util::AutoIntake(robot)
                         .AlongWith(robot.m_shooter.AutoAdjustFlyWheel(positionFunc, isRed))),
