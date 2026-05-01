@@ -35,7 +35,7 @@ namespace AutoBuilder{
                     .AlongWith(robot.m_feederBottom.setRPMEnd(-25_tps).WithTimeout(0.5_s))
                     .AndThen(
                         robot.m_feederBottom.setRPMEnd(40_tps)
-                        .RaceWith(robot.m_intake.ScoreFuel(0.75_s).Repeatedly().WithTimeout(2.5_s)
+                        .RaceWith(robot.m_intake.ScoreFuel(0.75_s).Repeatedly().WithTimeout(3.0_s)
                             .AndThen(robot.m_intake.Retract().WithTimeout(0.5_s)))  // end retracted
                     )
                 ).AndThen(robot.m_shooter.RetractHood().WithTimeout(0.5_s))
