@@ -221,9 +221,9 @@ frc2::CommandPtr Shooter::AutoAdjustHood(std::function<frc::Translation2d()> pos
         const auto isRed = isRedFunc();
         const auto position = positionFunc();
 
-        if ((isRed && position.X() < ShooterConstants::redAllianceZoneTolerance) || (!isRed && position.X() > ShooterConstants::blueAllianceZoneTolerance)){
-            return 0.0;
-        }
+        // if ((isRed && position.X() < ShooterConstants::redAllianceZoneTolerance) || (!isRed && position.X() > ShooterConstants::blueAllianceZoneTolerance)){
+        //     return 0.0;
+        // }
 
         const auto hubPoint = isRed ? ShooterConstants::kHubRed : ShooterConstants::kHubBlue;
         const auto distance = position.Distance(hubPoint);

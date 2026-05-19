@@ -440,7 +440,7 @@ frc2::CommandPtr RobotContainer::AutoAim(){
   auto positionFunc = [this] {
     const auto [vx, vy, _] = m_swerve.GetChassisSpeed();
     const auto t = m_shooter.GetTimeOfFlight();
-    return m_swerve.GetPose().Translation() + frc::Translation2d{vx*t, vy*t};
+    return m_swerve.GetPose().Translation() + frc::Translation2d{-vx*t, -vy*t};
   };
 
   auto isRed = [this]{
@@ -456,7 +456,7 @@ frc2::CommandPtr RobotContainer::AutoAim(){
                     [this] {                    
                         const auto [vx, vy, _] = m_swerve.GetChassisSpeed();
                         const auto t = m_shooter.GetTimeOfFlight();
-                        frc::Transform2d adjustment{-vx*t, -vy*t, 0_deg};
+                        frc::Transform2d adjustment{vx*t, vy*t, 0_deg};
                         if (IsRed()) {
                           return frc::Pose2d{ShooterConstants::kHubRed, 0_deg} + adjustment;
                         } else {
